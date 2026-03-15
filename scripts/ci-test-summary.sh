@@ -124,7 +124,7 @@ total_line_text() {
   word="$(test_word "$total_tests")"
 
   if [[ "$SHOULD_RUN_TESTS" != "true" ]]; then
-    printf -- '- ✅ Tests skipped (docs-only changes; no code/build changes detected)'
+    printf -- '- ⏭️ Tests skipped'
     return
   fi
 
