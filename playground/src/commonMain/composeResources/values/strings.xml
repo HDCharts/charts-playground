@@ -8,4 +8,6 @@
     <string name="playground_editor_reset">Reset</string>
     <string name="playground_editor_row_number_header">#</string>
     <string name="playground_editor_delete_row_content_description">Delete row</string>
+    <string name="playground_metadata">Metadata | charts: %1$s | source: %2$s | published: %3$s</string>
+    <string name="playground_metadata_unavailable">Metadata is unavailable.</string>
 </resources>

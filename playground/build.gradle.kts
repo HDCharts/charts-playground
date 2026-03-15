@@ -61,9 +61,18 @@ kotlin {
             implementation(libs.compose.mpp.material.icons.extended)
             implementation(libs.compose.mpp.ui)
             implementation(libs.compose.mpp.resources)
+            implementation(libs.androidx.lifecycle.viewmodel)
+            implementation(libs.androidx.lifecycle.viewmodel.compose)
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.json)
             // These coordinates are always substituted to local projects via includeBuild in settings.gradle.kts.
             implementation(localChartsDependency)
             implementation(localChartsDemoSharedDependency)
+        }
+
+        jsMain.dependencies {
+            implementation(libs.ktor.client.js)
         }
 
         jsTest.dependencies {

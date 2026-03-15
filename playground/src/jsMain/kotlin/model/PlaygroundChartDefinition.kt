@@ -2,6 +2,8 @@ package model
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 data class PlaygroundValidationResult(
     val sanitizedEditor: DataEditorState?,
@@ -26,10 +28,22 @@ data class PlaygroundChartSession(
     val codegenMode: CodegenMode,
 )
 
+@Serializable
+data class SnapshotPublishMetadata(
+    @SerialName("source_sha")
+    val sourceSha: String,
+    @SerialName("charts_version")
+    val chartsVersion: String,
+    @SerialName("published_at")
+    val publishedAt: String,
+)
+
 data class PlaygroundState(
     val selectedChartType: ChartType,
     val rightPanelTab: PlaygroundRightPanelTab,
     val sessions: Map<ChartType, PlaygroundChartSession>,
+    val snapshotMetadata: SnapshotPublishMetadata? = null,
+    val snapshotMetadataLoading: Boolean = true,
 )
 
 interface PlaygroundChartDefinition {

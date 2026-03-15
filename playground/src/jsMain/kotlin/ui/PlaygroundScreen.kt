@@ -43,6 +43,8 @@ import chartsproject.charts_demo_shared.generated.resources.charts_logo
 import chartsproject.charts_demo_shared.generated.resources.ic_github
 import chartsproject.playground.generated.resources.Res
 import chartsproject.playground.generated.resources.playground_logo_content_description
+import chartsproject.playground.generated.resources.playground_metadata
+import chartsproject.playground.generated.resources.playground_metadata_unavailable
 import chartsproject.playground.generated.resources.playground_open_github_content_description
 import chartsproject.playground.generated.resources.playground_title
 import io.github.dautovicharis.charts.demoshared.theme.AppTheme
@@ -50,6 +52,7 @@ import io.github.dautovicharis.charts.demoshared.theme.docsSlate
 import model.PlaygroundAction
 import model.PlaygroundRightPanelTab
 import model.PlaygroundViewModel
+import model.SnapshotPublishMetadata
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import chartsproject.charts_demo_shared.generated.resources.Res as SharedRes
@@ -60,8 +63,7 @@ private val RightPanelTabIconSize = 18.dp
 private const val PROJECT_GITHUB_URL = "https://github.com/dautovicharis/charts"
 
 @Composable
-fun PlaygroundScreen() {
-    val viewModel = remember { PlaygroundViewModel() }
+fun PlaygroundScreen(viewModel: PlaygroundViewModel) {
     val uriHandler = LocalUriHandler.current
     val registry = viewModel.registry
     val state by viewModel.state.collectAsState()
@@ -330,9 +332,33 @@ fun PlaygroundScreen() {
                         }
                     }
                 }
+
+                SnapshotMetadataFooter(state.snapshotMetadata)
             }
         }
     }
+}
+
+@Composable
+private fun SnapshotMetadataFooter(metadata: SnapshotPublishMetadata?) {
+    HorizontalDivider()
+    val footerText =
+        when {
+            metadata != null ->
+                stringResource(
+                    Res.string.playground_metadata,
+                    metadata.chartsVersion,
+                    metadata.sourceSha,
+                    metadata.publishedAt,
+                )
+            else -> stringResource(Res.string.playground_metadata_unavailable)
+        }
+
+    Text(
+        text = footerText,
+        style = MaterialTheme.typography.labelSmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
 }
 
 @Composable
