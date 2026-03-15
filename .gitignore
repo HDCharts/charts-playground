@@ -1,0 +1,33 @@
+# Gradle / Kotlin
+.gradle/
+build/
+**/build/
+out/
+
+# IntelliJ / Android Studio
+.idea/
+*.iml
+.kotlin/
+
+# Kotlin/Native
+.konan/
+
+# Node / Kotlin JS
+node_modules/
+npm/
+yarn.lock
+yarn/
+kotlin-js-store/
+yarn-error.log
+yarn-debug.log*
+
+# Local configuration
+local.properties
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Crash dumps / generated daemon config
+*.hprof
+gradle/gradle-daemon-jvm.properties
