@@ -1,3 +1,3 @@
 # charts-playground
 
-Bootstrap repository for playground split.
+Kotlin Multiplatform playground for chart examples and generated chart code.
