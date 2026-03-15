@@ -123,6 +123,11 @@ total_line_text() {
   local word
   word="$(test_word "$total_tests")"
 
+  if [[ "$SHOULD_RUN_TESTS" != "true" ]]; then
+    printf -- '- ⚪ Tests skipped'
+    return
+  fi
+
   if ((effective_broken == 0)); then
     if ((total_skipped > 0)); then
       printf -- '- ✅ %s %s completed successfully (%s skipped)' "$total_tests" "$word" "$total_skipped"
