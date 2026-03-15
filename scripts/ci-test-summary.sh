@@ -124,7 +124,7 @@ total_line_text() {
   word="$(test_word "$total_tests")"
 
   if [[ "$SHOULD_RUN_TESTS" != "true" ]]; then
-    printf -- '- ⏭️ Tests skipped'
+    printf -- '- ⚪ Tests skipped'
     return
   fi
 
