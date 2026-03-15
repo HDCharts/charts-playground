@@ -36,6 +36,12 @@ sealed interface PlaygroundAction {
     data object Randomize : PlaygroundAction
 
     data object Reset : PlaygroundAction
+
+    data object LoadSnapshotMetadata : PlaygroundAction
+
+    data class SnapshotMetadataLoaded(
+        val metadata: SnapshotPublishMetadata?,
+    ) : PlaygroundAction
 }
 
 fun defaultPlaygroundState(registry: PlaygroundChartRegistry): PlaygroundState {
@@ -119,6 +125,13 @@ object PlaygroundReducer {
                 updateCurrentSession(state, registry) { session, definition ->
                     definition.resetSession(codegenMode = session.codegenMode)
                 }
+            PlaygroundAction.LoadSnapshotMetadata ->
+                state.copy(snapshotMetadataLoading = true)
+            is PlaygroundAction.SnapshotMetadataLoaded ->
+                state.copy(
+                    snapshotMetadata = action.metadata,
+                    snapshotMetadataLoading = false,
+                )
         }
 
     private fun updateCurrentSession(
