@@ -1,0 +1,23 @@
+name: PR Test Summary Comment
+
+on:
+  workflow_run:
+    workflows: ["Test"]
+    types: [completed]
+
+permissions:
+  actions: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  comment:
+    if: ${{ github.event.workflow_run.event == 'pull_request' }}
+    uses: ./.github/workflows/pr-summary-comment.yml
+    with:
+      run_id: ${{ github.event.workflow_run.id }}
+      artifact_name: ci-test-summary
+      artifact_dir: ci-summary
+      summary_file: ci-test-summary.md
+      marker: <!-- ci-test-summary -->
+    secrets: inherit
