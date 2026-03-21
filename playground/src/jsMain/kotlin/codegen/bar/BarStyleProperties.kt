@@ -6,11 +6,19 @@ import model.BarStyleState
 import model.StylePropertiesSnapshot
 
 @Composable
-fun barStylePropertiesSnapshot(styleState: BarStyleState): StylePropertiesSnapshot {
+fun barStylePropertiesSnapshot(
+    styleState: BarStyleState,
+    seriesCount: Int,
+): StylePropertiesSnapshot {
     val defaultStyle = BarChartDefaults.style()
+    val normalizedBarColors =
+        styleState.barColors?.let { colors ->
+            normalizeColorCount(colors = colors, targetCount = seriesCount)
+        }
     val currentStyle =
         BarChartDefaults.style(
             barColor = styleState.barColor ?: defaultStyle.barColor,
+            barColors = normalizedBarColors ?: defaultStyle.barColors,
             barAlpha = styleState.barAlpha ?: defaultStyle.barAlpha,
             gridVisible = styleState.gridVisible ?: defaultStyle.gridVisible,
             axisVisible = styleState.axisVisible ?: defaultStyle.axisVisible,
@@ -22,4 +30,12 @@ fun barStylePropertiesSnapshot(styleState: BarStyleState): StylePropertiesSnapsh
         current = currentStyle.getProperties(),
         defaults = defaultStyle.getProperties(),
     )
+}
+
+private fun normalizeColorCount(
+    colors: List<androidx.compose.ui.graphics.Color>,
+    targetCount: Int,
+): List<androidx.compose.ui.graphics.Color> {
+    if (targetCount <= 0 || colors.isEmpty()) return emptyList()
+    return List(targetCount) { index -> colors[index % colors.size] }
 }

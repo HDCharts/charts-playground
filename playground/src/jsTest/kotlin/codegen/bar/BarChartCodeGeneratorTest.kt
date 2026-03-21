@@ -1,5 +1,6 @@
 package codegen.bar
 
+import androidx.compose.ui.graphics.Color
 import model.BarCodegenConfig
 import model.CodegenMode
 import model.PieSliceInput
@@ -74,5 +75,28 @@ class BarChartCodeGeneratorTest {
 
         assertTrue(snippet.code.contains("axisVisible = true,"))
         assertTrue(snippet.code.contains("selectionLineWidth = 1.5f,"))
+    }
+
+    @Test
+    fun style_with_bar_colors_emits_palette_and_color_import() {
+        val snippet =
+            generator.generate(
+                BarCodegenConfig(
+                    points =
+                        listOf(
+                            PieSliceInput(label = "A", valueText = "1"),
+                            PieSliceInput(label = "B", valueText = "2"),
+                        ),
+                    styleProperties =
+                        StylePropertiesSnapshot(
+                            current = listOf("barColors" to listOf(Color.Red, Color.Green)),
+                            defaults = listOf("barColors" to emptyList<Color>()),
+                        ),
+                    codegenMode = CodegenMode.MINIMAL,
+                ),
+            )
+
+        assertTrue(snippet.code.contains("import androidx.compose.ui.graphics.Color"))
+        assertTrue(snippet.code.contains("barColors = listOf(Color("))
     }
 }

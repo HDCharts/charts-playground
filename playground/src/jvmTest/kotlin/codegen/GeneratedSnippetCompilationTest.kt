@@ -1,5 +1,6 @@
 package codegen
 
+import androidx.compose.ui.graphics.Color
 import codegen.area.AreaChartCodeGenerator
 import codegen.bar.BarChartCodeGenerator
 import codegen.line.LineChartCodeGenerator
@@ -17,6 +18,7 @@ import model.PieCodegenConfig
 import model.PieSliceInput
 import model.RadarCodegenConfig
 import model.StackedBarCodegenConfig
+import model.StylePropertiesSnapshot
 import org.jetbrains.kotlin.cli.common.ExitCode
 import org.jetbrains.kotlin.cli.jvm.K2JVMCompiler
 import java.io.ByteArrayOutputStream
@@ -58,6 +60,17 @@ class GeneratedSnippetCompilationTest {
                                 listOf(
                                     PieSliceInput(label = "Mon", valueText = "12"),
                                     PieSliceInput(label = "Tue", valueText = "18"),
+                                ),
+                            styleProperties =
+                                StylePropertiesSnapshot(
+                                    current =
+                                        listOf(
+                                            "barColors" to listOf(Color.Red, Color.Green),
+                                        ),
+                                    defaults =
+                                        listOf(
+                                            "barColors" to emptyList<Color>(),
+                                        ),
                                 ),
                         ),
                     ).code,

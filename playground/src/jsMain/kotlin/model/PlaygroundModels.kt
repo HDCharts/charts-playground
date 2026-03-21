@@ -58,6 +58,7 @@ data class MultiLineStyleState(
 
 data class BarStyleState(
     val barColor: Color? = null,
+    val barColors: List<Color>? = null,
     val barAlpha: Float? = null,
     val gridVisible: Boolean? = null,
     val axisVisible: Boolean? = null,
