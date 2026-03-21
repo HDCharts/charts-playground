@@ -85,6 +85,16 @@ internal object BarChartDefinition : PlaygroundChartDefinition {
                 read = { style -> (style as BarStyleState).barColor },
                 write = { style, value -> (style as BarStyleState).copy(barColor = value) },
             ),
+            SettingDescriptor.ColorPalette(
+                id = "barColors",
+                title = "Bar Colors",
+                itemCount = {
+                    val data = it.appliedData as PlaygroundDataModel.SimpleSeries
+                    data.values.size
+                },
+                read = { style -> (style as BarStyleState).barColors },
+                write = { style, value -> (style as BarStyleState).copy(barColors = value) },
+            ),
             SettingDescriptor.Divider,
             SettingDescriptor.Section("Visibility"),
             SettingDescriptor.Toggle(
@@ -140,9 +150,14 @@ internal object BarChartDefinition : PlaygroundChartDefinition {
                 labels = data.labels,
             )
         val defaultStyle = BarChartDefaults.style()
+        val normalizedBarColors =
+            styleState.barColors?.let { colors ->
+                normalizeColorCount(colors = colors, targetCount = data.values.size)
+            }
         val style =
             BarChartDefaults.style(
                 barColor = styleState.barColor ?: defaultStyle.barColor,
+                barColors = normalizedBarColors ?: defaultStyle.barColors,
                 barAlpha = styleState.barAlpha ?: defaultStyle.barAlpha,
                 gridVisible = styleState.gridVisible ?: defaultStyle.gridVisible,
                 axisVisible = styleState.axisVisible ?: defaultStyle.axisVisible,
@@ -170,7 +185,7 @@ internal object BarChartDefinition : PlaygroundChartDefinition {
                 points = points,
                 title = session.title,
                 style = style,
-                styleProperties = barStylePropertiesSnapshot(style),
+                styleProperties = barStylePropertiesSnapshot(style, data.values.size),
                 codegenMode = session.codegenMode,
                 functionName = deriveFunctionName(session.title, type),
             ),
