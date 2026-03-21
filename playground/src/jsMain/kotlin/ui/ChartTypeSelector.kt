@@ -20,17 +20,11 @@ fun ChartTypeSelector(
     primaryTypes: List<ChartType>,
     overflowTypes: List<ChartType>,
     onTypeSelected: (ChartType) -> Unit,
-    compact: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     val chartTypes = primaryTypes + overflowTypes
-    val spacing = if (compact) 6.dp else 8.dp
-    val buttonContentPadding =
-        if (compact) {
-            PaddingValues(horizontal = 8.dp, vertical = 6.dp)
-        } else {
-            PaddingValues(horizontal = 10.dp, vertical = 8.dp)
-        }
+    val spacing = 8.dp
+    val buttonContentPadding = PaddingValues(horizontal = 10.dp, vertical = 8.dp)
 
     Row(
         modifier = modifier,
@@ -57,7 +51,6 @@ fun ChartTypeSelector(
             ) {
                 ChartTypeButtonIcon(
                     chartType = chartType,
-                    compact = compact,
                 )
             }
         }
@@ -65,11 +58,8 @@ fun ChartTypeSelector(
 }
 
 @Composable
-private fun ChartTypeButtonIcon(
-    chartType: ChartType,
-    compact: Boolean,
-) {
-    val iconSize = if (compact) 22.dp else 24.dp
+private fun ChartTypeButtonIcon(chartType: ChartType) {
+    val iconSize = 30.dp
     Icon(
         painter = painterResource(chartTypeIconResource(chartType)),
         contentDescription = chartType.displayName,

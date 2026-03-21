@@ -1,6 +1,7 @@
 package model
 
 import io.github.dautovicharis.charts.demoshared.data.barSampleUseCase
+import io.github.dautovicharis.charts.demoshared.data.histogramSampleUseCase
 import io.github.dautovicharis.charts.demoshared.data.lineSampleUseCase
 import io.github.dautovicharis.charts.demoshared.data.multiLineSampleUseCase
 import io.github.dautovicharis.charts.demoshared.data.pieSampleUseCase
@@ -24,7 +25,10 @@ class PlaygroundApplyFlowTest {
             listOf(ChartType.LINE, ChartType.BAR, ChartType.PIE, ChartType.RADAR, ChartType.AREA),
             registry.primaryChartTypes,
         )
-        assertEquals(listOf(ChartType.MULTI_LINE, ChartType.STACKED_BAR), registry.overflowChartTypes)
+        assertEquals(
+            listOf(ChartType.MULTI_LINE, ChartType.HISTOGRAM, ChartType.STACKED_BAR),
+            registry.overflowChartTypes,
+        )
     }
 
     @Test
@@ -143,6 +147,19 @@ class PlaygroundApplyFlowTest {
             barDataSet.data.item.labels
                 .toList(),
             barData.labels,
+        )
+
+        val histogramData = state.sessions.getValue(ChartType.HISTOGRAM).appliedData as PlaygroundDataModel.SimpleSeries
+        val histogramDataSet = histogramSampleUseCase().initialHistogramDataSet()
+        assertEquals(
+            histogramDataSet.data.item.points
+                .map(Double::toFloat),
+            histogramData.values,
+        )
+        assertEquals(
+            histogramDataSet.data.item.labels
+                .toList(),
+            histogramData.labels,
         )
 
         val multiLineData = state.sessions.getValue(ChartType.MULTI_LINE).appliedData as PlaygroundDataModel.MultiSeries

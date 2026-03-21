@@ -1,10 +1,12 @@
 package ui
 
 import chartsproject.charts_demo_shared.generated.resources.ic_bar_chart
+import chartsproject.charts_demo_shared.generated.resources.ic_histogram_chart
 import chartsproject.charts_demo_shared.generated.resources.ic_line_chart
 import chartsproject.charts_demo_shared.generated.resources.ic_multi_line_chart
 import chartsproject.charts_demo_shared.generated.resources.ic_pie_chart
 import chartsproject.charts_demo_shared.generated.resources.ic_radar_chart
+import chartsproject.charts_demo_shared.generated.resources.ic_stacked_area_chart
 import chartsproject.charts_demo_shared.generated.resources.ic_stacked_bar_chart
 import model.ChartType
 import org.jetbrains.compose.resources.DrawableResource
@@ -16,7 +18,8 @@ internal fun chartTypeIconResource(type: ChartType): DrawableResource =
         ChartType.LINE -> SharedRes.drawable.ic_line_chart
         ChartType.MULTI_LINE -> SharedRes.drawable.ic_multi_line_chart
         ChartType.BAR -> SharedRes.drawable.ic_bar_chart
+        ChartType.HISTOGRAM -> SharedRes.drawable.ic_histogram_chart
         ChartType.STACKED_BAR -> SharedRes.drawable.ic_stacked_bar_chart
-        ChartType.AREA -> SharedRes.drawable.ic_stacked_bar_chart
+        ChartType.AREA -> SharedRes.drawable.ic_stacked_area_chart
         ChartType.RADAR -> SharedRes.drawable.ic_radar_chart
     }

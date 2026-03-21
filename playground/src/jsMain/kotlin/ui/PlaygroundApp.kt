@@ -64,6 +64,7 @@ private fun rememberPlaygroundStartupResourcesReady(): Boolean {
                 ChartType.LINE,
                 ChartType.MULTI_LINE,
                 ChartType.BAR,
+                ChartType.HISTOGRAM,
                 ChartType.STACKED_BAR,
                 ChartType.AREA,
                 ChartType.RADAR,
