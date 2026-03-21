@@ -127,7 +127,6 @@ fun PlaygroundScreen(viewModel: PlaygroundViewModel) {
                                     onTypeSelected = { chartType ->
                                         dispatch(PlaygroundAction.SelectChart(chartType))
                                     },
-                                    compact = true,
                                     modifier = Modifier.weight(1f),
                                 )
                             } else if (compactHeader) {
@@ -189,7 +188,6 @@ fun PlaygroundScreen(viewModel: PlaygroundViewModel) {
                                 primaryTypes = registry.primaryChartTypes,
                                 overflowTypes = registry.overflowChartTypes,
                                 onTypeSelected = { chartType -> dispatch(PlaygroundAction.SelectChart(chartType)) },
-                                compact = true,
                                 modifier = Modifier.fillMaxWidth(),
                             )
                         }

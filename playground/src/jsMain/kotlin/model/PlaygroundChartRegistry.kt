@@ -2,6 +2,7 @@ package model
 
 import model.definitions.AreaChartDefinition
 import model.definitions.BarChartDefinition
+import model.definitions.HistogramChartDefinition
 import model.definitions.LineChartDefinition
 import model.definitions.MultiLineChartDefinition
 import model.definitions.PieChartDefinition
@@ -14,6 +15,7 @@ val playgroundChartRegistry: PlaygroundChartRegistry =
             listOf(
                 LineChartDefinition,
                 BarChartDefinition,
+                HistogramChartDefinition,
                 PieChartDefinition,
                 RadarChartDefinition,
                 AreaChartDefinition,
@@ -31,6 +33,7 @@ val playgroundChartRegistry: PlaygroundChartRegistry =
         overflowChartTypes =
             listOf(
                 ChartType.MULTI_LINE,
+                ChartType.HISTOGRAM,
                 ChartType.STACKED_BAR,
             ),
     )

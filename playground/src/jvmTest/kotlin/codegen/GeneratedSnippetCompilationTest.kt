@@ -3,6 +3,7 @@ package codegen
 import androidx.compose.ui.graphics.Color
 import codegen.area.AreaChartCodeGenerator
 import codegen.bar.BarChartCodeGenerator
+import codegen.histogram.HistogramChartCodeGenerator
 import codegen.line.LineChartCodeGenerator
 import codegen.multiline.MultiLineChartCodeGenerator
 import codegen.pie.PieChartCodeGenerator
@@ -10,6 +11,7 @@ import codegen.radar.RadarChartCodeGenerator
 import codegen.stackedbar.StackedBarChartCodeGenerator
 import model.AreaCodegenConfig
 import model.BarCodegenConfig
+import model.HistogramCodegenConfig
 import model.LineCodegenConfig
 import model.LinePointInput
 import model.MultiLineCodegenConfig
@@ -71,6 +73,16 @@ class GeneratedSnippetCompilationTest {
                                         listOf(
                                             "barColors" to emptyList<Color>(),
                                         ),
+                                ),
+                        ),
+                    ).code,
+                HistogramChartCodeGenerator()
+                    .generate(
+                        HistogramCodegenConfig(
+                            points =
+                                listOf(
+                                    PieSliceInput(label = "0-10", valueText = "4"),
+                                    PieSliceInput(label = "10-20", valueText = "9"),
                                 ),
                         ),
                     ).code,

@@ -2,6 +2,7 @@ package model.definitions
 
 import androidx.compose.ui.graphics.Color
 import io.github.dautovicharis.charts.demoshared.data.BarSampleUseCase
+import io.github.dautovicharis.charts.demoshared.data.HistogramSampleUseCase
 import io.github.dautovicharis.charts.demoshared.data.LineSampleUseCase
 import io.github.dautovicharis.charts.demoshared.data.MultiLineSampleUseCase
 import io.github.dautovicharis.charts.demoshared.data.PieSampleUseCase
@@ -9,6 +10,7 @@ import io.github.dautovicharis.charts.demoshared.data.RadarSampleUseCase
 import io.github.dautovicharis.charts.demoshared.data.StackedAreaSampleUseCase
 import io.github.dautovicharis.charts.demoshared.data.StackedBarSampleUseCase
 import io.github.dautovicharis.charts.demoshared.data.barSampleUseCase
+import io.github.dautovicharis.charts.demoshared.data.histogramSampleUseCase
 import io.github.dautovicharis.charts.demoshared.data.lineSampleUseCase
 import io.github.dautovicharis.charts.demoshared.data.multiLineSampleUseCase
 import io.github.dautovicharis.charts.demoshared.data.pieSampleUseCase
@@ -31,6 +33,7 @@ internal object PlaygroundSampleUseCases {
     val pie: PieSampleUseCase = pieSampleUseCase()
     val line: LineSampleUseCase = lineSampleUseCase()
     val bar: BarSampleUseCase = barSampleUseCase()
+    val histogram: HistogramSampleUseCase = histogramSampleUseCase()
     val multiLine: MultiLineSampleUseCase = multiLineSampleUseCase()
     val stackedBar: StackedBarSampleUseCase = stackedBarSampleUseCase()
     val stackedArea: StackedAreaSampleUseCase = stackedAreaSampleUseCase()

@@ -6,6 +6,7 @@ const val PIE_CHART_TITLE = "Revenue Breakdown"
 const val LINE_CHART_TITLE = "Monthly Trend"
 const val MULTI_LINE_CHART_TITLE = "Revenue By Channel"
 const val BAR_CHART_TITLE = "Weekly Performance"
+const val HISTOGRAM_CHART_TITLE = "Request Duration Distribution"
 const val STACKED_BAR_CHART_TITLE = "Quarterly Revenue Mix"
 const val AREA_CHART_TITLE = "Plan Distribution"
 const val RADAR_CHART_TITLE = "Platform Capability"
@@ -126,6 +127,15 @@ data class BarCodegenConfig(
     val styleProperties: StylePropertiesSnapshot? = null,
     val codegenMode: CodegenMode = CodegenMode.MINIMAL,
     val functionName: String = "PlaygroundBarChartExample",
+)
+
+data class HistogramCodegenConfig(
+    val points: List<BarPointInput>,
+    val title: String = HISTOGRAM_CHART_TITLE,
+    val style: BarStyleState = BarStyleState(),
+    val styleProperties: StylePropertiesSnapshot? = null,
+    val codegenMode: CodegenMode = CodegenMode.MINIMAL,
+    val functionName: String = "PlaygroundHistogramChartExample",
 )
 
 data class MultiLineCodegenConfig(
