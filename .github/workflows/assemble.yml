@@ -1,5 +1,8 @@
+# Workflow: assemble the playground project for pull requests and manual runs.
+# It uses the local charts checkout to build against the shared charts repo.
+#
+# This is a fast build validation workflow.
 name: Assemble
-
 on:
   pull_request:
     types: [opened, synchronize, reopened]

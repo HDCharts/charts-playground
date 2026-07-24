@@ -1,5 +1,8 @@
+# Workflow: run lint checks for the playground project on pull requests.
+# It skips work when only docs-only changes are detected.
+#
+# This keeps lint focused on code changes that matter.
 name: Lint
-
 on:
   pull_request:
     types: [opened, synchronize, reopened]

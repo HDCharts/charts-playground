@@ -1,5 +1,8 @@
+# Workflow: build and publish the playground snapshot assets to S3.
+# It runs manually and on pushes to main.
+#
+# This is the snapshot publish path for the playground site.
 name: Publish
-
 on:
   workflow_dispatch:
   push:
