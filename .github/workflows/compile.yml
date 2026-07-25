@@ -1,5 +1,8 @@
+# Workflow: compile the playground project for pull requests and manual runs.
+# It uses the local charts checkout to build against the shared charts repo.
+#
+# This is the lighter build check before tests.
 name: Compile
-
 on:
   pull_request:
     types: [opened, synchronize, reopened]
