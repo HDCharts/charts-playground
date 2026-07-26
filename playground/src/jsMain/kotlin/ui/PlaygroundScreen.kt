@@ -116,15 +116,19 @@ fun PlaygroundScreen(viewModel: PlaygroundViewModel) {
                                     state.snapshotMetadata?.let { metadata ->
                                         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                             Text(
-                                                text = stringResource(
-                                                    Res.string.playground_metadata_source,
-                                                    metadata.sourceSha.take(7),
-                                                ),
+                                                text =
+                                                    stringResource(
+                                                        Res.string.playground_metadata_source,
+                                                        metadata.sourceSha.take(7),
+                                                    ),
                                                 style = MaterialTheme.typography.labelSmall,
                                                 color = MaterialTheme.colorScheme.primary,
-                                                modifier = Modifier.clickable {
-                                                    uriHandler.openUri("$PROJECT_GITHUB_URL/commit/${metadata.sourceSha}")
-                                                },
+                                                modifier =
+                                                    Modifier.clickable {
+                                                        uriHandler.openUri(
+                                                            "$PROJECT_GITHUB_URL/commit/${metadata.sourceSha}",
+                                                        )
+                                                    },
                                             )
                                             MetadataLabel(
                                                 stringResource(
@@ -185,7 +189,6 @@ fun PlaygroundScreen(viewModel: PlaygroundViewModel) {
                                     }
                                 }
                             }
-
                         }
 
                         if (!inlineChartSwitcher && !compactHeader) {
@@ -336,7 +339,6 @@ fun PlaygroundScreen(viewModel: PlaygroundViewModel) {
                         }
                     }
                 }
-
             }
         }
     }
@@ -353,7 +355,9 @@ private fun MetadataLabel(text: String) {
 
 private fun formatPublishedAt(value: String): String {
     val match = Regex("^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2})(?::\\d{2})?Z$").find(value)
-    return match?.let { "${it.groupValues[1]}-${it.groupValues[2]}-${it.groupValues[3]} ${it.groupValues[4]}:${it.groupValues[5]} UTC" }
+    return match?.let {
+        "${it.groupValues[1]}-${it.groupValues[2]}-${it.groupValues[3]} ${it.groupValues[4]}:${it.groupValues[5]} UTC"
+    }
         ?: value
 }
 
