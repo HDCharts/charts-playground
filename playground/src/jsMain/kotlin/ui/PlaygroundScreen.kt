@@ -57,7 +57,7 @@ import chartsproject.charts_demo_shared.generated.resources.Res as SharedRes
 private val WideLayoutBreakpoint = 1000.dp
 private val CompactHeaderBreakpoint = 760.dp
 private val RightPanelTabIconSize = 18.dp
-private const val PROJECT_GITHUB_URL = "https://github.com/HDCharts/charts"
+private const val PROJECT_GITHUB_URL = "https://github.com/HDCharts/charts-playground"
 
 @Composable
 fun PlaygroundScreen(viewModel: PlaygroundViewModel) {
