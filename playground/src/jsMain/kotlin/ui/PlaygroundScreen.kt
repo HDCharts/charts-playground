@@ -1,6 +1,7 @@
 package ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -22,7 +23,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -40,19 +40,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import chartsproject.charts_demo_shared.generated.resources.charts_logo
-import chartsproject.charts_demo_shared.generated.resources.ic_github
 import chartsproject.playground.generated.resources.Res
 import chartsproject.playground.generated.resources.playground_logo_content_description
-import chartsproject.playground.generated.resources.playground_metadata
-import chartsproject.playground.generated.resources.playground_metadata_unavailable
-import chartsproject.playground.generated.resources.playground_open_github_content_description
+import chartsproject.playground.generated.resources.playground_metadata_published
+import chartsproject.playground.generated.resources.playground_metadata_source
 import chartsproject.playground.generated.resources.playground_title
 import io.github.dautovicharis.charts.demoshared.theme.AppTheme
 import io.github.dautovicharis.charts.demoshared.theme.docsSlate
 import model.PlaygroundAction
 import model.PlaygroundRightPanelTab
 import model.PlaygroundViewModel
-import model.SnapshotPublishMetadata
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import chartsproject.charts_demo_shared.generated.resources.Res as SharedRes
@@ -60,7 +57,7 @@ import chartsproject.charts_demo_shared.generated.resources.Res as SharedRes
 private val WideLayoutBreakpoint = 1000.dp
 private val CompactHeaderBreakpoint = 760.dp
 private val RightPanelTabIconSize = 18.dp
-private const val PROJECT_GITHUB_URL = "https://github.com/dautovicharis/charts"
+private const val PROJECT_GITHUB_URL = "https://github.com/HDCharts/charts"
 
 @Composable
 fun PlaygroundScreen(viewModel: PlaygroundViewModel) {
@@ -116,6 +113,27 @@ fun PlaygroundScreen(viewModel: PlaygroundViewModel) {
                                         style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
+                                    state.snapshotMetadata?.let { metadata ->
+                                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                            Text(
+                                                text = stringResource(
+                                                    Res.string.playground_metadata_source,
+                                                    metadata.sourceSha.take(7),
+                                                ),
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.primary,
+                                                modifier = Modifier.clickable {
+                                                    uriHandler.openUri("$PROJECT_GITHUB_URL/commit/${metadata.sourceSha}")
+                                                },
+                                            )
+                                            MetadataLabel(
+                                                stringResource(
+                                                    Res.string.playground_metadata_published,
+                                                    formatPublishedAt(metadata.publishedAt),
+                                                ),
+                                            )
+                                        }
+                                    }
                                 }
                             }
 
@@ -168,18 +186,6 @@ fun PlaygroundScreen(viewModel: PlaygroundViewModel) {
                                 }
                             }
 
-                            FilledTonalIconButton(
-                                onClick = { uriHandler.openUri(PROJECT_GITHUB_URL) },
-                                modifier = Modifier.size(34.dp),
-                            ) {
-                                Icon(
-                                    painter = painterResource(SharedRes.drawable.ic_github),
-                                    contentDescription =
-                                        stringResource(Res.string.playground_open_github_content_description),
-                                    tint = MaterialTheme.colorScheme.onSurface,
-                                    modifier = Modifier.size(18.dp),
-                                )
-                            }
                         }
 
                         if (!inlineChartSwitcher && !compactHeader) {
@@ -331,32 +337,24 @@ fun PlaygroundScreen(viewModel: PlaygroundViewModel) {
                     }
                 }
 
-                SnapshotMetadataFooter(state.snapshotMetadata)
             }
         }
     }
 }
 
 @Composable
-private fun SnapshotMetadataFooter(metadata: SnapshotPublishMetadata?) {
-    HorizontalDivider()
-    val footerText =
-        when {
-            metadata != null ->
-                stringResource(
-                    Res.string.playground_metadata,
-                    metadata.chartsVersion,
-                    metadata.sourceSha,
-                    metadata.publishedAt,
-                )
-            else -> stringResource(Res.string.playground_metadata_unavailable)
-        }
-
+private fun MetadataLabel(text: String) {
     Text(
-        text = footerText,
+        text = text,
         style = MaterialTheme.typography.labelSmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
+}
+
+private fun formatPublishedAt(value: String): String {
+    val match = Regex("^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2})(?::\\d{2})?Z$").find(value)
+    return match?.let { "${it.groupValues[1]}-${it.groupValues[2]}-${it.groupValues[3]} ${it.groupValues[4]}:${it.groupValues[5]} UTC" }
+        ?: value
 }
 
 @Composable

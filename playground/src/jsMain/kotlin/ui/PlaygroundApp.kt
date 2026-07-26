@@ -8,7 +8,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.ComposeViewport
 import chartsproject.charts_demo_shared.generated.resources.charts_logo
-import chartsproject.charts_demo_shared.generated.resources.ic_github
 import chartsproject.playground.generated.resources.Res
 import chartsproject.playground.generated.resources.playground_editor_add_row
 import chartsproject.playground.generated.resources.playground_editor_delete_row_content_description
@@ -16,9 +15,8 @@ import chartsproject.playground.generated.resources.playground_editor_randomize
 import chartsproject.playground.generated.resources.playground_editor_reset
 import chartsproject.playground.generated.resources.playground_editor_row_number_header
 import chartsproject.playground.generated.resources.playground_logo_content_description
-import chartsproject.playground.generated.resources.playground_metadata
-import chartsproject.playground.generated.resources.playground_metadata_unavailable
-import chartsproject.playground.generated.resources.playground_open_github_content_description
+import chartsproject.playground.generated.resources.playground_metadata_published
+import chartsproject.playground.generated.resources.playground_metadata_source
 import chartsproject.playground.generated.resources.playground_title
 import io.github.dautovicharis.charts.demoshared.startup.ChartsStartupGate
 import io.github.dautovicharis.charts.demoshared.startup.StartupResources
@@ -75,19 +73,18 @@ private fun rememberPlaygroundStartupResourcesReady(): Boolean {
         remember(iconResources) {
             StartupResources(
                 bitmapDrawables = listOf(SharedRes.drawable.charts_logo),
-                vectorDrawables = listOf(SharedRes.drawable.ic_github) + iconResources,
+                vectorDrawables = iconResources,
                 strings =
                     listOf(
                         Res.string.playground_title,
                         Res.string.playground_logo_content_description,
-                        Res.string.playground_open_github_content_description,
                         Res.string.playground_editor_add_row,
                         Res.string.playground_editor_randomize,
                         Res.string.playground_editor_reset,
                         Res.string.playground_editor_row_number_header,
                         Res.string.playground_editor_delete_row_content_description,
-                        Res.string.playground_metadata,
-                        Res.string.playground_metadata_unavailable,
+                        Res.string.playground_metadata_source,
+                        Res.string.playground_metadata_published,
                     ),
             )
         }
