@@ -7,6 +7,7 @@
     <string name="playground_editor_reset">Reset</string>
     <string name="playground_editor_row_number_header">#</string>
     <string name="playground_editor_delete_row_content_description">Delete row</string>
-    <string name="playground_metadata_source">Source: %1$s</string>
+    <string name="playground_metadata_charts">Charts: %1$s</string>
+    <string name="playground_metadata_playground">Playground: %1$s</string>
     <string name="playground_metadata_published">Published: %1$s</string>
 </resources>

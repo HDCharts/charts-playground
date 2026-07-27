@@ -1,5 +1,7 @@
 package model
 
+import ui.BuildConfig
+
 sealed interface PlaygroundAction {
     data class SelectChart(
         val chartType: ChartType,
@@ -36,12 +38,6 @@ sealed interface PlaygroundAction {
     data object Randomize : PlaygroundAction
 
     data object Reset : PlaygroundAction
-
-    data object LoadSnapshotMetadata : PlaygroundAction
-
-    data class SnapshotMetadataLoaded(
-        val metadata: SnapshotPublishMetadata?,
-    ) : PlaygroundAction
 }
 
 fun defaultPlaygroundState(registry: PlaygroundChartRegistry): PlaygroundState {
@@ -50,10 +46,22 @@ fun defaultPlaygroundState(registry: PlaygroundChartRegistry): PlaygroundState {
             definition.type to definition.resetSession(codegenMode = CodegenMode.MINIMAL)
         }
     val initialType = registry.primaryChartTypes.firstOrNull() ?: registry.charts.first().type
+    val initialMetadata =
+        if (BuildConfig.SNAPSHOT_METADATA_CHARTS_SHA.isNotBlank()) {
+            SnapshotPublishMetadata(
+                chartsSha = BuildConfig.SNAPSHOT_METADATA_CHARTS_SHA,
+                playgroundSha = BuildConfig.SNAPSHOT_METADATA_PLAYGROUND_SHA,
+                chartsVersion = BuildConfig.SNAPSHOT_METADATA_CHARTS_VERSION,
+                publishedAt = BuildConfig.SNAPSHOT_METADATA_PUBLISHED_AT,
+            )
+        } else {
+            null
+        }
     return PlaygroundState(
         selectedChartType = initialType,
         rightPanelTab = PlaygroundRightPanelTab.SETTINGS,
         sessions = sessions,
+        snapshotMetadata = initialMetadata,
     )
 }
 
@@ -125,13 +133,6 @@ object PlaygroundReducer {
                 updateCurrentSession(state, registry) { session, definition ->
                     definition.resetSession(codegenMode = session.codegenMode)
                 }
-            PlaygroundAction.LoadSnapshotMetadata ->
-                state.copy(snapshotMetadataLoading = true)
-            is PlaygroundAction.SnapshotMetadataLoaded ->
-                state.copy(
-                    snapshotMetadata = action.metadata,
-                    snapshotMetadataLoading = false,
-                )
         }
 
     private fun updateCurrentSession(
