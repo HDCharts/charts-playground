@@ -42,8 +42,9 @@ import androidx.compose.ui.unit.dp
 import chartsproject.charts_demo_shared.generated.resources.charts_logo
 import chartsproject.playground.generated.resources.Res
 import chartsproject.playground.generated.resources.playground_logo_content_description
+import chartsproject.playground.generated.resources.playground_metadata_charts
+import chartsproject.playground.generated.resources.playground_metadata_playground
 import chartsproject.playground.generated.resources.playground_metadata_published
-import chartsproject.playground.generated.resources.playground_metadata_source
 import chartsproject.playground.generated.resources.playground_title
 import io.github.dautovicharis.charts.demoshared.theme.AppTheme
 import io.github.dautovicharis.charts.demoshared.theme.docsSlate
@@ -57,7 +58,8 @@ import chartsproject.charts_demo_shared.generated.resources.Res as SharedRes
 private val WideLayoutBreakpoint = 1000.dp
 private val CompactHeaderBreakpoint = 760.dp
 private val RightPanelTabIconSize = 18.dp
-private const val PROJECT_GITHUB_URL = "https://github.com/HDCharts/charts-playground"
+private const val CHARTS_GITHUB_URL = "https://github.com/HDCharts/charts"
+private const val PLAYGROUND_GITHUB_URL = "https://github.com/HDCharts/charts-playground"
 
 @Composable
 fun PlaygroundScreen(viewModel: PlaygroundViewModel) {
@@ -118,15 +120,30 @@ fun PlaygroundScreen(viewModel: PlaygroundViewModel) {
                                             Text(
                                                 text =
                                                     stringResource(
-                                                        Res.string.playground_metadata_source,
-                                                        metadata.sourceSha.take(7),
+                                                        Res.string.playground_metadata_charts,
+                                                        metadata.chartsSha.take(7),
                                                     ),
                                                 style = MaterialTheme.typography.labelSmall,
                                                 color = MaterialTheme.colorScheme.primary,
                                                 modifier =
                                                     Modifier.clickable {
                                                         uriHandler.openUri(
-                                                            "$PROJECT_GITHUB_URL/commit/${metadata.sourceSha}",
+                                                            "$CHARTS_GITHUB_URL/commit/${metadata.chartsSha}",
+                                                        )
+                                                    },
+                                            )
+                                            Text(
+                                                text =
+                                                    stringResource(
+                                                        Res.string.playground_metadata_playground,
+                                                        metadata.playgroundSha.take(7),
+                                                    ),
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.primary,
+                                                modifier =
+                                                    Modifier.clickable {
+                                                        uriHandler.openUri(
+                                                            "$PLAYGROUND_GITHUB_URL/commit/${metadata.playgroundSha}",
                                                         )
                                                     },
                                             )

@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.serialization)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.build.config)
     alias(libs.plugins.compose.compiler)
@@ -64,16 +63,9 @@ kotlin {
             implementation(libs.compose.mpp.resources)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.viewmodel.compose)
-            implementation(libs.ktor.client.core)
-            implementation(libs.ktor.client.content.negotiation)
-            implementation(libs.ktor.serialization.kotlinx.json)
             // These coordinates are always substituted to local projects via includeBuild in settings.gradle.kts.
             implementation(localChartsDependency)
             implementation(localChartsDemoSharedDependency)
-        }
-
-        jsMain.dependencies {
-            implementation(libs.ktor.client.js)
         }
 
         jsTest.dependencies {
@@ -85,6 +77,22 @@ kotlin {
 buildConfig {
     packageName("ui")
     buildConfigField("CHARTS_VERSION", chartsDisplayVersion)
+    buildConfigField(
+        "SNAPSHOT_METADATA_CHARTS_SHA",
+        (project.findProperty("snapshotMetadataChartsSha") as String?).orEmpty(),
+    )
+    buildConfigField(
+        "SNAPSHOT_METADATA_PLAYGROUND_SHA",
+        (project.findProperty("snapshotMetadataPlaygroundSha") as String?).orEmpty(),
+    )
+    buildConfigField(
+        "SNAPSHOT_METADATA_CHARTS_VERSION",
+        (project.findProperty("snapshotMetadataChartsVersion") as String?).orEmpty(),
+    )
+    buildConfigField(
+        "SNAPSHOT_METADATA_PUBLISHED_AT",
+        (project.findProperty("snapshotMetadataPublishedAt") as String?).orEmpty(),
+    )
     useKotlinOutput()
 }
 
