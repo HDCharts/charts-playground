@@ -47,16 +47,16 @@ fun defaultPlaygroundState(registry: PlaygroundChartRegistry): PlaygroundState {
         }
     val initialType = registry.primaryChartTypes.firstOrNull() ?: registry.charts.first().type
     val initialMetadata =
-        if (BuildConfig.SNAPSHOT_METADATA_CHARTS_SHA.isNotBlank()) {
-            SnapshotPublishMetadata(
-                chartsSha = BuildConfig.SNAPSHOT_METADATA_CHARTS_SHA,
-                playgroundSha = BuildConfig.SNAPSHOT_METADATA_PLAYGROUND_SHA,
-                chartsVersion = BuildConfig.SNAPSHOT_METADATA_CHARTS_VERSION,
-                publishedAt = BuildConfig.SNAPSHOT_METADATA_PUBLISHED_AT,
-            )
-        } else {
-            null
-        }
+        BuildConfig.SNAPSHOT_METADATA_CHARTS_SHA
+            .takeIf(String::isNotBlank)
+            ?.let { chartsSha ->
+                SnapshotPublishMetadata(
+                    chartsSha = chartsSha,
+                    playgroundSha = BuildConfig.SNAPSHOT_METADATA_PLAYGROUND_SHA,
+                    chartsVersion = BuildConfig.SNAPSHOT_METADATA_CHARTS_VERSION,
+                    publishedAt = BuildConfig.SNAPSHOT_METADATA_PUBLISHED_AT,
+                )
+            }
     return PlaygroundState(
         selectedChartType = initialType,
         rightPanelTab = PlaygroundRightPanelTab.SETTINGS,
