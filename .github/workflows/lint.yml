@@ -1,18 +1,16 @@
-# Workflow: run lint checks for the playground project on pull requests.
-# It skips work when only docs-only changes are detected.
-#
-# This keeps lint focused on code changes that matter.
 name: Lint
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
+  workflow_call:
+    inputs:
+      should-run:
+        required: true
+        type: boolean
+      source-sha:
+        required: true
+        type: string
 
 permissions:
   contents: read
-
-concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
   lint:
@@ -21,31 +19,25 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
+          ref: ${{ inputs.source-sha }}
           fetch-depth: 0
-      - name: Detect code changes
-        id: changes
-        run: |
-          BASE_SHA="${{ github.event.pull_request.base.sha }}"
-          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
-          SHOULD_RUN="$(bash scripts/ci-has-code-changes.sh "$BASE_SHA" "$HEAD_SHA")"
-          echo "should_run=$SHOULD_RUN" >> "$GITHUB_OUTPUT"
       - name: Checkout charts
-        if: steps.changes.outputs.should_run == 'true'
+        if: inputs.should-run
         uses: actions/checkout@v7
         with:
           repository: HDCharts/charts
           path: charts
           fetch-depth: 1
       - name: Set up JDK 17
-        if: steps.changes.outputs.should_run == 'true'
+        if: inputs.should-run
         uses: actions/setup-java@v5
         with:
           java-version: 17
           distribution: 'zulu'
           cache: gradle
       - name: Lint
-        if: steps.changes.outputs.should_run == 'true'
+        if: inputs.should-run
         run: ./gradlew -DchartsLocalPath=charts ktlintCheck buildSrcKtlintCheck
       - name: Skip lint for docs-only changes
-        if: steps.changes.outputs.should_run != 'true'
+        if: ${{ !inputs.should-run }}
         run: echo "No code/build changes detected. Skipping lint."
