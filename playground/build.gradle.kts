@@ -27,7 +27,8 @@ kotlin {
 
     jvm()
 
-    js(IR) {
+    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
+    wasmJs {
         browser {
             commonWebpackConfig {
                 outputFileName = "Playground.js"
@@ -38,8 +39,8 @@ kotlin {
 
     sourceSets {
         jvmTest {
-            kotlin.srcDir("src/jsMain/kotlin/codegen")
-            kotlin.srcDir("src/jsMain/kotlin/model")
+            kotlin.srcDir("src/wasmJsMain/kotlin/codegen")
+            kotlin.srcDir("src/wasmJsMain/kotlin/model")
 
             dependencies {
                 implementation(kotlin("test"))
@@ -68,7 +69,7 @@ kotlin {
             implementation(localChartsDemoSharedDependency)
         }
 
-        jsTest.dependencies {
+        wasmJsTest.dependencies {
             implementation(kotlin("test"))
         }
     }

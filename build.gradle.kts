@@ -26,21 +26,21 @@ tasks.register("playgroundTest") {
     group = "verification"
     description = "Relevant tests for the playground project"
     dependsOn(":playground:jvmTest")
-    dependsOn(":playground:jsTest")
+    dependsOn(":playground:wasmJsTest")
 }
 
 tasks.register("ciCompile") {
     group = "verification"
     description = "CI-focused compile task set without packaging"
     dependsOn(":playground:compileKotlinJvm")
-    dependsOn(":playground:compileKotlinJs")
+    dependsOn(":playground:compileKotlinWasmJs")
 }
 
 tasks.register("ciAssemble") {
     group = "verification"
     description = "CI-focused assemble task set using dev/debug outputs"
     dependsOn(":playground:jvmJar")
-    dependsOn(":playground:jsBrowserDevelopmentExecutableDistribution")
+    dependsOn(":playground:wasmJsBrowserDevelopmentExecutableDistribution")
 }
 
 tasks.register("buildSrcKtlintCheck") {

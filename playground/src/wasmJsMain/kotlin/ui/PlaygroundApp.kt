@@ -25,24 +25,21 @@ import io.github.dautovicharis.charts.demoshared.theme.AppTheme
 import io.github.dautovicharis.charts.demoshared.theme.docsSlate
 import model.ChartType
 import model.PlaygroundViewModel
-import org.jetbrains.skiko.wasm.onWasmReady
 import chartsproject.charts_demo_shared.generated.resources.Res as SharedRes
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
-    onWasmReady {
-        ComposeViewport("Playground") {
-            val viewModel = remember { PlaygroundViewModel() }
-            val state by viewModel.state.collectAsState()
-            val resourcesReady = rememberPlaygroundStartupResourcesReady()
+    ComposeViewport("Playground") {
+        val viewModel = remember { PlaygroundViewModel() }
+        val state by viewModel.state.collectAsState()
+        val resourcesReady = rememberPlaygroundStartupResourcesReady()
 
-            AppTheme(
-                theme = docsSlate,
-                useDynamicColors = false,
-            ) {
-                ChartsStartupGate(resourcesReady) {
-                    PlaygroundScreen(viewModel)
-                }
+        AppTheme(
+            theme = docsSlate,
+            useDynamicColors = false,
+        ) {
+            ChartsStartupGate(resourcesReady) {
+                PlaygroundScreen(viewModel)
             }
         }
     }
