@@ -38,6 +38,15 @@ jobs:
       - name: Test
         if: inputs.should-run
         run: ./gradlew -DchartsLocalPath=charts playgroundTest
+      - name: Upload Gradle test reports
+        if: ${{ always() && inputs.should-run }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: gradle-test-reports
+          if-no-files-found: warn
+          path: |
+            **/build/reports/tests/**
+            **/build/test-results/**
       - name: Skip tests for docs-only changes
         if: ${{ !inputs.should-run }}
         run: echo "No code/build changes detected. Skipping tests."
