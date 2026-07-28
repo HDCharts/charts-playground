@@ -1,12 +1,10 @@
-# Workflow: assemble the playground project for pull requests and manual runs.
-# It uses the local charts checkout to build against the shared charts repo.
-#
-# This is a fast build validation workflow.
 name: Assemble
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      source-sha:
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -22,7 +20,8 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          fetch-depth: 1
+          ref: ${{ inputs.source-sha }}
+          fetch-depth: 0
       - name: Checkout charts
         uses: actions/checkout@v7
         with:
