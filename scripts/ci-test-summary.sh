@@ -14,8 +14,8 @@ SHOULD_RUN_TESTS="${CI_SHOULD_RUN:-true}"
 
 PLAYGROUND_RESULT_DIRS=(
   playground/build/test-results/jvmTest
-  playground/build/test-results/jsBrowserTest
-  playground/build/test-results/jsTest
+  playground/build/test-results/wasmJsBrowserTest
+  playground/build/test-results/wasmJsTest
 )
 
 test_word() {

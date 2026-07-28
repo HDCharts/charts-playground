@@ -47,7 +47,7 @@ run_self_test() {
     failures=$((failures + 1))
   fi
 
-  result="$(is_code_change $'README.md\nplayground/src/jsMain/kotlin/Foo.kt')"
+  result="$(is_code_change $'README.md\nplayground/src/wasmJsMain/kotlin/Foo.kt')"
   if ! assert_equal "true" "$result" "playground source change"; then
     failures=$((failures + 1))
   fi

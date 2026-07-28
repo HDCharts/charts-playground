@@ -28,12 +28,15 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import interop.copyTextToClipboard
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import model.CodegenMode
 import model.GeneratedSnippet
 
@@ -53,6 +56,8 @@ fun PlaygroundCodePreviewPanel(
     modifier: Modifier = Modifier,
 ) {
     var copyState by remember(snippet.code) { mutableStateOf(CopyState.IDLE) }
+    val clipboard = LocalClipboard.current
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(copyState) {
         if (copyState == CopyState.IDLE) return@LaunchedEffect
@@ -121,7 +126,8 @@ fun PlaygroundCodePreviewPanel(
 
                 IconButton(
                     onClick = {
-                        copyTextToClipboard(snippet.code) { success ->
+                        coroutineScope.launch {
+                            val success = copyTextToClipboard(clipboard, snippet.code)
                             copyState = if (success) CopyState.COPIED else CopyState.FAILED
                         }
                     },
