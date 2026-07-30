@@ -1,6 +1,17 @@
 package codegen
 
-import androidx.compose.ui.graphics.Color
+import codegen.AreaCodegenConfig
+import codegen.BarCodegenConfig
+import codegen.HistogramCodegenConfig
+import codegen.LineCodegenConfig
+import codegen.LinePointInput
+import codegen.MultiLineCodegenConfig
+import codegen.MultiSeriesCodegenInput
+import codegen.PieCodegenConfig
+import codegen.PieSliceInput
+import codegen.RadarCodegenConfig
+import codegen.StackedBarCodegenConfig
+import codegen.StylePropertiesSnapshot
 import codegen.area.AreaChartCodeGenerator
 import codegen.bar.BarChartCodeGenerator
 import codegen.histogram.HistogramChartCodeGenerator
@@ -9,18 +20,8 @@ import codegen.multiline.MultiLineChartCodeGenerator
 import codegen.pie.PieChartCodeGenerator
 import codegen.radar.RadarChartCodeGenerator
 import codegen.stackedbar.StackedBarChartCodeGenerator
-import model.AreaCodegenConfig
-import model.BarCodegenConfig
-import model.HistogramCodegenConfig
-import model.LineCodegenConfig
-import model.LinePointInput
-import model.MultiLineCodegenConfig
-import model.MultiSeriesCodegenInput
-import model.PieCodegenConfig
-import model.PieSliceInput
-import model.RadarCodegenConfig
-import model.StackedBarCodegenConfig
-import model.StylePropertiesSnapshot
+import codegen.styleProperty
+import domain.ColorValue
 import org.jetbrains.kotlin.cli.common.ExitCode
 import org.jetbrains.kotlin.cli.jvm.K2JVMCompiler
 import java.io.ByteArrayOutputStream
@@ -67,11 +68,14 @@ class GeneratedSnippetCompilationTest {
                                 StylePropertiesSnapshot(
                                     current =
                                         listOf(
-                                            "barColors" to listOf(Color.Red, Color.Green),
+                                            styleProperty(
+                                                "barColors",
+                                                listOf(ColorValue(0xFFFF0000L), ColorValue(0xFF00FF00L)),
+                                            ),
                                         ),
                                     defaults =
                                         listOf(
-                                            "barColors" to emptyList<Color>(),
+                                            styleProperty("barColors", emptyList()),
                                         ),
                                 ),
                         ),
