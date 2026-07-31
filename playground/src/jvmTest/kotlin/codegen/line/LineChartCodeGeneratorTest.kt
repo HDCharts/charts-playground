@@ -19,8 +19,8 @@ class LineChartCodeGeneratorTest {
                 LineCodegenConfig(
                     points =
                         listOf(
-                            LinePointInput(label = "Jan", valueText = "12"),
-                            LinePointInput(label = "Feb", valueText = "18"),
+                            LinePointInput(label = "Jan", value = 12f),
+                            LinePointInput(label = "Feb", value = 18f),
                         ),
                 ),
             )
@@ -38,8 +38,8 @@ class LineChartCodeGeneratorTest {
                 LineCodegenConfig(
                     points =
                         listOf(
-                            LinePointInput(label = "A", valueText = "1"),
-                            LinePointInput(label = "B", valueText = "2"),
+                            LinePointInput(label = "A", value = 1f),
+                            LinePointInput(label = "B", value = 2f),
                         ),
                     styleProperties =
                         StylePropertiesSnapshot(
@@ -61,8 +61,8 @@ class LineChartCodeGeneratorTest {
                 LineCodegenConfig(
                     points =
                         listOf(
-                            LinePointInput(label = "A", valueText = "1"),
-                            LinePointInput(label = "B", valueText = "2"),
+                            LinePointInput(label = "A", value = 1f),
+                            LinePointInput(label = "B", value = 2f),
                         ),
                     styleProperties =
                         StylePropertiesSnapshot(
@@ -84,8 +84,8 @@ class LineChartCodeGeneratorTest {
                 LineCodegenConfig(
                     points =
                         listOf(
-                            LinePointInput(label = "A", valueText = "1"),
-                            LinePointInput(label = "B", valueText = "2"),
+                            LinePointInput(label = "A", value = 1f),
+                            LinePointInput(label = "B", value = 2f),
                         ),
                     functionName = "MonthlyTrendLineChart",
                 ),

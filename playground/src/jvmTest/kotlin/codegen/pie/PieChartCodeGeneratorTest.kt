@@ -20,8 +20,8 @@ class PieChartCodeGeneratorTest {
                 PieCodegenConfig(
                     rows =
                         listOf(
-                            PieSliceInput(label = "Product A", valueText = "24"),
-                            PieSliceInput(label = "Product B", valueText = "18"),
+                            PieSliceInput(label = "Product A", value = 24f),
+                            PieSliceInput(label = "Product B", value = 18f),
                         ),
                 ),
             )
@@ -40,8 +40,8 @@ class PieChartCodeGeneratorTest {
                 PieCodegenConfig(
                     rows =
                         listOf(
-                            PieSliceInput(label = "A", valueText = "1"),
-                            PieSliceInput(label = "B", valueText = "2"),
+                            PieSliceInput(label = "A", value = 1f),
+                            PieSliceInput(label = "B", value = 2f),
                         ),
                     styleProperties =
                         StylePropertiesSnapshot(
@@ -63,9 +63,9 @@ class PieChartCodeGeneratorTest {
                 PieCodegenConfig(
                     rows =
                         listOf(
-                            PieSliceInput(label = "A", valueText = "1"),
-                            PieSliceInput(label = "B", valueText = "2"),
-                            PieSliceInput(label = "C", valueText = "3"),
+                            PieSliceInput(label = "A", value = 1f),
+                            PieSliceInput(label = "B", value = 2f),
+                            PieSliceInput(label = "C", value = 3f),
                         ),
                     styleProperties =
                         StylePropertiesSnapshot(

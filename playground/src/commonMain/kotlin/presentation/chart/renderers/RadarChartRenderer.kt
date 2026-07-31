@@ -2,9 +2,9 @@ package presentation.chart.renderers
 
 import androidx.compose.runtime.Composable
 import domain.ChartData
-import domain.ChartSession
 import domain.RadarStyleDefaults
 import domain.RadarStyleState
+import domain.ValidatedChartSpec
 import domain.normalizeColorCount
 import io.github.dautovicharis.charts.RadarChart
 import io.github.dautovicharis.charts.model.toMultiChartDataSet
@@ -12,13 +12,13 @@ import io.github.dautovicharis.charts.style.RadarChartDefaults
 import presentation.colors.toComposeColor
 
 @Composable
-internal fun RadarChartRenderer(session: ChartSession) {
-    val data = session.data as ChartData.RadarSeries
-    val styleState = session.styleState as RadarStyleState
+internal fun RadarChartRenderer(spec: ValidatedChartSpec) {
+    val data = spec.data as ChartData.RadarSeries
+    val styleState = spec.styleState as RadarStyleState
     val dataSet =
         data.entries
             .map { entry -> entry.name to entry.values }
-            .toMultiChartDataSet(title = session.title, categories = data.axes)
+            .toMultiChartDataSet(title = spec.title, categories = data.axes)
     val defaultStyle = RadarChartDefaults.style()
     val style =
         RadarChartDefaults.style(

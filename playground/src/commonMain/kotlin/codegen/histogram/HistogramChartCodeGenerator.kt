@@ -39,10 +39,9 @@ internal class HistogramChartCodeGenerator(
     private fun normalizePoints(points: List<BarPointInput>): List<NormalizedPoint> =
         points.mapIndexed { index, point ->
             val sanitizedLabel = point.label.trim().ifBlank { "Bin ${index + 1}" }
-            val floatValue = point.valueText.toFloatOrNull()?.coerceAtLeast(0f) ?: 0f
             NormalizedPoint(
                 label = sanitizedLabel,
-                value = floatValue,
+                value = point.value,
             )
         }
 

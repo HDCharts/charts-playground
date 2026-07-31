@@ -12,8 +12,11 @@ import domain.STACKED_BAR_CHART_TITLE
 
 data class PieSliceInput(
     val label: String,
-    val valueText: String,
-)
+    val value: Float,
+) {
+    @Deprecated("Use the typed value constructor")
+    constructor(label: String, valueText: String) : this(label, valueText.toFloat())
+}
 
 typealias LinePointInput = PieSliceInput
 typealias BarPointInput = PieSliceInput

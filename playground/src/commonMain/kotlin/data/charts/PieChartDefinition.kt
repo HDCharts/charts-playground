@@ -23,9 +23,9 @@ import domain.PIE_CHART_TITLE
 import domain.PieStyleDefaults
 import domain.PieStyleState
 import domain.SettingDescriptor
+import domain.ValidatedChartSpec
 import domain.ValidationResult
 import domain.deriveFunctionName
-import domain.formatEditorFloat
 import kotlin.random.Random
 
 internal object PieChartDefinition : ChartDefinition, ChartCodegenAdapter {
@@ -72,7 +72,7 @@ internal object PieChartDefinition : ChartDefinition, ChartCodegenAdapter {
         )
 
     override fun settingsSchema(session: ChartSession): List<SettingDescriptor> {
-        val itemCount = (session.data as ChartData.SingleSeries).values.size
+        val itemCount = (session.validatedSpec.data as ChartData.SingleSeries).values.size
         return listOf(
             SettingDescriptor.Section("Pie Chart"),
             SettingDescriptor.Slider(
@@ -123,20 +123,20 @@ internal object PieChartDefinition : ChartDefinition, ChartCodegenAdapter {
         )
     }
 
-    private fun codegenStyleProperties(session: ChartSession): StylePropertiesSnapshot =
+    private fun codegenStyleProperties(spec: ValidatedChartSpec): StylePropertiesSnapshot =
         pieStylePropertiesSnapshot(
-            session.styleState as PieStyleState,
-            (session.data as ChartData.SingleSeries).values.size,
+            spec.styleState as PieStyleState,
+            (spec.data as ChartData.SingleSeries).values.size,
         )
 
-    override fun generate(session: ChartSession): String {
-        val styleProperties = codegenStyleProperties(session)
-        val data = session.data as ChartData.SingleSeries
+    override fun generate(spec: ValidatedChartSpec): String {
+        val styleProperties = codegenStyleProperties(spec)
+        val data = spec.data as ChartData.SingleSeries
         val rows =
             data.values.mapIndexed { index, value ->
                 PieSliceInput(
                     label = data.labels?.getOrNull(index) ?: "Slice ${index + 1}",
-                    valueText = formatEditorFloat(value),
+                    value = value,
                 )
             }
 
@@ -144,10 +144,10 @@ internal object PieChartDefinition : ChartDefinition, ChartCodegenAdapter {
             .generate(
                 PieCodegenConfig(
                     rows = rows,
-                    title = session.title,
+                    title = spec.title,
                     styleProperties = styleProperties,
-                    codegenMode = session.codegenMode,
-                    functionName = deriveFunctionName(session.title, type),
+                    codegenMode = spec.codegenMode,
+                    functionName = deriveFunctionName(spec.title, type),
                 ),
             ).code
     }

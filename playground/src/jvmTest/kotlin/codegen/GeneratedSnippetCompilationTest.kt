@@ -41,8 +41,8 @@ class GeneratedSnippetCompilationTest {
                         LineCodegenConfig(
                             points =
                                 listOf(
-                                    LinePointInput(label = "Jan", valueText = "12"),
-                                    LinePointInput(label = "Feb", valueText = "18"),
+                                    LinePointInput(label = "Jan", value = 12f),
+                                    LinePointInput(label = "Feb", value = 18f),
                                 ),
                         ),
                     ).code,
@@ -51,8 +51,8 @@ class GeneratedSnippetCompilationTest {
                         PieCodegenConfig(
                             rows =
                                 listOf(
-                                    PieSliceInput(label = "A", valueText = "24"),
-                                    PieSliceInput(label = "B", valueText = "18"),
+                                    PieSliceInput(label = "A", value = 24f),
+                                    PieSliceInput(label = "B", value = 18f),
                                 ),
                         ),
                     ).code,
@@ -61,8 +61,8 @@ class GeneratedSnippetCompilationTest {
                         BarCodegenConfig(
                             points =
                                 listOf(
-                                    PieSliceInput(label = "Mon", valueText = "12"),
-                                    PieSliceInput(label = "Tue", valueText = "18"),
+                                    PieSliceInput(label = "Mon", value = 12f),
+                                    PieSliceInput(label = "Tue", value = 18f),
                                 ),
                             styleProperties =
                                 StylePropertiesSnapshot(
@@ -85,8 +85,8 @@ class GeneratedSnippetCompilationTest {
                         HistogramCodegenConfig(
                             points =
                                 listOf(
-                                    PieSliceInput(label = "0-10", valueText = "4"),
-                                    PieSliceInput(label = "10-20", valueText = "9"),
+                                    PieSliceInput(label = "0-10", value = 4f),
+                                    PieSliceInput(label = "10-20", value = 9f),
                                 ),
                         ),
                     ).code,

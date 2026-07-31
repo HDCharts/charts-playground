@@ -7,7 +7,7 @@ import data.InMemoryEditorStore
 import io.github.dautovicharis.charts.demoshared.theme.AppTheme
 import io.github.dautovicharis.charts.demoshared.theme.docsSlate
 import platform.snapshotPublishMetadata
-import presentation.editor.EditorScreen
+import presentation.editor.EditorRoute
 import presentation.editor.EditorViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -24,7 +24,7 @@ fun main() {
             theme = docsSlate,
             useDynamicColors = false,
         ) {
-            EditorScreen(viewModel)
+            EditorRoute(viewModel)
         }
     }
 }

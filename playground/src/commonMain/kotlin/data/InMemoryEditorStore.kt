@@ -4,6 +4,7 @@ import domain.ChartCatalog
 import domain.ChartDefinition
 import domain.ChartEditorState
 import domain.ChartSession
+import domain.ChartValidationState
 import domain.CodegenMode
 import domain.DataTableState
 import domain.EditorAction
@@ -12,6 +13,7 @@ import domain.RightPanelTab
 import domain.SettingChange
 import domain.SettingDescriptor
 import domain.SnapshotPublishMetadata
+import domain.ValidatedChartSpec
 import domain.updateCell
 import domain.withAddedRow
 import domain.withDeletedRow
@@ -41,11 +43,19 @@ class InMemoryEditorStore(
             is EditorAction.SelectRightPanelTab -> state.copy(rightPanelTab = action.tab)
             is EditorAction.UpdateTitle ->
                 updateCurrentSession(state) { session, _ ->
-                    session.copy(title = action.title)
+                    val draft = session.draft.copy(title = action.title)
+                    session.copy(
+                        draft = draft,
+                        validatedSpec = session.validatedSpec.copy(title = action.title),
+                    )
                 }
             is EditorAction.UpdateCodegenMode ->
                 updateCurrentSession(state) { session, _ ->
-                    session.copy(codegenMode = action.mode)
+                    val draft = session.draft.copy(codegenMode = action.mode)
+                    session.copy(
+                        draft = draft,
+                        validatedSpec = session.validatedSpec.copy(codegenMode = action.mode),
+                    )
                 }
             is EditorAction.UpdateSetting ->
                 updateCurrentSession(state) { session, _ ->
@@ -54,8 +64,8 @@ class InMemoryEditorStore(
             is EditorAction.UpdateDataTableCell ->
                 updateCurrentSession(state) { session, definition ->
                     val updatedTable =
-                        session.dataTable.updateCell(
-                            rowIndex = action.rowIndex,
+                        session.draft.dataTable.updateCell(
+                            rowId = action.rowId,
                             columnId = action.columnId,
                             value = action.value,
                         )
@@ -63,21 +73,21 @@ class InMemoryEditorStore(
                 }
             EditorAction.AddRow ->
                 updateCurrentSession(state) { session, definition ->
-                    val rowIndex = session.dataTable.rows.size
-                    val cells = definition.newRowCells(rowIndex, session.dataTable.columns)
-                    applyValidation(session, definition, session.dataTable.withAddedRow(cells))
+                    val rowIndex = session.draft.dataTable.rows.size
+                    val cells = definition.newRowCells(rowIndex, session.draft.dataTable.columns)
+                    applyValidation(session, definition, session.draft.dataTable.withAddedRow(cells))
                 }
             is EditorAction.DeleteRow ->
                 updateCurrentSession(state) { session, definition ->
-                    applyValidation(session, definition, session.dataTable.withDeletedRow(action.rowIndex))
+                    applyValidation(session, definition, session.draft.dataTable.withDeletedRow(action.rowId))
                 }
             EditorAction.Randomize ->
                 updateCurrentSession(state) { session, definition ->
-                    applyValidation(session, definition, definition.randomize(session.dataTable))
+                    applyValidation(session, definition, definition.randomize(session.draft.dataTable))
                 }
             EditorAction.Reset ->
                 updateCurrentSession(state) { session, definition ->
-                    newSession(definition, session.codegenMode)
+                    newSession(definition, session.draft.codegenMode)
                 }
         }
 
@@ -97,8 +107,11 @@ class InMemoryEditorStore(
         change: SettingChange,
     ): ChartSession {
         val descriptor = session.settings.firstOrNull { descriptor -> descriptor.matches(change) } ?: return session
-        val nextStyle = descriptor.applyChange(session.styleState, change) ?: return session
-        return session.copy(styleState = nextStyle)
+        val nextStyle = descriptor.applyChange(session.draft.styleState, change) ?: return session
+        return session.copy(
+            draft = session.draft.copy(styleState = nextStyle),
+            validatedSpec = session.validatedSpec.copy(styleState = nextStyle),
+        )
     }
 
     private fun applyValidation(
@@ -107,21 +120,33 @@ class InMemoryEditorStore(
         updatedTable: DataTableState,
     ): ChartSession {
         val result = definition.validate(updatedTable)
+        val nextDraft = session.draft.copy(dataTable = updatedTable)
         val nextData = result.data
         val nextTable = result.sanitizedTable
-        if (nextData == null || nextTable == null) {
+        if (nextData == null || nextTable == null || !result.isValid) {
             return session.copy(
-                dataTable = updatedTable,
-                validationMessage = result.message,
-                invalidRowIds = result.invalidRowIds,
+                draft = nextDraft,
+                validatedSpec =
+                    session.validatedSpec.copy(
+                        title = nextDraft.title,
+                        styleState = nextDraft.styleState,
+                        codegenMode = nextDraft.codegenMode,
+                    ),
+                validation = ChartValidationState.Invalid(result.issues),
             )
         }
 
         return session.copy(
-            dataTable = nextTable,
-            data = nextData,
-            validationMessage = result.message,
-            invalidRowIds = emptySet(),
+            draft = nextDraft,
+            validatedSpec =
+                ValidatedChartSpec(
+                    chartType = session.chartType,
+                    title = nextDraft.title,
+                    data = nextData,
+                    styleState = nextDraft.styleState,
+                    codegenMode = nextDraft.codegenMode,
+                ),
+            validation = ChartValidationState.Valid(result.issues, result.appliedRowCount),
         )
     }
 
@@ -136,7 +161,7 @@ class InMemoryEditorStore(
     ): ChartSession =
         session.copy(
             settings = definition.settingsSchema(session),
-            generatedCode = codegenService.generate(session),
+            generatedCode = codegenService.generate(session.validatedSpec),
         )
 }
 
@@ -192,6 +217,6 @@ private fun initialSession(
     definition.resetSession(codegenMode = CodegenMode.MINIMAL).let { session ->
         session.copy(
             settings = definition.settingsSchema(session),
-            generatedCode = codegenService.generate(session),
+            generatedCode = codegenService.generate(session.validatedSpec),
         )
     }

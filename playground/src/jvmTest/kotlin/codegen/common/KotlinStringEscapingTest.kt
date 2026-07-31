@@ -9,4 +9,12 @@ class KotlinStringEscapingTest {
         assertEquals("\\$", escapeKotlinString("$"))
         assertEquals("\\$" + "{value}", escapeKotlinString("$" + "{value}"))
     }
+
+    @Test
+    fun kotlin_string_escaping_handles_quotes_slashes_control_characters_and_unicode() {
+        assertEquals(
+            "quote: \\\" slash: \\\\ newline: \\n tab: \\t control: \\u0001 snowman: ☃",
+            escapeKotlinString("quote: \" slash: \\ newline: \n tab: \t control: \u0001 snowman: ☃"),
+        )
+    }
 }

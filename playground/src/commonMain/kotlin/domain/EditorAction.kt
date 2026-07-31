@@ -51,7 +51,7 @@ sealed interface EditorAction {
     ) : EditorAction
 
     data class UpdateDataTableCell(
-        val rowIndex: Int,
+        val rowId: RowId,
         val columnId: String,
         val value: String,
     ) : EditorAction
@@ -59,7 +59,7 @@ sealed interface EditorAction {
     data object AddRow : EditorAction
 
     data class DeleteRow(
-        val rowIndex: Int,
+        val rowId: RowId,
     ) : EditorAction
 
     data object Randomize : EditorAction

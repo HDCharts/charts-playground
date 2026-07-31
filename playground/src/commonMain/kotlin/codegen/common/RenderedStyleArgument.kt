@@ -1,6 +1,7 @@
 package codegen.common
 
 import codegen.StylePropertiesSnapshot
+import codegen.StyleProperty
 import domain.CodegenMode
 
 data class RenderedStyleArgument(
@@ -17,7 +18,7 @@ fun resolveStyleArguments(
     }
 
     val defaultsByName = styleProperties.defaults.associate { property -> property.name to property.value }
-    return styleProperties.current.mapNotNull { property ->
+    return styleProperties.current.sortedBy(StyleProperty::name).mapNotNull { property ->
         val name = property.name
         val currentValue = property.value
         val defaultValue = defaultsByName[name]

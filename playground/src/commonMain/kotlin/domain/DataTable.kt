@@ -1,5 +1,12 @@
 package domain
 
+import kotlin.jvm.JvmInline
+
+@JvmInline
+value class RowId(
+    val value: Int,
+)
+
 data class DataTableColumn(
     val id: String,
     val label: String,
@@ -9,7 +16,7 @@ data class DataTableColumn(
 )
 
 data class DataTableRow(
-    val id: Int,
+    val id: RowId,
     val cells: Map<String, String>,
 )
 
@@ -20,12 +27,13 @@ data class DataTableState(
 )
 
 fun DataTableState.updateCell(
-    rowIndex: Int,
+    rowId: RowId,
     columnId: String,
     value: String,
 ): DataTableState {
-    if (rowIndex !in rows.indices) return this
     if (columns.none { column -> column.id == columnId }) return this
+    val rowIndex = rows.indexOfFirst { row -> row.id == rowId }
+    if (rowIndex == -1) return this
     val nextRows =
         rows.toMutableList().also { mutableRows ->
             val row = mutableRows[rowIndex]
@@ -35,16 +43,16 @@ fun DataTableState.updateCell(
 }
 
 fun DataTableState.withAddedRow(cells: Map<String, String>): DataTableState {
-    val nextId = (rows.maxOfOrNull { row -> row.id } ?: 0) + 1
-    val nextRow = DataTableRow(id = nextId, cells = cells)
+    val nextId = (rows.maxOfOrNull { row -> row.id.value } ?: 0) + 1
+    val nextRow = DataTableRow(id = RowId(nextId), cells = cells)
     val nextRows = rows + nextRow
     return copy(rows = nextRows)
 }
 
-fun DataTableState.withDeletedRow(index: Int): DataTableState {
+fun DataTableState.withDeletedRow(rowId: RowId): DataTableState {
     if (rows.size <= minRows) return this
-    if (index !in rows.indices) return this
-    return copy(rows = rows.filterIndexed { rowIndex, _ -> rowIndex != index })
+    if (rows.none { row -> row.id == rowId }) return this
+    return copy(rows = rows.filterNot { row -> row.id == rowId })
 }
 
 fun formatEditorFloat(value: Float): String =

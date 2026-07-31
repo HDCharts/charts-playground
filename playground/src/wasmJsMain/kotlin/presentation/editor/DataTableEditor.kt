@@ -3,10 +3,11 @@ package presentation.editor
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -16,7 +17,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -40,6 +44,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import chartsproject.playground.generated.resources.Res
@@ -55,6 +61,8 @@ import chartsproject.playground.generated.resources.playground_editor_reset_dial
 import chartsproject.playground.generated.resources.playground_editor_reset_dialog_title
 import chartsproject.playground.generated.resources.playground_editor_row_number_header
 import domain.DataTableState
+import domain.RowId
+import domain.ValidationPath
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
 
@@ -67,10 +75,12 @@ private enum class ConfirmationAction {
 fun DataTableEditor(
     dataTable: DataTableState,
     validationMessage: String?,
-    invalidRowIds: Set<Int>,
-    onCellChange: (rowIndex: Int, columnId: String, value: String) -> Unit,
+    validationIsBlocking: Boolean,
+    invalidRowIds: Set<RowId>,
+    invalidCellPaths: Set<ValidationPath>,
+    onCellChange: (rowId: RowId, columnId: String, value: String) -> Unit,
     onAddRow: () -> Unit,
-    onDeleteRow: (rowIndex: Int) -> Unit,
+    onDeleteRow: (rowId: RowId) -> Unit,
     onRandomize: () -> Unit,
     onReset: () -> Unit,
     expandToFillHeight: Boolean = true,
@@ -83,7 +93,7 @@ fun DataTableEditor(
     val currentRowIds = dataTable.rows.map { row -> row.id }
     val visibleRows = dataTable.rows.asReversed()
     var previousRowIds by remember { mutableStateOf(currentRowIds) }
-    var highlightedRowId by remember { mutableStateOf<Int?>(null) }
+    var highlightedRowId by remember { mutableStateOf<RowId?>(null) }
     var confirmationAction by remember { mutableStateOf<ConfirmationAction?>(null) }
 
     LaunchedEffect(currentRowIds) {
@@ -116,50 +126,75 @@ fun DataTableEditor(
                 .padding(16.dp)
 
         Column(modifier = columnModifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Button(
-                    onClick = onAddRow,
-                    colors =
-                        ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                        ),
-                    modifier = Modifier.weight(1f),
+            BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                val compactActions = maxWidth < EditorCompactHeaderBreakpoint
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(
-                        text = stringResource(Res.string.playground_editor_add_row),
-                        maxLines = 1,
-                        softWrap = false,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-                Button(
-                    onClick = { confirmationAction = ConfirmationAction.RANDOMIZE },
-                    colors = ButtonDefaults.outlinedButtonColors(),
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Text(
-                        text = stringResource(Res.string.playground_editor_randomize),
-                        maxLines = 1,
-                        softWrap = false,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-                Button(
-                    onClick = { confirmationAction = ConfirmationAction.RESET },
-                    colors = ButtonDefaults.outlinedButtonColors(),
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Text(
-                        text = stringResource(Res.string.playground_editor_reset),
-                        maxLines = 1,
-                        softWrap = false,
-                        overflow = TextOverflow.Ellipsis,
-                    )
+                    if (compactActions) {
+                        IconButton(onClick = onAddRow) {
+                            Icon(
+                                imageVector = Icons.Filled.Add,
+                                contentDescription = stringResource(Res.string.playground_editor_add_row),
+                            )
+                        }
+                        IconButton(onClick = { confirmationAction = ConfirmationAction.RANDOMIZE }) {
+                            Icon(
+                                imageVector = Icons.Filled.Shuffle,
+                                contentDescription = stringResource(Res.string.playground_editor_randomize),
+                            )
+                        }
+                        IconButton(onClick = { confirmationAction = ConfirmationAction.RESET }) {
+                            Icon(
+                                imageVector = Icons.Filled.Refresh,
+                                contentDescription = stringResource(Res.string.playground_editor_reset),
+                            )
+                        }
+                        Spacer(modifier = Modifier.weight(1f))
+                    } else {
+                        Button(
+                            onClick = onAddRow,
+                            colors =
+                                ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                ),
+                            modifier = Modifier.weight(1f),
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.playground_editor_add_row),
+                                maxLines = 1,
+                                softWrap = false,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
+                        Button(
+                            onClick = { confirmationAction = ConfirmationAction.RANDOMIZE },
+                            colors = ButtonDefaults.outlinedButtonColors(),
+                            modifier = Modifier.weight(1f),
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.playground_editor_randomize),
+                                maxLines = 1,
+                                softWrap = false,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
+                        Button(
+                            onClick = { confirmationAction = ConfirmationAction.RESET },
+                            colors = ButtonDefaults.outlinedButtonColors(),
+                            modifier = Modifier.weight(1f),
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.playground_editor_reset),
+                                maxLines = 1,
+                                softWrap = false,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
+                    }
                 }
             }
 
@@ -221,9 +256,8 @@ fun DataTableEditor(
             ) {
                 visibleRows.forEachIndexed { visualRowIndex, row ->
                     val rowIndex = dataTable.rows.lastIndex - visualRowIndex
-                    val rowId = rowIndex + 1
                     val rowContainerColor =
-                        if (rowId in invalidRowIds) {
+                        if (row.id in invalidRowIds) {
                             MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.32f)
                         } else if (row.id == highlightedRowId) {
                             MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.25f)
@@ -256,7 +290,7 @@ fun DataTableEditor(
                             }
                         }
                         dataTable.columns.forEach { column ->
-                            val invalidCell = rowId in invalidRowIds && column.numeric
+                            val invalidCell = ValidationPath(rowId = row.id, columnId = column.id) in invalidCellPaths
                             Surface(
                                 modifier = Modifier.weight(column.weight),
                                 color = rowContainerColor,
@@ -273,11 +307,17 @@ fun DataTableEditor(
                                 TextField(
                                     value = row.cells[column.id].orEmpty(),
                                     onValueChange = { nextValue ->
-                                        onCellChange(rowIndex, column.id, nextValue)
+                                        onCellChange(row.id, column.id, nextValue)
                                     },
                                     singleLine = true,
                                     isError = invalidCell,
-                                    modifier = Modifier.fillMaxWidth().height(cellHeight),
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .height(cellHeight)
+                                            .semantics {
+                                                contentDescription = "${column.label}, row ${rowIndex + 1}"
+                                            },
                                     colors =
                                         TextFieldDefaults.colors(
                                             focusedContainerColor = Color.Transparent,
@@ -301,9 +341,9 @@ fun DataTableEditor(
                                 contentAlignment = Alignment.Center,
                             ) {
                                 IconButton(
-                                    onClick = { onDeleteRow(rowIndex) },
+                                    onClick = { onDeleteRow(row.id) },
                                     enabled = canDeleteRows,
-                                    modifier = Modifier.fillMaxSize().alpha(if (canDeleteRows) 1f else 0.45f),
+                                    modifier = Modifier.alpha(if (canDeleteRows) 1f else 0.45f),
                                 ) {
                                     Icon(
                                         Icons.Filled.Delete,
@@ -319,19 +359,18 @@ fun DataTableEditor(
             }
 
             validationMessage?.let { message ->
-                val isAppliedMessage = message.startsWith("Applied ")
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(
                         text = message,
                         color =
-                            if (isAppliedMessage) {
+                            if (!validationIsBlocking) {
                                 MaterialTheme.colorScheme.onSurfaceVariant
                             } else {
                                 MaterialTheme.colorScheme.error
                             },
                         style = MaterialTheme.typography.bodySmall,
                     )
-                    if (!isAppliedMessage) {
+                    if (validationIsBlocking) {
                         Text(
                             text = stringResource(Res.string.playground_editor_preview_unchanged),
                             color = MaterialTheme.colorScheme.error,

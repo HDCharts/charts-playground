@@ -42,7 +42,7 @@ fun SettingsPanel(
                 SettingDescriptor.Divider -> HorizontalDivider(modifier = Modifier.padding(vertical = 6.dp))
 
                 is SettingDescriptor.Toggle -> {
-                    val checked = descriptor.read(session.styleState) ?: descriptor.defaultValue
+                    val checked = descriptor.read(session.draft.styleState) ?: descriptor.defaultValue
                     BooleanToggleControl(
                         label = descriptor.label,
                         checked = checked,
@@ -53,7 +53,7 @@ fun SettingsPanel(
                 }
 
                 is SettingDescriptor.Slider -> {
-                    val value = descriptor.read(session.styleState) ?: descriptor.defaultValue
+                    val value = descriptor.read(session.draft.styleState) ?: descriptor.defaultValue
                     FloatSliderControl(
                         label = descriptor.label,
                         value = value,
@@ -67,7 +67,7 @@ fun SettingsPanel(
                 }
 
                 is SettingDescriptor.Dropdown -> {
-                    val selected = descriptor.read(session.styleState) ?: descriptor.defaultValue
+                    val selected = descriptor.read(session.draft.styleState) ?: descriptor.defaultValue
                     Text(
                         text = descriptor.label,
                         style = MaterialTheme.typography.bodyMedium,
@@ -101,7 +101,7 @@ fun SettingsPanel(
                 }
 
                 is SettingDescriptor.Color -> {
-                    val color = descriptor.read(session.styleState)
+                    val color = descriptor.read(session.draft.styleState)
                     LineColorControl(
                         label = descriptor.label,
                         customColor = color?.toComposeColor(),
@@ -112,7 +112,7 @@ fun SettingsPanel(
                 }
 
                 is SettingDescriptor.ColorPalette -> {
-                    val colors = descriptor.read(session.styleState)
+                    val colors = descriptor.read(session.draft.styleState)
                     ColorPaletteControl(
                         title = descriptor.title,
                         customColors = colors?.map { color -> color.toComposeColor() },

@@ -7,8 +7,10 @@ import domain.ColorValue
 import domain.EditorAction
 import domain.LineStyleState
 import domain.RightPanelTab
+import domain.RowId
 import domain.SettingChange
 import domain.SettingDescriptor
+import domain.ValidationIssueCode
 import io.github.dautovicharis.charts.demoshared.data.barSampleUseCase
 import io.github.dautovicharis.charts.demoshared.data.histogramSampleUseCase
 import io.github.dautovicharis.charts.demoshared.data.lineSampleUseCase
@@ -37,11 +39,11 @@ class EditorStoreTest {
         val lineTitle =
             store.state.value.sessions
                 .getValue(ChartType.LINE)
-                .title
+                .draft.title
         val pieTitle =
             store.state.value.sessions
                 .getValue(ChartType.PIE)
-                .title
+                .draft.title
         assertEquals("Line Session Title", lineTitle)
         assertEquals("Pie Session Title", pieTitle)
     }
@@ -52,11 +54,15 @@ class EditorStoreTest {
         val before =
             store.state.value.sessions
                 .getValue(ChartType.LINE)
-                .data
+                .validatedSpec.data
+        val beforeCode =
+            store.state.value.sessions
+                .getValue(ChartType.LINE)
+                .generatedCode
 
         store.dispatch(
             EditorAction.UpdateDataTableCell(
-                rowIndex = 0,
+                rowId = RowId(1),
                 columnId = "value",
                 value = "oops",
             ),
@@ -65,8 +71,48 @@ class EditorStoreTest {
         val afterSession =
             store.state.value.sessions
                 .getValue(ChartType.LINE)
-        assertEquals(before, afterSession.data)
-        assertTrue(afterSession.validationMessage.orEmpty().contains("valid numeric"))
+        assertEquals(before, afterSession.validatedSpec.data)
+        assertEquals(
+            "oops",
+            afterSession.draft.dataTable.rows
+                .first()
+                .cells
+                .getValue("value"),
+        )
+        assertTrue(
+            afterSession.validation.issues.any { issue ->
+                issue.code == ValidationIssueCode.INVALID_NUMBER && issue.path?.rowId == RowId(1)
+            },
+        )
+        assertTrue(afterSession.validation is domain.ChartValidationState.Invalid)
+        assertEquals(beforeCode, afterSession.generatedCode)
+    }
+
+    @Test
+    fun row_actions_use_stable_ids_after_another_row_is_deleted() {
+        val store = newStore()
+
+        store.dispatch(EditorAction.DeleteRow(RowId(1)))
+        store.dispatch(
+            EditorAction.UpdateDataTableCell(
+                rowId = RowId(2),
+                columnId = "value",
+                value = "77",
+            ),
+        )
+
+        val table =
+            store.state.value.sessions
+                .getValue(ChartType.LINE)
+                .draft.dataTable
+        assertEquals(RowId(2), table.rows.first().id)
+        assertEquals(
+            "77",
+            table.rows
+                .first()
+                .cells
+                .getValue("value"),
+        )
     }
 
     @Test
@@ -78,7 +124,7 @@ class EditorStoreTest {
         val session =
             store.state.value.sessions
                 .getValue(ChartType.LINE)
-        assertEquals(0.8f, (session.styleState as LineStyleState).lineAlpha)
+        assertEquals(0.8f, (session.draft.styleState as LineStyleState).lineAlpha)
         assertTrue(session.generatedCode.contains("lineAlpha = 0.8f"))
     }
 
@@ -156,22 +202,28 @@ class EditorStoreTest {
             store.state.value.sessions
                 .getValue(ChartType.LINE)
 
-        repeat(initial.dataTable.rows.size - initial.dataTable.minRows) {
-            store.dispatch(EditorAction.DeleteRow(0))
+        repeat(initial.draft.dataTable.rows.size - initial.draft.dataTable.minRows) {
+            val rowId =
+                store.state.value.sessions
+                    .getValue(ChartType.LINE)
+                    .draft.dataTable.rows
+                    .first()
+                    .id
+            store.dispatch(EditorAction.DeleteRow(rowId))
         }
         val minimum =
             store.state.value.sessions
                 .getValue(ChartType.LINE)
-                .dataTable
+                .draft.dataTable
 
-        store.dispatch(EditorAction.DeleteRow(0))
+        store.dispatch(EditorAction.DeleteRow(minimum.rows.first().id))
 
         assertEquals(minimum.minRows, minimum.rows.size)
         assertEquals(
             minimum,
             store.state.value.sessions
                 .getValue(ChartType.LINE)
-                .dataTable,
+                .draft.dataTable,
         )
     }
 
@@ -184,8 +236,11 @@ class EditorStoreTest {
         val session =
             store.state.value.sessions
                 .getValue(ChartType.LINE)
-        assertTrue(session.invalidRowIds.isEmpty())
-        assertTrue(session.validationMessage.orEmpty().contains("Applied"))
+        assertTrue(session.validation.invalidRowIds.isEmpty())
+        assertEquals(
+            session.draft.dataTable.rows.size,
+            (session.validation as domain.ChartValidationState.Valid).appliedRowCount,
+        )
         assertTrue(session.generatedCode.isNotBlank())
     }
 
@@ -201,9 +256,9 @@ class EditorStoreTest {
         val session =
             store.state.value.sessions
                 .getValue(ChartType.LINE)
-        assertEquals(domain.LINE_CHART_TITLE, session.title)
-        assertEquals(CodegenMode.FULL, session.codegenMode)
-        assertEquals(null, (session.styleState as LineStyleState).lineAlpha)
+        assertEquals(domain.LINE_CHART_TITLE, session.draft.title)
+        assertEquals(CodegenMode.FULL, session.draft.codegenMode)
+        assertEquals(null, (session.draft.styleState as LineStyleState).lineAlpha)
         assertTrue(session.generatedCode.isNotBlank())
     }
 
@@ -215,8 +270,8 @@ class EditorStoreTest {
         val beforeSession =
             store.state.value.sessions
                 .getValue(ChartType.PIE)
-        val beforeRows = beforeSession.dataTable.rows
-        val beforeData = beforeSession.data as ChartData.SingleSeries
+        val beforeRows = beforeSession.draft.dataTable.rows
+        val beforeData = beforeSession.validatedSpec.data as ChartData.SingleSeries
         val beforeCount = beforeData.values.size
 
         store.dispatch(EditorAction.AddRow)
@@ -224,10 +279,10 @@ class EditorStoreTest {
         val afterSession =
             store.state.value.sessions
                 .getValue(ChartType.PIE)
-        val afterRows = afterSession.dataTable.rows
-        val afterData = afterSession.data as ChartData.SingleSeries
+        val afterRows = afterSession.draft.dataTable.rows
+        val afterData = afterSession.validatedSpec.data as ChartData.SingleSeries
         assertEquals(beforeCount + 1, afterData.values.size)
-        assertEquals(afterRows.maxOf { row -> row.id }, afterRows.last().id)
+        assertEquals(RowId(afterRows.maxOf { row -> row.id.value }), afterRows.last().id)
         assertEquals(beforeRows.map { row -> row.id }, afterRows.dropLast(1).map { row -> row.id })
         assertEquals(afterRows.last().cells.getValue("label"), afterData.labels?.last())
 
@@ -254,13 +309,13 @@ class EditorStoreTest {
             CodegenMode.FULL,
             store.state.value.sessions
                 .getValue(ChartType.LINE)
-                .codegenMode,
+                .draft.codegenMode,
         )
         assertEquals(
             CodegenMode.MINIMAL,
             store.state.value.sessions
                 .getValue(ChartType.PIE)
-                .codegenMode,
+                .draft.codegenMode,
         )
     }
 
@@ -268,7 +323,10 @@ class EditorStoreTest {
     fun default_sessions_use_charts_sample_use_cases() {
         val state = newStore().state.value
 
-        val pieData = state.sessions.getValue(ChartType.PIE).data as ChartData.SingleSeries
+        val pieData =
+            state.sessions
+                .getValue(ChartType.PIE)
+                .validatedSpec.data as ChartData.SingleSeries
         val pieSample = pieSampleUseCase().initialPieSample()
         assertEquals(
             pieSample.dataSet.data.item.points
@@ -277,7 +335,10 @@ class EditorStoreTest {
         )
         assertEquals(pieSample.segmentKeys, pieData.labels)
 
-        val lineData = state.sessions.getValue(ChartType.LINE).data as ChartData.SingleSeries
+        val lineData =
+            state.sessions
+                .getValue(ChartType.LINE)
+                .validatedSpec.data as ChartData.SingleSeries
         val lineDataSet = lineSampleUseCase().initialLineDataSet()
         assertEquals(
             lineDataSet.data.item.points
@@ -290,7 +351,10 @@ class EditorStoreTest {
             lineData.labels,
         )
 
-        val barData = state.sessions.getValue(ChartType.BAR).data as ChartData.SingleSeries
+        val barData =
+            state.sessions
+                .getValue(ChartType.BAR)
+                .validatedSpec.data as ChartData.SingleSeries
         val barDataSet = barSampleUseCase().initialBarDataSet()
         assertEquals(
             barDataSet.data.item.points
@@ -303,7 +367,10 @@ class EditorStoreTest {
             barData.labels,
         )
 
-        val histogramData = state.sessions.getValue(ChartType.HISTOGRAM).data as ChartData.SingleSeries
+        val histogramData =
+            state.sessions
+                .getValue(ChartType.HISTOGRAM)
+                .validatedSpec.data as ChartData.SingleSeries
         val histogramDataSet = histogramSampleUseCase().initialHistogramDataSet()
         assertEquals(
             histogramDataSet.data.item.points
@@ -316,7 +383,10 @@ class EditorStoreTest {
             histogramData.labels,
         )
 
-        val multiLineData = state.sessions.getValue(ChartType.MULTI_LINE).data as ChartData.MultiSeries
+        val multiLineData =
+            state.sessions
+                .getValue(ChartType.MULTI_LINE)
+                .validatedSpec.data as ChartData.MultiSeries
         val multiLineDataSet = multiLineSampleUseCase().initialMultiLineSample().dataSet
         assertEquals(multiLineDataSet.data.categories.toList(), multiLineData.xLabels)
         assertEquals(
@@ -330,10 +400,16 @@ class EditorStoreTest {
             multiLineData.series.map { series -> series.values },
         )
 
-        val areaData = state.sessions.getValue(ChartType.AREA).data as ChartData.MultiSeries
+        val areaData =
+            state.sessions
+                .getValue(ChartType.AREA)
+                .validatedSpec.data as ChartData.MultiSeries
         val areaDataSet = stackedAreaSampleUseCase().initialStackedAreaSample().dataSet
         assertEquals(areaDataSet.data.categories.toList(), areaData.xLabels)
-        assertEquals(areaDataSet.data.items.map { item -> item.label }, areaData.series.map { series -> series.name })
+        assertEquals(
+            areaDataSet.data.items.map { item -> item.label },
+            areaData.series.map { series -> series.name },
+        )
         assertEquals(
             areaDataSet.data.items.map { item -> item.item.points.map(Double::toFloat) },
             areaData.series.map { series -> series.values },
@@ -343,7 +419,7 @@ class EditorStoreTest {
             state.sessions
                 .getValue(
                     ChartType.STACKED_BAR,
-                ).data as ChartData.StackedSeries
+                ).validatedSpec.data as ChartData.StackedSeries
         val stackedBarDataSet = stackedBarSampleUseCase().initialStackedBarSample().dataSet
         assertEquals(stackedBarDataSet.data.items.map { item -> item.label }, stackedBarData.segmentNames)
         assertEquals(stackedBarDataSet.data.categories.toList(), stackedBarData.bars.map { bar -> bar.label })
@@ -356,10 +432,16 @@ class EditorStoreTest {
             stackedBarData.bars.map { bar -> bar.values },
         )
 
-        val radarData = state.sessions.getValue(ChartType.RADAR).data as ChartData.RadarSeries
+        val radarData =
+            state.sessions
+                .getValue(ChartType.RADAR)
+                .validatedSpec.data as ChartData.RadarSeries
         val radarDataSet = radarSampleUseCase().initialRadarSample().customDataSet
         assertEquals(radarDataSet.data.categories.toList(), radarData.axes)
-        assertEquals(radarDataSet.data.items.map { item -> item.label }, radarData.entries.map { entry -> entry.name })
+        assertEquals(
+            radarDataSet.data.items.map { item -> item.label },
+            radarData.entries.map { entry -> entry.name },
+        )
         assertEquals(
             radarDataSet.data.items.map { item -> item.item.points.map(Double::toFloat) },
             radarData.entries.map { entry -> entry.values },

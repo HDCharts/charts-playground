@@ -34,15 +34,25 @@ interface ChartDefinition {
     fun resetSession(codegenMode: CodegenMode = CodegenMode.MINIMAL): ChartSession {
         val data = defaultData()
         val dataTable = createDataTable(data)
+        val draft =
+            ChartDraft(
+                title = defaultTitle,
+                dataTable = dataTable,
+                styleState = defaultStyleState(),
+                codegenMode = codegenMode,
+            )
         return ChartSession(
             chartType = type,
-            title = defaultTitle,
-            dataTable = dataTable,
-            data = data,
-            styleState = defaultStyleState(),
-            validationMessage = null,
-            invalidRowIds = emptySet(),
-            codegenMode = codegenMode,
+            draft = draft,
+            validatedSpec =
+                ValidatedChartSpec(
+                    chartType = type,
+                    title = draft.title,
+                    data = data,
+                    styleState = draft.styleState,
+                    codegenMode = draft.codegenMode,
+                ),
+            validation = ChartValidationState.Valid(),
             settings = emptyList(),
             generatedCode = "",
         )

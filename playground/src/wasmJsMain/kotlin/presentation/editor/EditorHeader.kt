@@ -24,7 +24,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import chartsproject.charts_demo_shared.generated.resources.charts_logo
 import chartsproject.playground.generated.resources.Res
@@ -51,9 +50,8 @@ internal fun EditorHeader(
     state: ChartEditorState,
     selectedChartType: ChartType,
     onAction: (EditorAction) -> Unit,
+    onOpenUri: (String) -> Unit,
 ) {
-    val uriHandler = LocalUriHandler.current
-
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
         val inlineChartSwitcher = maxWidth >= EditorWideLayoutBreakpoint
         val compactHeader = maxWidth < EditorCompactHeaderBreakpoint
@@ -96,7 +94,7 @@ internal fun EditorHeader(
                                     color = MaterialTheme.colorScheme.primary,
                                     modifier =
                                         Modifier.clickable {
-                                            uriHandler.openUri(
+                                            onOpenUri(
                                                 "$CHARTS_GITHUB_URL/commit/${metadata.chartsSha}",
                                             )
                                         },
@@ -111,7 +109,7 @@ internal fun EditorHeader(
                                     color = MaterialTheme.colorScheme.primary,
                                     modifier =
                                         Modifier.clickable {
-                                            uriHandler.openUri(
+                                            onOpenUri(
                                                 "$PLAYGROUND_GITHUB_URL/commit/${metadata.playgroundSha}",
                                             )
                                         },

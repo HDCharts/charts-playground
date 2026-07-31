@@ -39,10 +39,9 @@ internal class BarChartCodeGenerator(
     private fun normalizePoints(points: List<BarPointInput>): List<NormalizedPoint> =
         points.mapIndexed { index, point ->
             val sanitizedLabel = point.label.trim().ifBlank { "Point ${index + 1}" }
-            val floatValue = point.valueText.toFloatOrNull() ?: 0f
             NormalizedPoint(
                 label = sanitizedLabel,
-                value = floatValue,
+                value = point.value,
             )
         }
 

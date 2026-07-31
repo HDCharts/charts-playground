@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import domain.AreaStyleDefaults
 import domain.AreaStyleState
 import domain.ChartData
-import domain.ChartSession
+import domain.ValidatedChartSpec
 import domain.normalizeColorCount
 import io.github.dautovicharis.charts.StackedAreaChart
 import io.github.dautovicharis.charts.model.toMultiChartDataSet
@@ -12,14 +12,14 @@ import io.github.dautovicharis.charts.style.StackedAreaChartDefaults
 import presentation.colors.toComposeColor
 
 @Composable
-internal fun AreaChartRenderer(session: ChartSession) {
-    val data = session.data as ChartData.MultiSeries
-    val styleState = session.styleState as AreaStyleState
+internal fun AreaChartRenderer(spec: ValidatedChartSpec) {
+    val data = spec.data as ChartData.MultiSeries
+    val styleState = spec.styleState as AreaStyleState
     val categories = data.xLabels.orEmpty()
     val dataSet =
         data.series
             .map { series -> series.name to series.values }
-            .toMultiChartDataSet(title = session.title, categories = categories)
+            .toMultiChartDataSet(title = spec.title, categories = categories)
 
     val defaultStyle = StackedAreaChartDefaults.style()
     val style =

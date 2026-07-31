@@ -24,27 +24,36 @@ internal fun EditorWorkspace(
     session: ChartSession,
     chartType: ChartType,
     onAction: (EditorAction) -> Unit,
+    onCopyCode: suspend (String) -> Boolean,
     wideLayout: Boolean,
 ) {
     val settings = session.settings
+    val dataColumnCount = session.draft.dataTable.columns.size
+    // Three or more data columns use a balanced three-panel layout; simple tables favor preview space.
+    val equalPanelWeights = dataColumnCount >= 3
+    val dataTableWeight = if (equalPanelWeights) 1f else 30f
+    val chartWeight = if (equalPanelWeights) 1f else 40f
+    val rightPanelWeight = if (equalPanelWeights) 1f else 30f
 
     @Composable
     fun dataTable(modifier: Modifier) {
         DataTableEditor(
-            dataTable = session.dataTable,
-            validationMessage = session.validationMessage,
-            invalidRowIds = session.invalidRowIds,
-            onCellChange = { rowIndex, columnId, value ->
+            dataTable = session.draft.dataTable,
+            validationMessage = session.validation.presentationMessage(),
+            validationIsBlocking = session.validation is domain.ChartValidationState.Invalid,
+            invalidRowIds = session.validation.invalidRowIds,
+            invalidCellPaths = session.validation.invalidPaths,
+            onCellChange = { rowId, columnId, value ->
                 onAction(
                     EditorAction.UpdateDataTableCell(
-                        rowIndex = rowIndex,
+                        rowId = rowId,
                         columnId = columnId,
                         value = value,
                     ),
                 )
             },
             onAddRow = { onAction(EditorAction.AddRow) },
-            onDeleteRow = { rowIndex -> onAction(EditorAction.DeleteRow(rowIndex)) },
+            onDeleteRow = { rowId -> onAction(EditorAction.DeleteRow(rowId)) },
             onRandomize = { onAction(EditorAction.Randomize) },
             onReset = { onAction(EditorAction.Reset) },
             expandToFillHeight = wideLayout,
@@ -84,8 +93,9 @@ internal fun EditorWorkspace(
             codeContent = {
                 CodePreviewPanel(
                     code = session.generatedCode,
-                    mode = session.codegenMode,
+                    mode = session.draft.codegenMode,
                     onModeChange = { mode -> onAction(EditorAction.UpdateCodegenMode(mode)) },
+                    onCopyCode = onCopyCode,
                     expandToFillHeight = wideLayout,
                     showTitle = false,
                     modifier =
@@ -106,9 +116,9 @@ internal fun EditorWorkspace(
         Row(
             modifier = Modifier.fillMaxSize(),
         ) {
-            dataTable(Modifier.weight(30f).fillMaxHeight())
-            chart(Modifier.weight(40f).fillMaxHeight().padding(start = 16.dp))
-            rightPanel(Modifier.weight(30f).fillMaxHeight().padding(start = 16.dp))
+            dataTable(Modifier.weight(dataTableWeight).fillMaxHeight())
+            chart(Modifier.weight(chartWeight).fillMaxHeight().padding(start = 16.dp))
+            rightPanel(Modifier.weight(rightPanelWeight).fillMaxHeight().padding(start = 16.dp))
         }
     } else {
         Column(

@@ -41,10 +41,9 @@ internal class PieChartCodeGenerator(
     private fun normalizeRows(rows: List<PieSliceInput>): List<NormalizedPoint> =
         rows.mapIndexed { index, row ->
             val sanitizedLabel = row.label.trim().ifBlank { "Slice ${index + 1}" }
-            val floatValue = row.valueText.toFloatOrNull() ?: 0f
             NormalizedPoint(
                 label = sanitizedLabel,
-                value = floatValue,
+                value = row.value,
             )
         }
 

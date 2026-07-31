@@ -1,5 +1,6 @@
 package data
 
+import codegen.GeneratedArtifact
 import data.charts.AreaChartDefinition
 import data.charts.BarChartDefinition
 import data.charts.HistogramChartDefinition
@@ -8,13 +9,15 @@ import data.charts.MultiLineChartDefinition
 import data.charts.PieChartDefinition
 import data.charts.RadarChartDefinition
 import data.charts.StackedBarChartDefinition
-import domain.ChartSession
 import domain.ChartType
+import domain.ValidatedChartSpec
 
 interface ChartCodegenAdapter {
     val type: ChartType
 
-    fun generate(session: ChartSession): String
+    fun generate(spec: ValidatedChartSpec): String
+
+    fun generateArtifact(spec: ValidatedChartSpec): GeneratedArtifact = GeneratedArtifact(source = generate(spec))
 }
 
 class ChartCodegenService(
@@ -28,7 +31,10 @@ class ChartCodegenService(
         }
     }
 
-    fun generate(session: ChartSession): String = adaptersByType.getValue(session.chartType).generate(session)
+    fun generateArtifact(spec: ValidatedChartSpec): GeneratedArtifact =
+        adaptersByType.getValue(spec.chartType).generateArtifact(spec)
+
+    fun generate(spec: ValidatedChartSpec): String = generateArtifact(spec).source
 }
 
 private val defaultChartCodegenAdapters: List<ChartCodegenAdapter> =

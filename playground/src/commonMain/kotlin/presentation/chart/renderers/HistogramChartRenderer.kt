@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import domain.BarStyleDefaults
 import domain.BarStyleState
 import domain.ChartData
-import domain.ChartSession
+import domain.ValidatedChartSpec
 import domain.normalizeColorCount
 import io.github.dautovicharis.charts.HistogramChart
 import io.github.dautovicharis.charts.model.toChartDataSet
@@ -12,10 +12,10 @@ import io.github.dautovicharis.charts.style.HistogramChartDefaults
 import presentation.colors.toComposeColor
 
 @Composable
-internal fun HistogramChartRenderer(session: ChartSession) {
-    val data = session.data as ChartData.SingleSeries
-    val styleState = session.styleState as BarStyleState
-    val dataSet = data.values.toChartDataSet(title = session.title, labels = data.labels)
+internal fun HistogramChartRenderer(spec: ValidatedChartSpec) {
+    val data = spec.data as ChartData.SingleSeries
+    val styleState = spec.styleState as BarStyleState
+    val dataSet = data.values.toChartDataSet(title = spec.title, labels = data.labels)
     val defaultStyle = HistogramChartDefaults.style()
     val style =
         HistogramChartDefaults.style(

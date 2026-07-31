@@ -24,9 +24,9 @@ import domain.LINE_CHART_TITLE
 import domain.LineStyleDefaults
 import domain.LineStyleState
 import domain.SettingDescriptor
+import domain.ValidatedChartSpec
 import domain.ValidationResult
 import domain.deriveFunctionName
-import domain.formatEditorFloat
 import kotlin.random.Random
 
 internal object LineChartDefinition : ChartDefinition, ChartCodegenAdapter {
@@ -202,17 +202,17 @@ internal object LineChartDefinition : ChartDefinition, ChartCodegenAdapter {
             ),
         )
 
-    private fun codegenStyleProperties(session: ChartSession): StylePropertiesSnapshot =
-        lineStylePropertiesSnapshot(session.styleState as LineStyleState)
+    private fun codegenStyleProperties(spec: ValidatedChartSpec): StylePropertiesSnapshot =
+        lineStylePropertiesSnapshot(spec.styleState as LineStyleState)
 
-    override fun generate(session: ChartSession): String {
-        val styleProperties = codegenStyleProperties(session)
-        val data = session.data as ChartData.SingleSeries
+    override fun generate(spec: ValidatedChartSpec): String {
+        val styleProperties = codegenStyleProperties(spec)
+        val data = spec.data as ChartData.SingleSeries
         val points =
             data.values.mapIndexed { index, value ->
                 PieSliceInput(
                     label = data.labels?.getOrNull(index) ?: "Point ${index + 1}",
-                    valueText = formatEditorFloat(value),
+                    value = value,
                 )
             }
 
@@ -220,10 +220,10 @@ internal object LineChartDefinition : ChartDefinition, ChartCodegenAdapter {
             .generate(
                 LineCodegenConfig(
                     points = points,
-                    title = session.title,
+                    title = spec.title,
                     styleProperties = styleProperties,
-                    codegenMode = session.codegenMode,
-                    functionName = deriveFunctionName(session.title, type),
+                    codegenMode = spec.codegenMode,
+                    functionName = deriveFunctionName(spec.title, type),
                 ),
             ).code
     }

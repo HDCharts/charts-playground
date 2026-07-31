@@ -17,6 +17,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import chartsproject.playground.generated.resources.Res
 import chartsproject.playground.generated.resources.playground_chart_title_label
@@ -45,11 +47,17 @@ fun ChartPanel(
 
         Column(modifier = columnModifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
             OutlinedTextField(
-                value = session.title,
+                value = session.draft.title,
                 onValueChange = onTitleChange,
                 singleLine = true,
                 label = { Text(stringResource(Res.string.playground_chart_title_label)) },
                 modifier = Modifier.fillMaxWidth(),
+            )
+
+            Text(
+                text = session.validatedSpec.previewSummary(),
+                style = androidx.compose.material3.MaterialTheme.typography.labelSmall,
+                color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
             Box(
@@ -62,11 +70,31 @@ fun ChartPanel(
                 contentAlignment = Alignment.TopCenter,
             ) {
                 Box(
-                    modifier = Modifier.fillMaxWidth().widthIn(max = 760.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .widthIn(max = 760.dp)
+                            .semantics {
+                                contentDescription = session.validatedSpec.previewSummary()
+                            },
                 ) {
-                    ChartRenderer(type = chartType, session = session)
+                    ChartRenderer(type = chartType, spec = session.validatedSpec)
                 }
             }
         }
     }
 }
+
+private fun domain.ValidatedChartSpec.previewSummary(): String =
+    when (val chartData = data) {
+        is domain.ChartData.SingleSeries -> "${chartType.displayName} preview with ${chartData.values.size} values."
+        is domain.ChartData.MultiSeries ->
+            "${chartType.displayName} preview with ${chartData.series.size} series and " +
+                "${chartData.xLabels?.size ?: 0} categories."
+        is domain.ChartData.StackedSeries ->
+            "${chartType.displayName} preview with ${chartData.bars.size} bars and " +
+                "${chartData.segmentNames.size} segments."
+        is domain.ChartData.RadarSeries ->
+            "${chartType.displayName} preview with ${chartData.entries.size} entries and " +
+                "${chartData.axes.size} axes."
+    }

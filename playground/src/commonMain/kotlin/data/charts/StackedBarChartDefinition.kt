@@ -9,7 +9,9 @@ import data.ChartCodegenAdapter
 import data.LABEL_COLUMN_ID
 import data.SampleDataSources
 import data.defaultRowCells
-import data.invalidNumericResult
+import data.editorTableIssues
+import data.hasErrors
+import data.invalidValidationResult
 import data.parseEditorTable
 import data.randomizeEditorValues
 import data.toStackedSeries
@@ -21,10 +23,12 @@ import domain.ChartType
 import domain.DataTableColumn
 import domain.DataTableRow
 import domain.DataTableState
+import domain.RowId
 import domain.STACKED_BAR_CHART_TITLE
 import domain.SettingDescriptor
 import domain.StackedBarStyleDefaults
 import domain.StackedBarStyleState
+import domain.ValidatedChartSpec
 import domain.ValidationResult
 import domain.deriveFunctionName
 import domain.formatEditorFloat
@@ -73,7 +77,7 @@ internal object StackedBarChartDefinition : ChartDefinition, ChartCodegenAdapter
                 data.segmentNames.indices.forEach { segmentIndex ->
                     cells["segment_$segmentIndex"] = formatEditorFloat(bar.values.getOrElse(segmentIndex) { 0f })
                 }
-                DataTableRow(id = rowIndex + 1, cells = cells)
+                DataTableRow(id = RowId(rowIndex + 1), cells = cells)
             }
 
         return DataTableState(
@@ -84,19 +88,20 @@ internal object StackedBarChartDefinition : ChartDefinition, ChartCodegenAdapter
     }
 
     override fun validate(dataTable: DataTableState): ValidationResult {
-        if (dataTable.rows.size < 2) {
-            return ValidationResult(
-                sanitizedTable = null,
-                data = null,
-                message = "Stacked bar chart needs at least 2 rows.",
+        val issues =
+            editorTableIssues(
+                dataTable = dataTable,
+                chartName = "Stacked bar chart",
+                minRows = 2,
+                requireNonNegative = true,
             )
-        }
+        if (issues.hasErrors()) return invalidValidationResult(issues)
         val parsed =
             parseEditorTable(
                 dataTable = dataTable,
                 labelPrefix = "Bar",
                 clampToPositive = true,
-            ) ?: return invalidNumericResult(dataTable)
+            ) ?: return invalidValidationResult(issues)
 
         val segmentNames = parsed.numericColumns.map { column -> column.label }
         val bars =
@@ -116,7 +121,8 @@ internal object StackedBarChartDefinition : ChartDefinition, ChartCodegenAdapter
                     bars = bars,
                     labels = parsed.labels,
                 ),
-            message = "Applied ${parsed.labels.size} rows.",
+            issues = issues,
+            appliedRowCount = parsed.labels.size,
         )
     }
 
@@ -148,7 +154,7 @@ internal object StackedBarChartDefinition : ChartDefinition, ChartCodegenAdapter
                 id = "barColors",
                 title = "Segment Colors",
                 itemCount = {
-                    val data = it.data as ChartData.StackedSeries
+                    val data = it.validatedSpec.data as ChartData.StackedSeries
                     data.segmentNames.size
                 },
                 read = { style -> (style as StackedBarStyleState).barColors },
@@ -182,15 +188,15 @@ internal object StackedBarChartDefinition : ChartDefinition, ChartCodegenAdapter
             ),
         )
 
-    private fun codegenStyleProperties(session: ChartSession): StylePropertiesSnapshot =
+    private fun codegenStyleProperties(spec: ValidatedChartSpec): StylePropertiesSnapshot =
         stackedBarStylePropertiesSnapshot(
-            session.styleState as StackedBarStyleState,
-            (session.data as ChartData.StackedSeries).segmentNames.size,
+            spec.styleState as StackedBarStyleState,
+            (spec.data as ChartData.StackedSeries).segmentNames.size,
         )
 
-    override fun generate(session: ChartSession): String {
-        val styleProperties = codegenStyleProperties(session)
-        val data = session.data as ChartData.StackedSeries
+    override fun generate(spec: ValidatedChartSpec): String {
+        val styleProperties = codegenStyleProperties(spec)
+        val data = spec.data as ChartData.StackedSeries
         val series =
             data.segmentNames.mapIndexed { segmentIndex, name ->
                 MultiSeriesCodegenInput(
@@ -205,10 +211,10 @@ internal object StackedBarChartDefinition : ChartDefinition, ChartCodegenAdapter
                 StackedBarCodegenConfig(
                     series = series,
                     categories = categories,
-                    title = session.title,
+                    title = spec.title,
                     styleProperties = styleProperties,
-                    codegenMode = session.codegenMode,
-                    functionName = deriveFunctionName(session.title, type),
+                    codegenMode = spec.codegenMode,
+                    functionName = deriveFunctionName(spec.title, type),
                 ),
             ).code
     }

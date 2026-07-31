@@ -20,8 +20,8 @@ class BarChartCodeGeneratorTest {
                 BarCodegenConfig(
                     points =
                         listOf(
-                            PieSliceInput(label = "Mon", valueText = "12"),
-                            PieSliceInput(label = "Tue", valueText = "18"),
+                            PieSliceInput(label = "Mon", value = 12f),
+                            PieSliceInput(label = "Tue", value = 18f),
                         ),
                 ),
             )
@@ -39,8 +39,8 @@ class BarChartCodeGeneratorTest {
                 BarCodegenConfig(
                     points =
                         listOf(
-                            PieSliceInput(label = "A", valueText = "1"),
-                            PieSliceInput(label = "B", valueText = "2"),
+                            PieSliceInput(label = "A", value = 1f),
+                            PieSliceInput(label = "B", value = 2f),
                         ),
                     styleProperties =
                         StylePropertiesSnapshot(
@@ -62,8 +62,8 @@ class BarChartCodeGeneratorTest {
                 BarCodegenConfig(
                     points =
                         listOf(
-                            PieSliceInput(label = "A", valueText = "1"),
-                            PieSliceInput(label = "B", valueText = "2"),
+                            PieSliceInput(label = "A", value = 1f),
+                            PieSliceInput(label = "B", value = 2f),
                         ),
                     styleProperties =
                         StylePropertiesSnapshot(
@@ -93,8 +93,8 @@ class BarChartCodeGeneratorTest {
                 BarCodegenConfig(
                     points =
                         listOf(
-                            PieSliceInput(label = "A", valueText = "1"),
-                            PieSliceInput(label = "B", valueText = "2"),
+                            PieSliceInput(label = "A", value = 1f),
+                            PieSliceInput(label = "B", value = 2f),
                         ),
                     styleProperties =
                         StylePropertiesSnapshot(

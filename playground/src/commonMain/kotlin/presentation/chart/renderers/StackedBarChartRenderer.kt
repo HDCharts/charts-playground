@@ -2,9 +2,9 @@ package presentation.chart.renderers
 
 import androidx.compose.runtime.Composable
 import domain.ChartData
-import domain.ChartSession
 import domain.StackedBarStyleDefaults
 import domain.StackedBarStyleState
+import domain.ValidatedChartSpec
 import domain.normalizeColorCount
 import io.github.dautovicharis.charts.StackedBarChart
 import io.github.dautovicharis.charts.model.toMultiChartDataSet
@@ -12,16 +12,16 @@ import io.github.dautovicharis.charts.style.StackedBarChartDefaults
 import presentation.colors.toComposeColor
 
 @Composable
-internal fun StackedBarChartRenderer(session: ChartSession) {
-    val data = session.data as ChartData.StackedSeries
-    val styleState = session.styleState as StackedBarStyleState
+internal fun StackedBarChartRenderer(spec: ValidatedChartSpec) {
+    val data = spec.data as ChartData.StackedSeries
+    val styleState = spec.styleState as StackedBarStyleState
     val series =
         data.segmentNames.mapIndexed { segmentIndex, name ->
             name to data.bars.map { bar -> bar.values.getOrElse(segmentIndex) { 0f } }
         }
     val dataSet =
         series.toMultiChartDataSet(
-            title = session.title,
+            title = spec.title,
             categories = data.bars.map { bar -> bar.label },
             prefix = "$",
         )

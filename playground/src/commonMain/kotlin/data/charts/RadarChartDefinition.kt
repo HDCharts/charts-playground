@@ -9,7 +9,9 @@ import data.ChartCodegenAdapter
 import data.LABEL_COLUMN_ID
 import data.SampleDataSources
 import data.defaultRowCells
-import data.invalidNumericResult
+import data.editorTableIssues
+import data.hasErrors
+import data.invalidValidationResult
 import data.parseEditorTable
 import data.randomizeEditorValues
 import data.toRadarSeries
@@ -24,7 +26,9 @@ import domain.DataTableState
 import domain.RADAR_CHART_TITLE
 import domain.RadarStyleDefaults
 import domain.RadarStyleState
+import domain.RowId
 import domain.SettingDescriptor
+import domain.ValidatedChartSpec
 import domain.ValidationResult
 import domain.deriveFunctionName
 import domain.formatEditorFloat
@@ -71,7 +75,7 @@ internal object RadarChartDefinition : ChartDefinition, ChartCodegenAdapter {
                 data.entries.forEachIndexed { entryIndex, entry ->
                     cells["entry_$entryIndex"] = formatEditorFloat(entry.values.getOrElse(rowIndex) { 0f })
                 }
-                DataTableRow(id = rowIndex + 1, cells = cells)
+                DataTableRow(id = RowId(rowIndex + 1), cells = cells)
             }
 
         return DataTableState(
@@ -82,19 +86,20 @@ internal object RadarChartDefinition : ChartDefinition, ChartCodegenAdapter {
     }
 
     override fun validate(dataTable: DataTableState): ValidationResult {
-        if (dataTable.rows.size < 3) {
-            return ValidationResult(
-                sanitizedTable = null,
-                data = null,
-                message = "Radar chart needs at least 3 rows.",
+        val issues =
+            editorTableIssues(
+                dataTable = dataTable,
+                chartName = "Radar chart",
+                minRows = 3,
+                requireNonNegative = true,
             )
-        }
+        if (issues.hasErrors()) return invalidValidationResult(issues)
         val parsed =
             parseEditorTable(
                 dataTable = dataTable,
                 labelPrefix = "Axis",
                 clampToPositive = true,
-            ) ?: return invalidNumericResult(dataTable)
+            ) ?: return invalidValidationResult(issues)
 
         val entries =
             parsed.numericColumns.map { column ->
@@ -107,7 +112,8 @@ internal object RadarChartDefinition : ChartDefinition, ChartCodegenAdapter {
         return ValidationResult(
             sanitizedTable = dataTable.copy(rows = parsed.sanitizedRows),
             data = ChartData.RadarSeries(entries = entries, axes = parsed.labels),
-            message = "Applied ${parsed.labels.size} rows.",
+            issues = issues,
+            appliedRowCount = parsed.labels.size,
         )
     }
 
@@ -189,7 +195,7 @@ internal object RadarChartDefinition : ChartDefinition, ChartCodegenAdapter {
                 id = "lineColors",
                 title = "Line Colors",
                 itemCount = {
-                    val data = it.data as ChartData.RadarSeries
+                    val data = it.validatedSpec.data as ChartData.RadarSeries
                     data.entries.size
                 },
                 read = { style -> (style as RadarStyleState).lineColors },
@@ -197,15 +203,15 @@ internal object RadarChartDefinition : ChartDefinition, ChartCodegenAdapter {
             ),
         )
 
-    private fun codegenStyleProperties(session: ChartSession): StylePropertiesSnapshot =
+    private fun codegenStyleProperties(spec: ValidatedChartSpec): StylePropertiesSnapshot =
         radarStylePropertiesSnapshot(
-            session.styleState as RadarStyleState,
-            (session.data as ChartData.RadarSeries).entries.size,
+            spec.styleState as RadarStyleState,
+            (spec.data as ChartData.RadarSeries).entries.size,
         )
 
-    override fun generate(session: ChartSession): String {
-        val styleProperties = codegenStyleProperties(session)
-        val data = session.data as ChartData.RadarSeries
+    override fun generate(spec: ValidatedChartSpec): String {
+        val styleProperties = codegenStyleProperties(spec)
+        val data = spec.data as ChartData.RadarSeries
         return generator
             .generate(
                 RadarCodegenConfig(
@@ -214,10 +220,10 @@ internal object RadarChartDefinition : ChartDefinition, ChartCodegenAdapter {
                             MultiSeriesCodegenInput(label = entry.name, values = entry.values)
                         },
                     categories = data.axes,
-                    title = session.title,
+                    title = spec.title,
                     styleProperties = styleProperties,
-                    codegenMode = session.codegenMode,
-                    functionName = deriveFunctionName(session.title, type),
+                    codegenMode = spec.codegenMode,
+                    functionName = deriveFunctionName(spec.title, type),
                 ),
             ).code
     }

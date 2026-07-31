@@ -23,9 +23,9 @@ import domain.ChartType
 import domain.DataTableColumn
 import domain.DataTableState
 import domain.SettingDescriptor
+import domain.ValidatedChartSpec
 import domain.ValidationResult
 import domain.deriveFunctionName
-import domain.formatEditorFloat
 import kotlin.random.Random
 
 internal object BarChartDefinition : ChartDefinition, ChartCodegenAdapter {
@@ -91,7 +91,7 @@ internal object BarChartDefinition : ChartDefinition, ChartCodegenAdapter {
                 id = "barColors",
                 title = "Bar Colors",
                 itemCount = {
-                    val data = it.data as ChartData.SingleSeries
+                    val data = it.validatedSpec.data as ChartData.SingleSeries
                     data.values.size
                 },
                 read = { style -> (style as BarStyleState).barColors },
@@ -139,20 +139,20 @@ internal object BarChartDefinition : ChartDefinition, ChartCodegenAdapter {
             ),
         )
 
-    private fun codegenStyleProperties(session: ChartSession): StylePropertiesSnapshot =
+    private fun codegenStyleProperties(spec: ValidatedChartSpec): StylePropertiesSnapshot =
         barStylePropertiesSnapshot(
-            session.styleState as BarStyleState,
-            (session.data as ChartData.SingleSeries).values.size,
+            spec.styleState as BarStyleState,
+            (spec.data as ChartData.SingleSeries).values.size,
         )
 
-    override fun generate(session: ChartSession): String {
-        val styleProperties = codegenStyleProperties(session)
-        val data = session.data as ChartData.SingleSeries
+    override fun generate(spec: ValidatedChartSpec): String {
+        val styleProperties = codegenStyleProperties(spec)
+        val data = spec.data as ChartData.SingleSeries
         val points =
             data.values.mapIndexed { index, value ->
                 PieSliceInput(
                     label = data.labels?.getOrNull(index) ?: "Bar ${index + 1}",
-                    valueText = formatEditorFloat(value),
+                    value = value,
                 )
             }
 
@@ -160,10 +160,10 @@ internal object BarChartDefinition : ChartDefinition, ChartCodegenAdapter {
             .generate(
                 BarCodegenConfig(
                     points = points,
-                    title = session.title,
+                    title = spec.title,
                     styleProperties = styleProperties,
-                    codegenMode = session.codegenMode,
-                    functionName = deriveFunctionName(session.title, type),
+                    codegenMode = spec.codegenMode,
+                    functionName = deriveFunctionName(spec.title, type),
                 ),
             ).code
     }

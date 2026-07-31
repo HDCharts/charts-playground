@@ -2,9 +2,9 @@ package presentation.chart.renderers
 
 import androidx.compose.runtime.Composable
 import domain.ChartData
-import domain.ChartSession
 import domain.MultiLineStyleDefaults
 import domain.MultiLineStyleState
+import domain.ValidatedChartSpec
 import domain.normalizeColorCount
 import io.github.dautovicharis.charts.LineChart
 import io.github.dautovicharis.charts.model.toMultiChartDataSet
@@ -12,14 +12,14 @@ import io.github.dautovicharis.charts.style.LineChartDefaults
 import presentation.colors.toComposeColor
 
 @Composable
-internal fun MultiLineChartRenderer(session: ChartSession) {
-    val data = session.data as ChartData.MultiSeries
-    val styleState = session.styleState as MultiLineStyleState
+internal fun MultiLineChartRenderer(spec: ValidatedChartSpec) {
+    val data = spec.data as ChartData.MultiSeries
+    val styleState = spec.styleState as MultiLineStyleState
     val dataSet =
         data.series
             .map { series -> series.name to series.values }
             .toMultiChartDataSet(
-                title = session.title,
+                title = spec.title,
                 categories = data.xLabels.orEmpty(),
                 prefix = "$",
             )

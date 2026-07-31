@@ -9,7 +9,9 @@ import data.ChartCodegenAdapter
 import data.SampleDataSources
 import data.createSingleSeriesTable
 import data.defaultRowCells
-import data.invalidNumericResult
+import data.editorTableIssues
+import data.hasErrors
+import data.invalidValidationResult
 import data.parseEditorTable
 import data.randomizeEditorValues
 import data.toSingleSeries
@@ -24,9 +26,9 @@ import domain.DataTableColumn
 import domain.DataTableState
 import domain.HISTOGRAM_CHART_TITLE
 import domain.SettingDescriptor
+import domain.ValidatedChartSpec
 import domain.ValidationResult
 import domain.deriveFunctionName
-import domain.formatEditorFloat
 import kotlin.random.Random
 
 internal object HistogramChartDefinition : ChartDefinition, ChartCodegenAdapter {
@@ -50,42 +52,30 @@ internal object HistogramChartDefinition : ChartDefinition, ChartCodegenAdapter 
     }
 
     override fun validate(dataTable: DataTableState): ValidationResult {
-        if (dataTable.rows.size < 2) {
-            return ValidationResult(
-                sanitizedTable = null,
-                data = null,
-                message = "Histogram chart needs at least 2 rows.",
+        val issues =
+            editorTableIssues(
+                dataTable = dataTable,
+                chartName = "Histogram chart",
+                minRows = 2,
+                requireNonNegative = true,
             )
-        }
+        if (issues.hasErrors()) return invalidValidationResult(issues)
 
         val parsed =
             parseEditorTable(
                 dataTable = dataTable,
                 labelPrefix = "Bin",
                 clampToPositive = false,
-            ) ?: return invalidNumericResult(dataTable)
+            ) ?: return invalidValidationResult(issues)
 
-        val valueColumn = parsed.numericColumns.firstOrNull() ?: return invalidNumericResult(dataTable)
+        val valueColumn = parsed.numericColumns.firstOrNull() ?: return invalidValidationResult(issues)
         val values = parsed.valuesByColumn.getValue(valueColumn.id)
-        val negativeRowIds =
-            values
-                .mapIndexedNotNull { index, value ->
-                    if (value < 0f) dataTable.rows.getOrNull(index)?.id else null
-                }.toSet()
-
-        if (negativeRowIds.isNotEmpty()) {
-            return ValidationResult(
-                sanitizedTable = null,
-                data = null,
-                message = "Histogram values must be non-negative.",
-                invalidRowIds = negativeRowIds,
-            )
-        }
 
         return ValidationResult(
             sanitizedTable = dataTable.copy(rows = parsed.sanitizedRows),
             data = ChartData.SingleSeries(values = values, labels = parsed.labels),
-            message = "Applied ${parsed.labels.size} rows.",
+            issues = issues,
+            appliedRowCount = parsed.labels.size,
         )
     }
 
@@ -123,7 +113,7 @@ internal object HistogramChartDefinition : ChartDefinition, ChartCodegenAdapter 
                 id = "barColors",
                 title = "Bar Colors",
                 itemCount = {
-                    val data = it.data as ChartData.SingleSeries
+                    val data = it.validatedSpec.data as ChartData.SingleSeries
                     data.values.size
                 },
                 read = { style -> (style as BarStyleState).barColors },
@@ -171,20 +161,20 @@ internal object HistogramChartDefinition : ChartDefinition, ChartCodegenAdapter 
             ),
         )
 
-    private fun codegenStyleProperties(session: ChartSession): StylePropertiesSnapshot =
+    private fun codegenStyleProperties(spec: ValidatedChartSpec): StylePropertiesSnapshot =
         histogramStylePropertiesSnapshot(
-            session.styleState as BarStyleState,
-            (session.data as ChartData.SingleSeries).values.size,
+            spec.styleState as BarStyleState,
+            (spec.data as ChartData.SingleSeries).values.size,
         )
 
-    override fun generate(session: ChartSession): String {
-        val styleProperties = codegenStyleProperties(session)
-        val data = session.data as ChartData.SingleSeries
+    override fun generate(spec: ValidatedChartSpec): String {
+        val styleProperties = codegenStyleProperties(spec)
+        val data = spec.data as ChartData.SingleSeries
         val points =
             data.values.mapIndexed { index, value ->
                 BarPointInput(
                     label = data.labels?.getOrNull(index) ?: "Bin ${index + 1}",
-                    valueText = formatEditorFloat(value.coerceAtLeast(0f)),
+                    value = value,
                 )
             }
 
@@ -192,10 +182,10 @@ internal object HistogramChartDefinition : ChartDefinition, ChartCodegenAdapter 
             .generate(
                 HistogramCodegenConfig(
                     points = points,
-                    title = session.title,
+                    title = spec.title,
                     styleProperties = styleProperties,
-                    codegenMode = session.codegenMode,
-                    functionName = deriveFunctionName(session.title, type),
+                    codegenMode = spec.codegenMode,
+                    functionName = deriveFunctionName(spec.title, type),
                 ),
             ).code
     }

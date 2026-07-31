@@ -9,3 +9,7 @@ required merge checks for auto-merge are:
 - `PR Compile / Compile`
 - `PR Lint / Lint`
 - `PR Test / Test`
+
+The adopted package ownership and dependency rules are documented in
+[`ARCHITECTURE.md`](ARCHITECTURE.md). The architecture boundary test runs as
+part of `./gradlew -DchartsLocalPath=charts playgroundTest`.

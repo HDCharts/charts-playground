@@ -18,7 +18,7 @@ internal class ChartCodeRenderer {
             append("@Composable\n")
             append("fun $functionName() {\n")
             append(bodyLines.joinToString("\n"))
-            append("\n}")
+            append("\n}\n")
         }
 
     fun renderDataSet(

@@ -9,7 +9,9 @@ import data.ChartCodegenAdapter
 import data.LABEL_COLUMN_ID
 import data.SampleDataSources
 import data.defaultRowCells
-import data.invalidNumericResult
+import data.editorTableIssues
+import data.hasErrors
+import data.invalidValidationResult
 import data.parseEditorTable
 import data.randomizeEditorValues
 import data.toMultiSeries
@@ -24,7 +26,9 @@ import domain.ChartType
 import domain.DataTableColumn
 import domain.DataTableRow
 import domain.DataTableState
+import domain.RowId
 import domain.SettingDescriptor
+import domain.ValidatedChartSpec
 import domain.ValidationResult
 import domain.deriveFunctionName
 import domain.formatEditorFloat
@@ -73,7 +77,7 @@ internal object AreaChartDefinition : ChartDefinition, ChartCodegenAdapter {
                 data.series.forEachIndexed { seriesIndex, series ->
                     cells["series_$seriesIndex"] = formatEditorFloat(series.values.getOrElse(rowIndex) { 0f })
                 }
-                DataTableRow(id = rowIndex + 1, cells = cells)
+                DataTableRow(id = RowId(rowIndex + 1), cells = cells)
             }
 
         return DataTableState(
@@ -84,19 +88,20 @@ internal object AreaChartDefinition : ChartDefinition, ChartCodegenAdapter {
     }
 
     override fun validate(dataTable: DataTableState): ValidationResult {
-        if (dataTable.rows.size < 2) {
-            return ValidationResult(
-                sanitizedTable = null,
-                data = null,
-                message = "Area chart needs at least 2 rows.",
+        val issues =
+            editorTableIssues(
+                dataTable = dataTable,
+                chartName = "Area chart",
+                minRows = 2,
+                requireNonNegative = true,
             )
-        }
+        if (issues.hasErrors()) return invalidValidationResult(issues)
         val parsed =
             parseEditorTable(
                 dataTable = dataTable,
                 labelPrefix = "Point",
                 clampToPositive = true,
-            ) ?: return invalidNumericResult(dataTable)
+            ) ?: return invalidValidationResult(issues)
 
         val series =
             parsed.numericColumns.map { column ->
@@ -109,7 +114,8 @@ internal object AreaChartDefinition : ChartDefinition, ChartCodegenAdapter {
         return ValidationResult(
             sanitizedTable = dataTable.copy(rows = parsed.sanitizedRows),
             data = ChartData.MultiSeries(series = series, xLabels = parsed.labels),
-            message = "Applied ${parsed.labels.size} rows.",
+            issues = issues,
+            appliedRowCount = parsed.labels.size,
         )
     }
 
@@ -172,7 +178,7 @@ internal object AreaChartDefinition : ChartDefinition, ChartCodegenAdapter {
                 id = "areaColors",
                 title = "Area Colors",
                 itemCount = {
-                    val data = it.data as ChartData.MultiSeries
+                    val data = it.validatedSpec.data as ChartData.MultiSeries
                     data.series.size
                 },
                 read = { style -> (style as AreaStyleState).areaColors },
@@ -182,7 +188,7 @@ internal object AreaChartDefinition : ChartDefinition, ChartCodegenAdapter {
                 id = "lineColors",
                 title = "Line Colors",
                 itemCount = {
-                    val data = it.data as ChartData.MultiSeries
+                    val data = it.validatedSpec.data as ChartData.MultiSeries
                     data.series.size
                 },
                 read = { style -> (style as AreaStyleState).lineColors },
@@ -190,15 +196,15 @@ internal object AreaChartDefinition : ChartDefinition, ChartCodegenAdapter {
             ),
         )
 
-    private fun codegenStyleProperties(session: ChartSession): StylePropertiesSnapshot =
+    private fun codegenStyleProperties(spec: ValidatedChartSpec): StylePropertiesSnapshot =
         areaStylePropertiesSnapshot(
-            session.styleState as AreaStyleState,
-            (session.data as ChartData.MultiSeries).series.size,
+            spec.styleState as AreaStyleState,
+            (spec.data as ChartData.MultiSeries).series.size,
         )
 
-    override fun generate(session: ChartSession): String {
-        val styleProperties = codegenStyleProperties(session)
-        val data = session.data as ChartData.MultiSeries
+    override fun generate(spec: ValidatedChartSpec): String {
+        val styleProperties = codegenStyleProperties(spec)
+        val data = spec.data as ChartData.MultiSeries
         return generator
             .generate(
                 AreaCodegenConfig(
@@ -207,10 +213,10 @@ internal object AreaChartDefinition : ChartDefinition, ChartCodegenAdapter {
                             MultiSeriesCodegenInput(label = series.name, values = series.values)
                         },
                     categories = data.xLabels.orEmpty(),
-                    title = session.title,
+                    title = spec.title,
                     styleProperties = styleProperties,
-                    codegenMode = session.codegenMode,
-                    functionName = deriveFunctionName(session.title, type),
+                    codegenMode = spec.codegenMode,
+                    functionName = deriveFunctionName(spec.title, type),
                 ),
             ).code
     }

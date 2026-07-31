@@ -1,8 +1,8 @@
 package presentation.chart
 
 import androidx.compose.runtime.Composable
-import domain.ChartSession
 import domain.ChartType
+import domain.ValidatedChartSpec
 import presentation.chart.renderers.AreaChartRenderer
 import presentation.chart.renderers.BarChartRenderer
 import presentation.chart.renderers.HistogramChartRenderer
@@ -15,16 +15,16 @@ import presentation.chart.renderers.StackedBarChartRenderer
 @Composable
 internal fun ChartRenderer(
     type: ChartType,
-    session: ChartSession,
+    spec: ValidatedChartSpec,
 ) {
     when (type) {
-        ChartType.PIE -> PieChartRenderer(session)
-        ChartType.LINE -> LineChartRenderer(session)
-        ChartType.MULTI_LINE -> MultiLineChartRenderer(session)
-        ChartType.BAR -> BarChartRenderer(session)
-        ChartType.HISTOGRAM -> HistogramChartRenderer(session)
-        ChartType.STACKED_BAR -> StackedBarChartRenderer(session)
-        ChartType.AREA -> AreaChartRenderer(session)
-        ChartType.RADAR -> RadarChartRenderer(session)
+        ChartType.PIE -> PieChartRenderer(spec)
+        ChartType.LINE -> LineChartRenderer(spec)
+        ChartType.MULTI_LINE -> MultiLineChartRenderer(spec)
+        ChartType.BAR -> BarChartRenderer(spec)
+        ChartType.HISTOGRAM -> HistogramChartRenderer(spec)
+        ChartType.STACKED_BAR -> StackedBarChartRenderer(spec)
+        ChartType.AREA -> AreaChartRenderer(spec)
+        ChartType.RADAR -> RadarChartRenderer(spec)
     }
 }

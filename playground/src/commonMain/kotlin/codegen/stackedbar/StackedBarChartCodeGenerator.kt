@@ -60,7 +60,7 @@ internal class StackedBarChartCodeGenerator(
                 val label = item.label.trim().ifBlank { "Segment ${index + 1}" }
                 val values =
                     List(targetSize) { valueIndex ->
-                        item.values.getOrElse(valueIndex) { 0f }.coerceAtLeast(0f)
+                        item.values.getOrElse(valueIndex) { 0f }
                     }
                 MultiSeriesItem(label = label, values = values)
             }

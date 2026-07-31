@@ -4,8 +4,15 @@ import domain.ChartData
 import domain.DataTableColumn
 import domain.DataTableRow
 import domain.DataTableState
+import domain.RowId
+import domain.ValidationArgument
+import domain.ValidationIssue
+import domain.ValidationIssueCode
+import domain.ValidationPath
 import domain.ValidationResult
+import domain.ValidationSeverity
 import domain.formatEditorFloat
+import domain.sortedDeterministically
 import io.github.dautovicharis.charts.demoshared.data.BarSampleUseCase
 import io.github.dautovicharis.charts.demoshared.data.HistogramSampleUseCase
 import io.github.dautovicharis.charts.demoshared.data.LineSampleUseCase
@@ -25,6 +32,7 @@ import io.github.dautovicharis.charts.demoshared.data.stackedBarSampleUseCase
 import io.github.dautovicharis.charts.model.ChartDataSet
 import io.github.dautovicharis.charts.model.MultiChartDataSet
 import kotlin.math.max
+import kotlin.math.roundToInt
 
 internal const val LABEL_COLUMN_ID = "label"
 
@@ -126,7 +134,7 @@ internal fun createSingleSeriesTable(
     val rows =
         (0 until rowCount).map { index ->
             DataTableRow(
-                id = index + 1,
+                id = RowId(index + 1),
                 cells =
                     mapOf(
                         LABEL_COLUMN_ID to (labels.getOrNull(index) ?: "Item ${index + 1}"),
@@ -144,29 +152,122 @@ internal fun validateSingleSeries(
     labelPrefix: String,
     clampToPositive: Boolean,
 ): ValidationResult {
-    if (dataTable.rows.size < minRows) {
-        return ValidationResult(
-            sanitizedTable = null,
-            data = null,
-            message = "$chartName needs at least $minRows rows.",
+    val issues =
+        editorTableIssues(
+            dataTable = dataTable,
+            chartName = chartName,
+            minRows = minRows,
+            requireNonNegative = clampToPositive,
         )
-    }
+    if (issues.hasErrors()) return invalidValidationResult(issues)
     val parsed =
         parseEditorTable(
             dataTable = dataTable,
             labelPrefix = labelPrefix,
             clampToPositive = clampToPositive,
-        ) ?: return invalidNumericResult(dataTable)
+        ) ?: return invalidValidationResult(issues + unsupportedTableIssue())
 
-    val valueColumn = parsed.numericColumns.firstOrNull() ?: return invalidNumericResult(dataTable)
+    val valueColumn = parsed.numericColumns.firstOrNull() ?: return invalidValidationResult(issues)
     val values = parsed.valuesByColumn.getValue(valueColumn.id)
 
     return ValidationResult(
         sanitizedTable = dataTable.copy(rows = parsed.sanitizedRows),
         data = ChartData.SingleSeries(values = values, labels = parsed.labels),
-        message = "Applied ${parsed.labels.size} rows.",
+        issues = issues,
+        appliedRowCount = parsed.labels.size,
     )
 }
+
+internal fun editorTableIssues(
+    dataTable: DataTableState,
+    chartName: String,
+    minRows: Int,
+    requireNonNegative: Boolean,
+): List<ValidationIssue> {
+    val issues =
+        buildList {
+            if (dataTable.rows.size < minRows) {
+                add(
+                    ValidationIssue(
+                        code = ValidationIssueCode.TOO_FEW_ROWS,
+                        arguments =
+                            listOf(
+                                ValidationArgument("chart", chartName),
+                                ValidationArgument("minimum", minRows.toString()),
+                            ),
+                    ),
+                )
+            }
+
+            val labelColumn = dataTable.columns.firstOrNull { column -> !column.numeric }
+            if (labelColumn == null) {
+                add(ValidationIssue(code = ValidationIssueCode.MISSING_LABEL_COLUMN))
+            }
+
+            val numericColumns = dataTable.columns.filter { column -> column.numeric }
+            if (numericColumns.isEmpty()) {
+                add(ValidationIssue(code = ValidationIssueCode.MISSING_NUMERIC_COLUMN))
+            }
+
+            if (labelColumn != null && numericColumns.isNotEmpty()) {
+                dataTable.rows.forEach { row ->
+                    if (row.cells[labelColumn.id]
+                            .orEmpty()
+                            .trim()
+                            .isBlank()
+                    ) {
+                        add(
+                            ValidationIssue(
+                                code = ValidationIssueCode.BLANK_LABEL,
+                                severity = ValidationSeverity.WARNING,
+                                path = ValidationPath(rowId = row.id, columnId = labelColumn.id),
+                            ),
+                        )
+                    }
+
+                    numericColumns.forEach { column ->
+                        val rawValue = row.cells[column.id].orEmpty().trim()
+                        when {
+                            rawValue.isBlank() ->
+                                add(
+                                    ValidationIssue(
+                                        code = ValidationIssueCode.MISSING_VALUE,
+                                        path = ValidationPath(rowId = row.id, columnId = column.id),
+                                    ),
+                                )
+                            rawValue.toFloatOrNull() == null ->
+                                add(
+                                    ValidationIssue(
+                                        code = ValidationIssueCode.INVALID_NUMBER,
+                                        path = ValidationPath(rowId = row.id, columnId = column.id),
+                                    ),
+                                )
+                            requireNonNegative && rawValue.toFloat() < 0f ->
+                                add(
+                                    ValidationIssue(
+                                        code = ValidationIssueCode.NEGATIVE_VALUE,
+                                        path = ValidationPath(rowId = row.id, columnId = column.id),
+                                    ),
+                                )
+                        }
+                    }
+                }
+            }
+        }
+    return issues.sortedDeterministically()
+}
+
+internal fun List<ValidationIssue>.hasErrors(): Boolean = any { issue -> issue.severity == ValidationSeverity.ERROR }
+
+internal fun invalidValidationResult(issues: List<ValidationIssue>): ValidationResult =
+    ValidationResult(
+        sanitizedTable = null,
+        data = null,
+        issues = issues,
+    )
+
+private fun unsupportedTableIssue(): ValidationIssue =
+    ValidationIssue(code = ValidationIssueCode.UNSUPPORTED_COMBINATION)
 
 internal data class ParsedEditorTable(
     val labels: List<String>,
@@ -228,31 +329,6 @@ internal fun parseEditorTable(
     )
 }
 
-internal fun invalidNumericResult(dataTable: DataTableState): ValidationResult =
-    ValidationResult(
-        sanitizedTable = null,
-        data = null,
-        message = "Please enter valid numeric values in all rows.",
-        invalidRowIds = invalidNumericRowIds(dataTable),
-    )
-
-internal fun invalidNumericRowIds(dataTable: DataTableState): Set<Int> {
-    val numericColumns = dataTable.columns.filter { column -> column.numeric }
-    if (numericColumns.isEmpty()) return emptySet()
-    return buildSet {
-        dataTable.rows.forEachIndexed { index, row ->
-            val hasInvalidNumericCell =
-                numericColumns.any { column ->
-                    row.cells[column.id]
-                        .orEmpty()
-                        .trim()
-                        .toFloatOrNull() == null
-                }
-            if (hasInvalidNumericCell) add(index + 1)
-        }
-    }
-}
-
 internal fun defaultRowCells(
     columns: List<DataTableColumn>,
     rowIndex: Int,
@@ -278,7 +354,7 @@ internal fun randomizeEditorValues(
         dataTable.rows.map { row ->
             val cells = row.cells.toMutableMap()
             dataTable.columns.filter { column -> column.numeric }.forEach { column ->
-                cells[column.id] = formatEditorFloat(valueProvider())
+                cells[column.id] = formatEditorFloat(valueProvider().roundToInt().toFloat())
             }
             row.copy(cells = cells)
         }

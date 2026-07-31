@@ -1,7 +1,9 @@
 package presentation.code
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,7 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import chartsproject.playground.generated.resources.Res
@@ -40,9 +42,9 @@ import chartsproject.playground.generated.resources.playground_code_copy
 import chartsproject.playground.generated.resources.playground_code_copy_failed
 import chartsproject.playground.generated.resources.playground_code_full
 import chartsproject.playground.generated.resources.playground_code_minimal
+import chartsproject.playground.generated.resources.playground_code_minimal_compact
 import chartsproject.playground.generated.resources.playground_code_title
 import domain.CodegenMode
-import interop.copyTextToClipboard
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -58,12 +60,12 @@ fun CodePreviewPanel(
     code: String,
     mode: CodegenMode,
     onModeChange: (CodegenMode) -> Unit,
+    onCopyCode: suspend (String) -> Boolean,
     expandToFillHeight: Boolean = false,
     showTitle: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
     var copyState by remember(code) { mutableStateOf(CopyState.IDLE) }
-    val clipboard = LocalClipboard.current
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(copyState) {
@@ -89,69 +91,89 @@ fun CodePreviewPanel(
                 Text(text = stringResource(Res.string.playground_code_title))
             }
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                Button(
-                    onClick = { onModeChange(CodegenMode.MINIMAL) },
-                    colors =
-                        if (mode == CodegenMode.MINIMAL) {
-                            ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                            )
-                        } else {
-                            ButtonDefaults.outlinedButtonColors()
-                        },
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Text(stringResource(Res.string.playground_code_minimal))
+            val (copyIcon, copyDescription) =
+                when (copyState) {
+                    CopyState.IDLE -> Icons.Filled.ContentCopy to stringResource(Res.string.playground_code_copy)
+                    CopyState.COPIED -> Icons.Filled.Check to stringResource(Res.string.playground_code_copied)
+                    CopyState.FAILED ->
+                        Icons.Filled.ErrorOutline to
+                            stringResource(Res.string.playground_code_copy_failed)
                 }
-                Button(
-                    onClick = { onModeChange(CodegenMode.FULL) },
-                    colors =
-                        if (mode == CodegenMode.FULL) {
-                            ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                            )
-                        } else {
-                            ButtonDefaults.outlinedButtonColors()
-                        },
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Text(stringResource(Res.string.playground_code_full))
+            val copyCode = {
+                coroutineScope.launch {
+                    val success = onCopyCode(code)
+                    copyState = if (success) CopyState.COPIED else CopyState.FAILED
                 }
+            }
 
-                val (copyIcon, copyDescription) =
-                    when (copyState) {
-                        CopyState.IDLE -> Icons.Filled.ContentCopy to stringResource(Res.string.playground_code_copy)
-                        CopyState.COPIED -> Icons.Filled.Check to stringResource(Res.string.playground_code_copied)
-                        CopyState.FAILED ->
-                            Icons.Filled.ErrorOutline to
-                                stringResource(Res.string.playground_code_copy_failed)
-                    }
-
-                IconButton(
-                    onClick = {
-                        coroutineScope.launch {
-                            val success = copyTextToClipboard(clipboard, code)
-                            copyState = if (success) CopyState.COPIED else CopyState.FAILED
+            BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                val compactModeControls = maxWidth < 360.dp
+                if (compactModeControls) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            Button(
+                                onClick = { onModeChange(CodegenMode.MINIMAL) },
+                                contentPadding = PaddingValues(horizontal = 8.dp),
+                                colors = codeModeButtonColors(mode == CodegenMode.MINIMAL),
+                                modifier = Modifier.weight(1f),
+                            ) {
+                                Text(stringResource(Res.string.playground_code_minimal_compact), maxLines = 1)
+                            }
+                            Button(
+                                onClick = { onModeChange(CodegenMode.FULL) },
+                                contentPadding = PaddingValues(horizontal = 8.dp),
+                                colors = codeModeButtonColors(mode == CodegenMode.FULL),
+                                modifier = Modifier.weight(1f),
+                            ) {
+                                Text(stringResource(Res.string.playground_code_full), maxLines = 1)
+                            }
                         }
-                    },
-                    modifier = Modifier.size(48.dp),
-                ) {
-                    Icon(
-                        imageVector = copyIcon,
-                        contentDescription = copyDescription,
-                        tint =
-                            when (copyState) {
-                                CopyState.COPIED -> MaterialTheme.colorScheme.primary
-                                CopyState.FAILED -> MaterialTheme.colorScheme.error
-                                CopyState.IDLE -> MaterialTheme.colorScheme.onSurfaceVariant
-                            },
-                    )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End,
+                        ) {
+                            CopyCodeButton(
+                                icon = copyIcon,
+                                description = copyDescription,
+                                copyState = copyState,
+                                onClick = { copyCode() },
+                            )
+                        }
+                    }
+                } else {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Button(
+                            onClick = { onModeChange(CodegenMode.MINIMAL) },
+                            contentPadding = PaddingValues(horizontal = 8.dp),
+                            colors = codeModeButtonColors(mode == CodegenMode.MINIMAL),
+                            modifier = Modifier.weight(1f),
+                        ) {
+                            Text(stringResource(Res.string.playground_code_minimal), maxLines = 1)
+                        }
+                        Button(
+                            onClick = { onModeChange(CodegenMode.FULL) },
+                            contentPadding = PaddingValues(horizontal = 8.dp),
+                            colors = codeModeButtonColors(mode == CodegenMode.FULL),
+                            modifier = Modifier.weight(1f),
+                        ) {
+                            Text(stringResource(Res.string.playground_code_full), maxLines = 1)
+                        }
+                        CopyCodeButton(
+                            icon = copyIcon,
+                            description = copyDescription,
+                            copyState = copyState,
+                            onClick = { copyCode() },
+                        )
+                    }
                 }
             }
 
@@ -181,5 +203,40 @@ fun CodePreviewPanel(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun codeModeButtonColors(selected: Boolean) =
+    if (selected) {
+        ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+        )
+    } else {
+        ButtonDefaults.outlinedButtonColors()
+    }
+
+@Composable
+private fun CopyCodeButton(
+    icon: ImageVector,
+    description: String,
+    copyState: CopyState,
+    onClick: () -> Unit,
+) {
+    IconButton(
+        onClick = onClick,
+        modifier = Modifier.size(48.dp),
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = description,
+            tint =
+                when (copyState) {
+                    CopyState.COPIED -> MaterialTheme.colorScheme.primary
+                    CopyState.FAILED -> MaterialTheme.colorScheme.error
+                    CopyState.IDLE -> MaterialTheme.colorScheme.onSurfaceVariant
+                },
+        )
     }
 }

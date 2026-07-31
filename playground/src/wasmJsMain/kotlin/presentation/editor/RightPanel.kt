@@ -1,11 +1,15 @@
 package presentation.editor
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Settings
@@ -17,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import chartsproject.playground.generated.resources.Res
@@ -46,34 +51,70 @@ internal fun RightPanel(
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             if (showTabSelector) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(10.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    Button(
-                        onClick = { onTabChange(RightPanelTab.SETTINGS) },
-                        colors = tabButtonColors(tab == RightPanelTab.SETTINGS),
-                        modifier = Modifier.weight(1f),
+                BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                    val compactTabs = maxWidth < 360.dp
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(10.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Icon(
-                            imageVector = Icons.Filled.Settings,
-                            contentDescription = null,
-                            modifier = Modifier.padding(end = 6.dp).size(RightPanelTabIconSize),
-                        )
-                        Text(stringResource(Res.string.playground_right_panel_settings))
-                    }
+                        Button(
+                            onClick = { onTabChange(RightPanelTab.SETTINGS) },
+                            contentPadding = PaddingValues(horizontal = if (compactTabs) 8.dp else 10.dp),
+                            colors = tabButtonColors(tab == RightPanelTab.SETTINGS),
+                            modifier = Modifier.weight(1f),
+                        ) {
+                            if (compactTabs) {
+                                Icon(
+                                    imageVector = Icons.Filled.Settings,
+                                    contentDescription = stringResource(Res.string.playground_right_panel_settings),
+                                    modifier = Modifier.size(RightPanelTabIconSize),
+                                )
+                            } else {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Settings,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(RightPanelTabIconSize),
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(stringResource(Res.string.playground_right_panel_settings), maxLines = 1)
+                                }
+                            }
+                        }
 
-                    Button(
-                        onClick = { onTabChange(RightPanelTab.CODE) },
-                        colors = tabButtonColors(tab == RightPanelTab.CODE),
-                        modifier = Modifier.weight(1f),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Code,
-                            contentDescription = null,
-                            modifier = Modifier.padding(end = 6.dp).size(RightPanelTabIconSize),
-                        )
-                        Text(stringResource(Res.string.playground_right_panel_code))
+                        Button(
+                            onClick = { onTabChange(RightPanelTab.CODE) },
+                            contentPadding = PaddingValues(horizontal = if (compactTabs) 8.dp else 10.dp),
+                            colors = tabButtonColors(tab == RightPanelTab.CODE),
+                            modifier = Modifier.weight(1f),
+                        ) {
+                            if (compactTabs) {
+                                Icon(
+                                    imageVector = Icons.Filled.Code,
+                                    contentDescription = stringResource(Res.string.playground_right_panel_code),
+                                    modifier = Modifier.size(RightPanelTabIconSize),
+                                )
+                            } else {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Code,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(RightPanelTabIconSize),
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(stringResource(Res.string.playground_right_panel_code), maxLines = 1)
+                                }
+                            }
+                        }
                     }
                 }
 
