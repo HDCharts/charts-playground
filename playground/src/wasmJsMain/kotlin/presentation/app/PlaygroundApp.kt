@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.ComposeViewport
-import chartsproject.charts_demo_shared.generated.resources.Res as SharedRes
 import chartsproject.charts_demo_shared.generated.resources.charts_logo
 import chartsproject.playground.generated.resources.Res
 import chartsproject.playground.generated.resources.playground_chart_selector_more
@@ -51,6 +50,7 @@ import platform.snapshotPublishMetadata
 import presentation.editor.EditorRoute
 import presentation.editor.EditorViewModel
 import presentation.resources.chartTypeIconResource
+import chartsproject.charts_demo_shared.generated.resources.Res as SharedRes
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
