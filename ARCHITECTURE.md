@@ -2,7 +2,7 @@
 
 This document records the small set of boundaries adopted for `charts-playground`.
 It is intentionally project-specific: the playground is an example editor and
-code generator, not a second application architecture for the charts library.
+code generator with its own focused application boundaries.
 
 ## Dependency direction
 
@@ -19,33 +19,34 @@ The dependency direction is:
 ```text
 domain <- data <- wasm presentation
    ^       ^
-   +-------+-- codegen is used by data and has no editor/UI dependency
+   +-------+-- codegen serves data through a platform-neutral contract
 ```
 
-The arrows describe allowed usage. Lower-level packages must not reach upward
-into presentation or editor code.
+The arrows describe the intended usage. Lower-level packages provide contracts
+that presentation and editor code consume, keeping dependencies pointed toward
+the user-facing layers.
 
 ## Ownership
 
 | Concern | Owner | Contract |
 | --- | --- | --- |
-| Editable draft, row identity, actions, session state | `domain` | Immutable models and typed actions; no Compose or platform UI imports |
+| Editable draft, row identity, actions, session state | `domain` | Immutable models and typed actions; platform-neutral and UI-independent |
 | Draft mutation and chart-specific validation | `data` plus `domain.ValidationResult` | The store applies actions; definitions validate raw tables and produce validated specifications |
-| Validated chart data and style state | `domain` | `ValidatedChartSpec` is the only input accepted by preview and service-level generation |
-| Chart preview | `presentation.chart` | Renderers consume validated specifications and do not perform editor validation |
+| Validated chart data and style state | `domain` | `ValidatedChartSpec` is the input contract for preview and service-level generation |
+| Chart preview | `presentation.chart` | Renderers consume validated specifications; editor validation remains in the domain and data workflow |
 | Kotlin source generation | `codegen` plus `data.ChartCodegenService` | Generators are deterministic; service selection is separate from editor state |
 | Platform/UI integration | `wasmJsMain.presentation` | Routes collect ViewModel state and inject clipboard, URI, and browser callbacks |
-| CI contract | `.github/workflows` and root Gradle verification tasks | Required PR check names remain stable; docs-only changes retain checks but skip expensive code work |
+| CI contract | `.github/workflows` and root Gradle verification tasks | Required PR check names remain stable; docs-only changes retain checks with lightweight execution |
 
 ## Practical rules
 
-- Do not pass raw editor text to preview renderers or the codegen service.
+- Pass validated specifications to preview renderers and the codegen service.
 - Keep validation wording in the presentation layer; domain validation returns typed issues.
-- Use `RowId`, not a list position, for row actions and validation paths.
-- Keep chart-specific behavior in chart definitions, adapters, and generators rather than adding generic managers.
+- Use `RowId` for row actions and validation paths.
+- Keep chart-specific behavior focused in chart definitions, adapters, and generators.
 - Treat generated source as a deterministic artifact. Review per-chart golden changes intentionally.
-- Keep platform APIs at the platform boundary. Common domain, data, and codegen code must remain usable without browser UI code.
-- Add a new module, persistence layer, or dependency-injection framework only when a concrete requirement justifies it.
+- Keep platform APIs at the platform boundary. Common domain, data, and codegen code remain portable across targets.
+- Adopt a new module, persistence layer, or dependency-injection framework when a concrete requirement justifies it.
 
 ## Enforcement
 
@@ -62,5 +63,5 @@ The required PR checks are coordinated by
 - `PR Lint / Lint`
 - `PR Test / Test`
 
-Docs-only pull requests keep these check contexts but skip the expensive
-assemble, compile, lint, and test work where the reusable workflow supports it.
+Docs-only pull requests keep these check contexts and use lightweight execution
+steps where the reusable workflow supports them.
