@@ -2,6 +2,9 @@ name: Compile
 on:
   workflow_call:
     inputs:
+      should-run:
+        required: true
+        type: boolean
       source-sha:
         required: true
         type: string
@@ -19,15 +22,21 @@ jobs:
           ref: ${{ inputs.source-sha }}
           fetch-depth: 0
       - name: Checkout charts
+        if: inputs.should-run
         uses: actions/checkout@v7
         with:
           repository: HDCharts/charts
           path: charts
           fetch-depth: 1
       - uses: actions/setup-java@v5.6.0
+        if: inputs.should-run
         with:
           java-version: 17
           distribution: 'zulu'
           cache: gradle
       - name: Compile
+        if: inputs.should-run
         run: ./gradlew -DchartsLocalPath=charts ciCompile
+      - name: Skip compile for docs-only changes
+        if: ${{ !inputs.should-run }}
+        run: echo "No code/build changes detected. Skipping compile."

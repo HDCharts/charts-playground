@@ -39,9 +39,6 @@ kotlin {
 
     sourceSets {
         jvmTest {
-            kotlin.srcDir("src/wasmJsMain/kotlin/codegen")
-            kotlin.srcDir("src/wasmJsMain/kotlin/model")
-
             dependencies {
                 implementation(kotlin("test"))
                 // These coordinates are always substituted to local projects via includeBuild in settings.gradle.kts.
@@ -63,20 +60,15 @@ kotlin {
             implementation(libs.compose.mpp.ui)
             implementation(libs.compose.mpp.resources)
             implementation(libs.androidx.lifecycle.viewmodel)
-            implementation(libs.androidx.lifecycle.viewmodel.compose)
             // These coordinates are always substituted to local projects via includeBuild in settings.gradle.kts.
             implementation(localChartsDependency)
             implementation(localChartsDemoSharedDependency)
-        }
-
-        wasmJsTest.dependencies {
-            implementation(kotlin("test"))
         }
     }
 }
 
 buildConfig {
-    packageName("ui")
+    packageName("config")
     buildConfigField("CHARTS_VERSION", chartsDisplayVersion)
     buildConfigField(
         "SNAPSHOT_METADATA_CHARTS_SHA",
@@ -85,10 +77,6 @@ buildConfig {
     buildConfigField(
         "SNAPSHOT_METADATA_PLAYGROUND_SHA",
         (project.findProperty("snapshotMetadataPlaygroundSha") as String?).orEmpty(),
-    )
-    buildConfigField(
-        "SNAPSHOT_METADATA_CHARTS_VERSION",
-        (project.findProperty("snapshotMetadataChartsVersion") as String?).orEmpty(),
     )
     buildConfigField(
         "SNAPSHOT_METADATA_PUBLISHED_AT",

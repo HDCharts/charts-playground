@@ -1,6 +1,17 @@
 package codegen
 
-import androidx.compose.ui.graphics.Color
+import codegen.AreaCodegenConfig
+import codegen.BarCodegenConfig
+import codegen.HistogramCodegenConfig
+import codegen.LineCodegenConfig
+import codegen.LinePointInput
+import codegen.MultiLineCodegenConfig
+import codegen.MultiSeriesCodegenInput
+import codegen.PieCodegenConfig
+import codegen.PieSliceInput
+import codegen.RadarCodegenConfig
+import codegen.StackedBarCodegenConfig
+import codegen.StylePropertiesSnapshot
 import codegen.area.AreaChartCodeGenerator
 import codegen.bar.BarChartCodeGenerator
 import codegen.histogram.HistogramChartCodeGenerator
@@ -9,18 +20,8 @@ import codegen.multiline.MultiLineChartCodeGenerator
 import codegen.pie.PieChartCodeGenerator
 import codegen.radar.RadarChartCodeGenerator
 import codegen.stackedbar.StackedBarChartCodeGenerator
-import model.AreaCodegenConfig
-import model.BarCodegenConfig
-import model.HistogramCodegenConfig
-import model.LineCodegenConfig
-import model.LinePointInput
-import model.MultiLineCodegenConfig
-import model.MultiSeriesCodegenInput
-import model.PieCodegenConfig
-import model.PieSliceInput
-import model.RadarCodegenConfig
-import model.StackedBarCodegenConfig
-import model.StylePropertiesSnapshot
+import codegen.styleProperty
+import domain.ColorValue
 import org.jetbrains.kotlin.cli.common.ExitCode
 import org.jetbrains.kotlin.cli.jvm.K2JVMCompiler
 import java.io.ByteArrayOutputStream
@@ -40,8 +41,8 @@ class GeneratedSnippetCompilationTest {
                         LineCodegenConfig(
                             points =
                                 listOf(
-                                    LinePointInput(label = "Jan", valueText = "12"),
-                                    LinePointInput(label = "Feb", valueText = "18"),
+                                    LinePointInput(label = "Jan", value = 12f),
+                                    LinePointInput(label = "Feb", value = 18f),
                                 ),
                         ),
                     ).code,
@@ -50,8 +51,8 @@ class GeneratedSnippetCompilationTest {
                         PieCodegenConfig(
                             rows =
                                 listOf(
-                                    PieSliceInput(label = "A", valueText = "24"),
-                                    PieSliceInput(label = "B", valueText = "18"),
+                                    PieSliceInput(label = "A", value = 24f),
+                                    PieSliceInput(label = "B", value = 18f),
                                 ),
                         ),
                     ).code,
@@ -60,18 +61,21 @@ class GeneratedSnippetCompilationTest {
                         BarCodegenConfig(
                             points =
                                 listOf(
-                                    PieSliceInput(label = "Mon", valueText = "12"),
-                                    PieSliceInput(label = "Tue", valueText = "18"),
+                                    PieSliceInput(label = "Mon", value = 12f),
+                                    PieSliceInput(label = "Tue", value = 18f),
                                 ),
                             styleProperties =
                                 StylePropertiesSnapshot(
                                     current =
                                         listOf(
-                                            "barColors" to listOf(Color.Red, Color.Green),
+                                            styleProperty(
+                                                "barColors",
+                                                listOf(ColorValue(0xFFFF0000L), ColorValue(0xFF00FF00L)),
+                                            ),
                                         ),
                                     defaults =
                                         listOf(
-                                            "barColors" to emptyList<Color>(),
+                                            styleProperty("barColors", emptyList()),
                                         ),
                                 ),
                         ),
@@ -81,8 +85,8 @@ class GeneratedSnippetCompilationTest {
                         HistogramCodegenConfig(
                             points =
                                 listOf(
-                                    PieSliceInput(label = "0-10", valueText = "4"),
-                                    PieSliceInput(label = "10-20", valueText = "9"),
+                                    PieSliceInput(label = "0-10", value = 4f),
+                                    PieSliceInput(label = "10-20", value = 9f),
                                 ),
                         ),
                     ).code,
