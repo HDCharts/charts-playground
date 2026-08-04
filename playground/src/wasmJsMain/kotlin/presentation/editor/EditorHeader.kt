@@ -37,9 +37,15 @@ import config.BuildConfig
 import domain.ChartEditorState
 import domain.ChartType
 import domain.EditorAction
+import kotlinx.datetime.UtcOffset
+import kotlinx.datetime.format
+import kotlinx.datetime.format.DateTimeComponents
+import kotlinx.datetime.format.FormatStringsInDatetimeFormats
+import kotlinx.datetime.format.byUnicodePattern
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import presentation.resources.chartTypeIconResource
+import kotlin.time.Instant
 import chartsproject.charts_demo_shared.generated.resources.Res as SharedRes
 
 private const val CHARTS_GITHUB_URL = "https://github.com/HDCharts/charts"
@@ -82,45 +88,42 @@ internal fun EditorHeader(
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
-                        state.snapshotMetadata?.let { metadata ->
-                            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                Text(
-                                    text =
-                                        stringResource(
-                                            Res.string.playground_metadata_charts,
-                                            metadata.chartsSha.take(7),
-                                        ),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    modifier =
-                                        Modifier.clickable {
-                                            onOpenUri(
-                                                "$CHARTS_GITHUB_URL/commit/${metadata.chartsSha}",
-                                            )
-                                        },
-                                )
-                                Text(
-                                    text =
-                                        stringResource(
-                                            Res.string.playground_metadata_playground,
-                                            metadata.playgroundSha.take(7),
-                                        ),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    modifier =
-                                        Modifier.clickable {
-                                            onOpenUri(
-                                                "$PLAYGROUND_GITHUB_URL/commit/${metadata.playgroundSha}",
-                                            )
-                                        },
-                                )
-                                MetadataLabel(
-                                    stringResource(
-                                        Res.string.playground_metadata_published,
-                                        formatPublishedAt(metadata.publishedAt),
-                                    ),
-                                )
+                        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                            state.snapshotMetadata?.let { metadata ->
+                                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                    Text(
+                                        text =
+                                            stringResource(
+                                                Res.string.playground_metadata_charts,
+                                                metadata.chartsSha.take(7),
+                                            ),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        modifier =
+                                            Modifier.clickable {
+                                                onOpenUri(
+                                                    "$CHARTS_GITHUB_URL/commit/${metadata.chartsSha}",
+                                                )
+                                            },
+                                    )
+                                    Text(
+                                        text =
+                                            stringResource(
+                                                Res.string.playground_metadata_playground,
+                                                metadata.playgroundSha.take(7),
+                                            ),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        modifier =
+                                            Modifier.clickable {
+                                                onOpenUri(
+                                                    "$PLAYGROUND_GITHUB_URL/commit/${metadata.playgroundSha}",
+                                                )
+                                            },
+                                    )
+                                }
                             }
+                            PublishedMetadataLabel(state.snapshotMetadata?.publishedAt)
                         }
                     }
                 }
@@ -189,18 +192,19 @@ internal fun EditorHeader(
 }
 
 @Composable
-private fun MetadataLabel(text: String) {
+@OptIn(FormatStringsInDatetimeFormats::class)
+private fun PublishedMetadataLabel(publishedAt: Instant?) {
+    val formattedPublishedAt =
+        publishedAt
+            ?.format(
+                DateTimeComponents.Format { byUnicodePattern("MMM d, yyyy, h:mm a 'UTC'") },
+                UtcOffset.ZERO,
+            )
+            ?: "Unavailable"
+
     Text(
-        text = text,
+        text = stringResource(Res.string.playground_metadata_published, formattedPublishedAt),
         style = MaterialTheme.typography.labelSmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
-}
-
-private fun formatPublishedAt(value: String): String {
-    val match = Regex("^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2})(?::\\d{2})?Z$").find(value)
-    return match?.let {
-        "${it.groupValues[1]}-${it.groupValues[2]}-${it.groupValues[3]} ${it.groupValues[4]}:${it.groupValues[5]} UTC"
-    }
-        ?: value
 }

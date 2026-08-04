@@ -7,6 +7,7 @@ compose-mpp-material3 = "1.9.0"
 buildConfig = "6.0.9"
 ktlint = "14.2.0"
 androidx-lifecycle = "2.11.0"
+kotlinx-datetime = "0.8.0"
 
 [libraries]
 compose-mpp-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "compose-plugin" }
@@ -16,6 +17,7 @@ compose-mpp-material-icons-extended = { module = "org.jetbrains.compose.material
 compose-mpp-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "compose-plugin" }
 compose-mpp-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "compose-plugin" }
 androidx-lifecycle-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel", version.ref = "androidx-lifecycle" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 
 [plugins]
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin-multiplatform" }
