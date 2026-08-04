@@ -119,21 +119,21 @@ fun DataTableEditor(
         shape = RoundedCornerShape(16.dp),
         tonalElevation = 2.dp,
     ) {
-        val columnModifier =
+        val panelModifier =
             Modifier
                 .fillMaxWidth()
                 .then(if (expandToFillHeight) Modifier.fillMaxHeight() else Modifier)
                 .padding(16.dp)
 
-        Column(modifier = columnModifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Column(modifier = panelModifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
             BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-                val compactActions = maxWidth < EditorCompactHeaderBreakpoint
+                val showCompactActions = maxWidth < EditorCompactHeaderBreakpoint
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    if (compactActions) {
+                    if (showCompactActions) {
                         IconButton(onClick = onAddRow) {
                             Icon(
                                 imageVector = Icons.Filled.Add,
@@ -257,16 +257,13 @@ fun DataTableEditor(
                 visibleRows.forEachIndexed { visualRowIndex, row ->
                     val rowIndex = dataTable.rows.lastIndex - visualRowIndex
                     val rowContainerColor =
-                        if (row.id in invalidRowIds) {
-                            MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.32f)
-                        } else if (row.id == highlightedRowId) {
-                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.25f)
-                        } else {
-                            if (visualRowIndex % 2 == 0) {
-                                MaterialTheme.colorScheme.surface
-                            } else {
-                                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.16f)
-                            }
+                        when {
+                            row.id in invalidRowIds ->
+                                MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.32f)
+                            row.id == highlightedRowId ->
+                                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.25f)
+                            visualRowIndex % 2 == 0 -> MaterialTheme.colorScheme.surface
+                            else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.16f)
                         }
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -290,14 +287,15 @@ fun DataTableEditor(
                             }
                         }
                         dataTable.columns.forEach { column ->
-                            val invalidCell = ValidationPath(rowId = row.id, columnId = column.id) in invalidCellPaths
+                            val isInvalidCell =
+                                ValidationPath(rowId = row.id, columnId = column.id) in invalidCellPaths
                             Surface(
                                 modifier = Modifier.weight(column.weight),
                                 color = rowContainerColor,
                                 border =
                                     BorderStroke(
                                         1.dp,
-                                        if (invalidCell) {
+                                        if (isInvalidCell) {
                                             MaterialTheme.colorScheme.error
                                         } else {
                                             MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.75f)
@@ -310,7 +308,7 @@ fun DataTableEditor(
                                         onCellChange(row.id, column.id, nextValue)
                                     },
                                     singleLine = true,
-                                    isError = invalidCell,
+                                    isError = isInvalidCell,
                                     modifier =
                                         Modifier
                                             .fillMaxWidth()

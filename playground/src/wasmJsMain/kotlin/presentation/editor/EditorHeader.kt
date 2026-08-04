@@ -59,8 +59,8 @@ internal fun EditorHeader(
     onOpenUri: (String) -> Unit,
 ) {
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-        val inlineChartSwitcher = maxWidth >= EditorWideLayoutBreakpoint
-        val compactHeader = maxWidth < EditorCompactHeaderBreakpoint
+        val showInlineChartSwitcher = maxWidth >= EditorWideLayoutBreakpoint
+        val isCompactHeader = maxWidth < EditorCompactHeaderBreakpoint
         var chartMenuExpanded by remember { mutableStateOf(false) }
 
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -128,7 +128,7 @@ internal fun EditorHeader(
                     }
                 }
 
-                if (inlineChartSwitcher) {
+                if (showInlineChartSwitcher) {
                     ChartTypeSelector(
                         selectedType = state.selectedChartType,
                         primaryTypes = state.primaryChartTypes,
@@ -136,7 +136,7 @@ internal fun EditorHeader(
                         onTypeSelected = { chartType -> onAction(EditorAction.SelectChart(chartType)) },
                         modifier = Modifier.weight(1f),
                     )
-                } else if (compactHeader) {
+                } else if (isCompactHeader) {
                     Text(
                         text = selectedChartType.displayName,
                         style = MaterialTheme.typography.labelLarge,
@@ -178,7 +178,7 @@ internal fun EditorHeader(
                 }
             }
 
-            if (!inlineChartSwitcher && !compactHeader) {
+            if (!showInlineChartSwitcher && !isCompactHeader) {
                 ChartTypeSelector(
                     selectedType = state.selectedChartType,
                     primaryTypes = state.primaryChartTypes,

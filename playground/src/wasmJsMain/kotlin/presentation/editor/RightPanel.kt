@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Settings
@@ -44,15 +45,13 @@ internal fun RightPanel(
 ) {
     Surface(
         modifier = modifier,
-        shape =
-            androidx.compose.foundation.shape
-                .RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(16.dp),
         tonalElevation = 2.dp,
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             if (showTabSelector) {
                 BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-                    val compactTabs = maxWidth < 360.dp
+                    val showIconOnlyTabs = maxWidth < 360.dp
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(10.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -60,11 +59,11 @@ internal fun RightPanel(
                     ) {
                         Button(
                             onClick = { onTabChange(RightPanelTab.SETTINGS) },
-                            contentPadding = PaddingValues(horizontal = if (compactTabs) 8.dp else 10.dp),
+                            contentPadding = PaddingValues(horizontal = if (showIconOnlyTabs) 8.dp else 10.dp),
                             colors = tabButtonColors(tab == RightPanelTab.SETTINGS),
                             modifier = Modifier.weight(1f),
                         ) {
-                            if (compactTabs) {
+                            if (showIconOnlyTabs) {
                                 Icon(
                                     imageVector = Icons.Filled.Settings,
                                     contentDescription = stringResource(Res.string.playground_right_panel_settings),
@@ -89,11 +88,11 @@ internal fun RightPanel(
 
                         Button(
                             onClick = { onTabChange(RightPanelTab.CODE) },
-                            contentPadding = PaddingValues(horizontal = if (compactTabs) 8.dp else 10.dp),
+                            contentPadding = PaddingValues(horizontal = if (showIconOnlyTabs) 8.dp else 10.dp),
                             colors = tabButtonColors(tab == RightPanelTab.CODE),
                             modifier = Modifier.weight(1f),
                         ) {
-                            if (compactTabs) {
+                            if (showIconOnlyTabs) {
                                 Icon(
                                     imageVector = Icons.Filled.Code,
                                     contentDescription = stringResource(Res.string.playground_right_panel_code),

@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import domain.ChartEditorState
 import domain.ChartSession
 import domain.ChartType
+import domain.ChartValidationState
 import domain.EditorAction
 import presentation.chart.ChartPanel
 import presentation.code.CodePreviewPanel
@@ -27,20 +28,19 @@ internal fun EditorWorkspace(
     onCopyCode: suspend (String) -> Boolean,
     wideLayout: Boolean,
 ) {
-    val settings = session.settings
     val dataColumnCount = session.draft.dataTable.columns.size
     // Three or more data columns use a balanced three-panel layout; simple tables favor preview space.
-    val equalPanelWeights = dataColumnCount >= 3
-    val dataTableWeight = if (equalPanelWeights) 1f else 30f
-    val chartWeight = if (equalPanelWeights) 1f else 40f
-    val rightPanelWeight = if (equalPanelWeights) 1f else 30f
+    val useEqualPanelWeights = dataColumnCount >= 3
+    val dataTableWeight = if (useEqualPanelWeights) 1f else 30f
+    val chartWeight = if (useEqualPanelWeights) 1f else 40f
+    val rightPanelWeight = if (useEqualPanelWeights) 1f else 30f
 
     @Composable
-    fun dataTable(modifier: Modifier) {
+    fun dataTableContent(modifier: Modifier) {
         DataTableEditor(
             dataTable = session.draft.dataTable,
             validationMessage = session.validation.presentationMessage(),
-            validationIsBlocking = session.validation is domain.ChartValidationState.Invalid,
+            validationIsBlocking = session.validation is ChartValidationState.Invalid,
             invalidRowIds = session.validation.invalidRowIds,
             invalidCellPaths = session.validation.invalidPaths,
             onCellChange = { rowId, columnId, value ->
@@ -62,7 +62,7 @@ internal fun EditorWorkspace(
     }
 
     @Composable
-    fun chart(modifier: Modifier) {
+    fun chartContent(modifier: Modifier) {
         ChartPanel(
             session = session,
             chartType = chartType,
@@ -73,14 +73,14 @@ internal fun EditorWorkspace(
     }
 
     @Composable
-    fun rightPanel(modifier: Modifier) {
+    fun rightPanelContent(modifier: Modifier) {
         RightPanel(
             tab = state.rightPanelTab,
             onTabChange = { tab -> onAction(EditorAction.SelectRightPanelTab(tab)) },
             settingsContent = {
                 SettingsPanel(
                     session = session,
-                    descriptors = settings,
+                    descriptors = session.settings,
                     onSettingChange = { change -> onAction(EditorAction.UpdateSetting(change)) },
                     modifier =
                         if (wideLayout) {
@@ -116,17 +116,17 @@ internal fun EditorWorkspace(
         Row(
             modifier = Modifier.fillMaxSize(),
         ) {
-            dataTable(Modifier.weight(dataTableWeight).fillMaxHeight())
-            chart(Modifier.weight(chartWeight).fillMaxHeight().padding(start = 16.dp))
-            rightPanel(Modifier.weight(rightPanelWeight).fillMaxHeight().padding(start = 16.dp))
+            dataTableContent(Modifier.weight(dataTableWeight).fillMaxHeight())
+            chartContent(Modifier.weight(chartWeight).fillMaxHeight().padding(start = 16.dp))
+            rightPanelContent(Modifier.weight(rightPanelWeight).fillMaxHeight().padding(start = 16.dp))
         }
     } else {
         Column(
             modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
         ) {
-            dataTable(Modifier.fillMaxWidth())
-            chart(Modifier.fillMaxWidth().padding(top = 16.dp))
-            rightPanel(Modifier.fillMaxWidth().padding(top = 16.dp))
+            dataTableContent(Modifier.fillMaxWidth())
+            chartContent(Modifier.fillMaxWidth().padding(top = 16.dp))
+            rightPanelContent(Modifier.fillMaxWidth().padding(top = 16.dp))
         }
     }
 }
