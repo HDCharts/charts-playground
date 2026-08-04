@@ -60,6 +60,7 @@ kotlin {
             implementation(libs.compose.mpp.ui)
             implementation(libs.compose.mpp.resources)
             implementation(libs.androidx.lifecycle.viewmodel)
+            implementation(libs.kotlinx.datetime)
             // These coordinates are always substituted to local projects via includeBuild in settings.gradle.kts.
             implementation(localChartsDependency)
             implementation(localChartsDemoSharedDependency)
