@@ -83,7 +83,7 @@ fun CodePreviewPanel(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .let { base -> if (expandToFillHeight) base.fillMaxHeight() else base }
+                    .then(if (expandToFillHeight) Modifier.fillMaxHeight() else Modifier)
                     .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
@@ -99,7 +99,7 @@ fun CodePreviewPanel(
                         Icons.Filled.ErrorOutline to
                             stringResource(Res.string.playground_code_copy_failed)
                 }
-            val copyCode = {
+            val copyCodeToClipboard = {
                 coroutineScope.launch {
                     val success = onCopyCode(code)
                     copyState = if (success) CopyState.COPIED else CopyState.FAILED
@@ -107,8 +107,8 @@ fun CodePreviewPanel(
             }
 
             BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-                val compactModeControls = maxWidth < 360.dp
-                if (compactModeControls) {
+                val showCompactModeControls = maxWidth < 360.dp
+                if (showCompactModeControls) {
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -140,9 +140,9 @@ fun CodePreviewPanel(
                         ) {
                             CopyCodeButton(
                                 icon = copyIcon,
-                                description = copyDescription,
+                                contentDescription = copyDescription,
                                 copyState = copyState,
-                                onClick = { copyCode() },
+                                onClick = { copyCodeToClipboard() },
                             )
                         }
                     }
@@ -169,9 +169,9 @@ fun CodePreviewPanel(
                         }
                         CopyCodeButton(
                             icon = copyIcon,
-                            description = copyDescription,
+                            contentDescription = copyDescription,
                             copyState = copyState,
-                            onClick = { copyCode() },
+                            onClick = { copyCodeToClipboard() },
                         )
                     }
                 }
@@ -220,7 +220,7 @@ private fun codeModeButtonColors(selected: Boolean) =
 @Composable
 private fun CopyCodeButton(
     icon: ImageVector,
-    description: String,
+    contentDescription: String,
     copyState: CopyState,
     onClick: () -> Unit,
 ) {
@@ -230,7 +230,7 @@ private fun CopyCodeButton(
     ) {
         Icon(
             imageVector = icon,
-            contentDescription = description,
+            contentDescription = contentDescription,
             tint =
                 when (copyState) {
                     CopyState.COPIED -> MaterialTheme.colorScheme.primary
