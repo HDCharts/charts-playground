@@ -5,15 +5,10 @@ plugins {
     alias(libs.plugins.compose.compiler)
 }
 
-val localChartsPath = System.getProperty("chartsLocalPath") ?: "../charts"
-val chartsVersionFile = rootProject.file("$localChartsPath/.version")
-check(chartsVersionFile.exists()) {
-    "Missing charts version file: ${chartsVersionFile.path}"
-}
-val chartsDisplayVersion = chartsVersionFile.readText().trim()
-check(chartsDisplayVersion.isNotBlank()) {
-    "Charts version file is empty: ${chartsVersionFile.path}"
-}
+val chartsDisplayVersion =
+    (project.findProperty("chartsDisplayVersion") as String?)
+        ?.takeIf { it.isNotBlank() }
+        ?: "dev-local"
 val localChartsModuleVersion = "dev-local"
 val localChartsDependency = "io.github.dautovicharis:charts:$localChartsModuleVersion"
 val localChartsDemoSharedDependency = "io.github.dautovicharis:charts-demo-shared:$localChartsModuleVersion"
