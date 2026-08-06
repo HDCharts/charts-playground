@@ -14,6 +14,7 @@ import domain.SettingChange
 import domain.SettingDescriptor
 import domain.SnapshotPublishMetadata
 import domain.ValidatedChartSpec
+import domain.toUI
 import domain.updateCell
 import domain.withAddedRow
 import domain.withDeletedRow
@@ -181,7 +182,7 @@ private fun defaultEditorState(
         sessions = sessions,
         primaryChartTypes = catalog.primaryChartTypes,
         overflowChartTypes = catalog.overflowChartTypes,
-        snapshotMetadata = snapshotMetadata,
+        snapshotMetadata = snapshotMetadata?.toUI(),
     )
 }
 
