@@ -11,5 +11,5 @@ data class ChartEditorState(
     val sessions: Map<ChartType, ChartSession>,
     val primaryChartTypes: List<ChartType>,
     val overflowChartTypes: List<ChartType>,
-    val snapshotMetadata: SnapshotPublishMetadata? = null,
+    val snapshotMetadata: SnapshotMetadataUi? = null,
 )

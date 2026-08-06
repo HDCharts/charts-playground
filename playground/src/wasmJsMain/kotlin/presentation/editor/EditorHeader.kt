@@ -37,15 +37,9 @@ import config.BuildConfig
 import domain.ChartEditorState
 import domain.ChartType
 import domain.EditorAction
-import kotlinx.datetime.UtcOffset
-import kotlinx.datetime.format
-import kotlinx.datetime.format.DateTimeComponents
-import kotlinx.datetime.format.FormatStringsInDatetimeFormats
-import kotlinx.datetime.format.byUnicodePattern
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import presentation.resources.chartTypeIconResource
-import kotlin.time.Instant
 import chartsproject.charts_demo_shared.generated.resources.Res as SharedRes
 
 private const val CHARTS_GITHUB_URL = "https://github.com/HDCharts/charts"
@@ -192,18 +186,11 @@ internal fun EditorHeader(
 }
 
 @Composable
-@OptIn(FormatStringsInDatetimeFormats::class)
-private fun PublishedMetadataLabel(publishedAt: Instant?) {
-    val formattedPublishedAt =
-        publishedAt
-            ?.format(
-                DateTimeComponents.Format { byUnicodePattern("MMM d, yyyy, h:mm a 'UTC'") },
-                UtcOffset.ZERO,
-            )
-            ?: "Unavailable"
+private fun PublishedMetadataLabel(publishedAt: String?) {
+    if (publishedAt.isNullOrBlank()) return
 
     Text(
-        text = stringResource(Res.string.playground_metadata_published, formattedPublishedAt),
+        text = stringResource(Res.string.playground_metadata_published, publishedAt),
         style = MaterialTheme.typography.labelSmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
