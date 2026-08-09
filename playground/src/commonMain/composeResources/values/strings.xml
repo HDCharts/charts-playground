@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="playground_title">Playground</string>
-    <string name="playground_logo_content_description">Charts logo</string>
+    <string name="playground_logo_content_description">HDCharts logo</string>
     <string name="playground_editor_add_row">+ New row</string>
     <string name="playground_editor_randomize">Randomize</string>
     <string name="playground_editor_reset">Reset</string>
@@ -14,7 +14,7 @@
     <string name="playground_editor_reset_dialog_message">This restores the chart data, title, and settings to their defaults.</string>
     <string name="playground_editor_randomize_dialog_message">This replaces the current table values with generated sample data.</string>
     <string name="playground_editor_cancel">Cancel</string>
-    <string name="playground_metadata_charts">Charts: %1$s</string>
+    <string name="playground_metadata_charts">HDCharts: %1$s</string>
     <string name="playground_metadata_playground">Playground: %1$s</string>
     <string name="playground_metadata_published">Published: %1$s</string>
     <string name="playground_chart_title_label">Chart title</string>
