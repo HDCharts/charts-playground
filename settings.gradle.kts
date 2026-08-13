@@ -18,7 +18,7 @@ rootProject.name = "charts-playground"
 include(":playground")
 
 // Required local development wiring:
-// charts and charts-demo-shared are always resolved from a local charts checkout.
+// charts and sample-shared are always resolved from a local charts checkout.
 val localChartsPath = System.getProperty("chartsLocalPath") ?: "../charts"
 val localChartsDir = file(localChartsPath)
 check(localChartsDir.resolve("settings.gradle.kts").exists()) {
@@ -27,8 +27,8 @@ check(localChartsDir.resolve("settings.gradle.kts").exists()) {
 check(localChartsDir.resolve("charts").exists()) {
     "charts module is missing in '$localChartsPath'."
 }
-check(localChartsDir.resolve("charts-demo-shared").exists()) {
-    "charts-demo-shared module is missing in '$localChartsPath'."
+check(localChartsDir.resolve("sample/shared").exists()) {
+    "sample-shared module is missing in '$localChartsPath'."
 }
 val chartsSettingsFile = localChartsDir.resolve("settings.gradle.kts")
 val chartsSettingsContent = chartsSettingsFile.readText()
@@ -44,7 +44,7 @@ includeBuild(localChartsDir) {
     dependencySubstitution {
         substitute(module("io.github.dautovicharis:charts"))
             .using(project(":charts"))
-        substitute(module("io.github.dautovicharis:charts-demo-shared"))
-            .using(project(":charts-demo-shared"))
+        substitute(module("io.github.dautovicharis:sample-shared"))
+            .using(project(":sample-shared"))
     }
 }

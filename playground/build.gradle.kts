@@ -11,7 +11,7 @@ val chartsDisplayVersion =
         ?: "dev-local"
 val localChartsModuleVersion = "dev-local"
 val localChartsDependency = "io.github.dautovicharis:charts:$localChartsModuleVersion"
-val localChartsDemoSharedDependency = "io.github.dautovicharis:charts-demo-shared:$localChartsModuleVersion"
+val localChartsSampleSharedDependency = "io.github.dautovicharis:sample-shared:$localChartsModuleVersion"
 
 kotlin {
     jvmToolchain(
@@ -38,7 +38,7 @@ kotlin {
                 implementation(kotlin("test"))
                 // These coordinates are always substituted to local projects via includeBuild in settings.gradle.kts.
                 implementation(localChartsDependency)
-                implementation(localChartsDemoSharedDependency)
+                implementation(localChartsSampleSharedDependency)
                 implementation(libs.compose.mpp.runtime)
                 implementation(libs.compose.mpp.ui)
                 implementation(
@@ -58,7 +58,7 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             // These coordinates are always substituted to local projects via includeBuild in settings.gradle.kts.
             implementation(localChartsDependency)
-            implementation(localChartsDemoSharedDependency)
+            implementation(localChartsSampleSharedDependency)
         }
     }
 }

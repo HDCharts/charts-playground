@@ -25,7 +25,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import chartsproject.charts_demo_shared.generated.resources.charts_logo
 import chartsproject.playground.generated.resources.Res
 import chartsproject.playground.generated.resources.playground_editor_select_chart_content_description
 import chartsproject.playground.generated.resources.playground_logo_content_description
@@ -33,6 +32,7 @@ import chartsproject.playground.generated.resources.playground_metadata_charts
 import chartsproject.playground.generated.resources.playground_metadata_playground
 import chartsproject.playground.generated.resources.playground_metadata_published
 import chartsproject.playground.generated.resources.playground_title
+import chartsproject.sample_shared.generated.resources.charts_logo
 import config.BuildConfig
 import domain.ChartEditorState
 import domain.ChartType
@@ -40,7 +40,7 @@ import domain.EditorAction
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import presentation.resources.chartTypeIconResource
-import chartsproject.charts_demo_shared.generated.resources.Res as SharedRes
+import chartsproject.sample_shared.generated.resources.Res as SharedRes
 
 private const val CHARTS_GITHUB_URL = "https://github.com/HDCharts/charts"
 private const val PLAYGROUND_GITHUB_URL = "https://github.com/HDCharts/charts-playground"
