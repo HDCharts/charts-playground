@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.ComposeViewport
-import chartsproject.sample_shared.generated.resources.charts_logo
 import chartsproject.playground.generated.resources.Res
 import chartsproject.playground.generated.resources.playground_chart_selector_more
 import chartsproject.playground.generated.resources.playground_chart_title_label
@@ -39,13 +38,14 @@ import chartsproject.playground.generated.resources.playground_style_preset_pale
 import chartsproject.playground.generated.resources.playground_style_use_preset_palette
 import chartsproject.playground.generated.resources.playground_style_using_chart_defaults
 import chartsproject.playground.generated.resources.playground_title
+import chartsproject.sample_shared.generated.resources.charts_logo
 import data.InMemoryEditorStore
-import domain.ChartType
 import dev.hdcode.charts.sampleshared.startup.ChartsStartupGate
 import dev.hdcode.charts.sampleshared.startup.StartupResources
 import dev.hdcode.charts.sampleshared.startup.rememberStartupResourcesReady
 import dev.hdcode.charts.sampleshared.theme.AppTheme
 import dev.hdcode.charts.sampleshared.theme.docsSlate
+import domain.ChartType
 import platform.snapshotPublishMetadata
 import presentation.editor.EditorRoute
 import presentation.editor.EditorViewModel
