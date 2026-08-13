@@ -1,16 +1,16 @@
 package presentation.resources
 
-import chartsproject.charts_demo_shared.generated.resources.ic_bar_chart
-import chartsproject.charts_demo_shared.generated.resources.ic_histogram_chart
-import chartsproject.charts_demo_shared.generated.resources.ic_line_chart
-import chartsproject.charts_demo_shared.generated.resources.ic_multi_line_chart
-import chartsproject.charts_demo_shared.generated.resources.ic_pie_chart
-import chartsproject.charts_demo_shared.generated.resources.ic_radar_chart
-import chartsproject.charts_demo_shared.generated.resources.ic_stacked_area_chart
-import chartsproject.charts_demo_shared.generated.resources.ic_stacked_bar_chart
+import chartsproject.sample_shared.generated.resources.ic_bar_chart
+import chartsproject.sample_shared.generated.resources.ic_histogram_chart
+import chartsproject.sample_shared.generated.resources.ic_line_chart
+import chartsproject.sample_shared.generated.resources.ic_multi_line_chart
+import chartsproject.sample_shared.generated.resources.ic_pie_chart
+import chartsproject.sample_shared.generated.resources.ic_radar_chart
+import chartsproject.sample_shared.generated.resources.ic_stacked_area_chart
+import chartsproject.sample_shared.generated.resources.ic_stacked_bar_chart
 import domain.ChartType
 import org.jetbrains.compose.resources.DrawableResource
-import chartsproject.charts_demo_shared.generated.resources.Res as SharedRes
+import chartsproject.sample_shared.generated.resources.Res as SharedRes
 
 internal fun chartTypeIconResource(type: ChartType): DrawableResource =
     when (type) {
