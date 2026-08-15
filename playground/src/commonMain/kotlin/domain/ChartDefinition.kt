@@ -31,7 +31,7 @@ interface ChartDefinition {
 
     fun settingsSchema(session: ChartSession): List<SettingDescriptor>
 
-    fun resetSession(codegenMode: CodegenMode = CodegenMode.MINIMAL): ChartSession {
+    fun resetSession(): ChartSession {
         val data = defaultData()
         val dataTable = createDataTable(data)
         val draft =
@@ -39,7 +39,6 @@ interface ChartDefinition {
                 title = defaultTitle,
                 dataTable = dataTable,
                 styleState = defaultStyleState(),
-                codegenMode = codegenMode,
             )
         return ChartSession(
             chartType = type,
@@ -50,7 +49,6 @@ interface ChartDefinition {
                     title = draft.title,
                     data = data,
                     styleState = draft.styleState,
-                    codegenMode = draft.codegenMode,
                 ),
             validation = ChartValidationState.Valid(),
             settings = emptyList(),

@@ -4,7 +4,6 @@ import codegen.LineCodegenConfig
 import codegen.LinePointInput
 import codegen.StylePropertiesSnapshot
 import codegen.styleProperty
-import domain.CodegenMode
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -32,30 +31,7 @@ class LineChartCodeGeneratorTest {
     }
 
     @Test
-    fun full_mode_emits_values_that_match_defaults() {
-        val snippet =
-            generator.generate(
-                LineCodegenConfig(
-                    points =
-                        listOf(
-                            LinePointInput(label = "A", value = 1f),
-                            LinePointInput(label = "B", value = 2f),
-                        ),
-                    styleProperties =
-                        StylePropertiesSnapshot(
-                            current = listOf(styleProperty("bezier", true), styleProperty("axisVisible", true)),
-                            defaults = listOf(styleProperty("bezier", true), styleProperty("axisVisible", true)),
-                        ),
-                    codegenMode = CodegenMode.FULL,
-                ),
-            )
-
-        assertTrue(snippet.code.contains("bezier = true,"))
-        assertTrue(snippet.code.contains("axisVisible = true,"))
-    }
-
-    @Test
-    fun minimal_mode_omits_defaults_and_keeps_changes() {
+    fun omits_defaults_and_keeps_changes() {
         val snippet =
             generator.generate(
                 LineCodegenConfig(
@@ -69,7 +45,6 @@ class LineChartCodeGeneratorTest {
                             current = listOf(styleProperty("bezier", true), styleProperty("axisVisible", false)),
                             defaults = listOf(styleProperty("bezier", true), styleProperty("axisVisible", true)),
                         ),
-                    codegenMode = CodegenMode.MINIMAL,
                 ),
             )
 

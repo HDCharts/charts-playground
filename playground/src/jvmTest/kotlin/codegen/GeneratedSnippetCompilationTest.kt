@@ -1,5 +1,6 @@
 package codegen
 
+import androidx.compose.compiler.plugins.kotlin.ComposePluginRegistrar
 import codegen.AreaCodegenConfig
 import codegen.BarCodegenConfig
 import codegen.HistogramCodegenConfig
@@ -53,6 +54,34 @@ class GeneratedSnippetCompilationTest {
                                 listOf(
                                     PieSliceInput(label = "A", value = 24f),
                                     PieSliceInput(label = "B", value = 18f),
+                                ),
+                        ),
+                    ).code,
+                PieChartCodeGenerator()
+                    .generate(
+                        PieCodegenConfig(
+                            rows =
+                                listOf(
+                                    PieSliceInput(label = "A", value = 24f, color = ColorValue(0xFF1D3557L)),
+                                    PieSliceInput(label = "B", value = 18f, color = ColorValue(0xFF457B9DL)),
+                                    PieSliceInput(label = "C", value = 12f, color = ColorValue(0xFFA8DADCL)),
+                                ),
+                            styleProperties =
+                                StylePropertiesSnapshot(
+                                    current =
+                                        listOf(
+                                            styleProperty("donutPercentage", 30f),
+                                            styleProperty("pieAlpha", 0.6f),
+                                            styleProperty("borderWidth", 5f),
+                                            styleProperty("legendVisible", false),
+                                        ),
+                                    defaults =
+                                        listOf(
+                                            styleProperty("donutPercentage", 0f),
+                                            styleProperty("pieAlpha", 0.4f),
+                                            styleProperty("borderWidth", 3f),
+                                            styleProperty("legendVisible", true),
+                                        ),
                                 ),
                         ),
                     ).code,
@@ -156,6 +185,7 @@ class GeneratedSnippetCompilationTest {
                 PrintStream(compilerOutput),
                 "-jvm-target",
                 "17",
+                "-Xplugin=${composeCompilerPluginJar().absolutePath}",
                 "-classpath",
                 System.getProperty("java.class.path"),
                 "-d",
@@ -168,5 +198,10 @@ class GeneratedSnippetCompilationTest {
             exitCode,
             "Generated snippet failed to compile:\n$snippet\n\nCompiler output:\n$compilerOutput",
         )
+    }
+
+    private fun composeCompilerPluginJar(): File {
+        val location = ComposePluginRegistrar::class.java.protectionDomain.codeSource.location
+        return File(location.toURI())
     }
 }

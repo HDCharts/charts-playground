@@ -93,8 +93,6 @@ internal fun EditorWorkspace(
             codeContent = {
                 CodePreviewPanel(
                     code = session.generatedCode,
-                    mode = session.draft.codegenMode,
-                    onModeChange = { mode -> onAction(EditorAction.UpdateCodegenMode(mode)) },
                     onCopyCode = onCopyCode,
                     expandToFillHeight = wideLayout,
                     showTitle = false,

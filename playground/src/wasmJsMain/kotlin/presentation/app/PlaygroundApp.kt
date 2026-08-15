@@ -10,9 +10,6 @@ import chartsproject.playground.generated.resources.playground_chart_title_label
 import chartsproject.playground.generated.resources.playground_code_copied
 import chartsproject.playground.generated.resources.playground_code_copy
 import chartsproject.playground.generated.resources.playground_code_copy_failed
-import chartsproject.playground.generated.resources.playground_code_full
-import chartsproject.playground.generated.resources.playground_code_minimal
-import chartsproject.playground.generated.resources.playground_code_minimal_compact
 import chartsproject.playground.generated.resources.playground_code_title
 import chartsproject.playground.generated.resources.playground_editor_add_row
 import chartsproject.playground.generated.resources.playground_editor_cancel
@@ -108,9 +105,6 @@ private fun rememberPlaygroundStartupResourcesReady(): Boolean {
                 Res.string.playground_right_panel_settings,
                 Res.string.playground_right_panel_code,
                 Res.string.playground_code_title,
-                Res.string.playground_code_minimal,
-                Res.string.playground_code_minimal_compact,
-                Res.string.playground_code_full,
                 Res.string.playground_code_copy,
                 Res.string.playground_code_copied,
                 Res.string.playground_code_copy_failed,

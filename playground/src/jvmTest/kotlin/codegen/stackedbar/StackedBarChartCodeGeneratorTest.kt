@@ -4,7 +4,6 @@ import codegen.MultiSeriesCodegenInput
 import codegen.StackedBarCodegenConfig
 import codegen.StylePropertiesSnapshot
 import codegen.styleProperty
-import domain.CodegenMode
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -31,7 +30,7 @@ class StackedBarChartCodeGeneratorTest {
     }
 
     @Test
-    fun minimal_mode_omits_defaults_and_keeps_changes() {
+    fun omits_defaults_and_keeps_changes() {
         val snippet =
             generator.generate(
                 StackedBarCodegenConfig(
@@ -54,35 +53,10 @@ class StackedBarChartCodeGeneratorTest {
                                     styleProperty("selectionLineVisible", true),
                                 ),
                         ),
-                    codegenMode = CodegenMode.MINIMAL,
                 ),
             )
 
         assertFalse(snippet.code.contains("barAlpha = 0.8f,"))
         assertTrue(snippet.code.contains("selectionLineVisible = false,"))
-    }
-
-    @Test
-    fun full_mode_emits_values_that_match_defaults() {
-        val snippet =
-            generator.generate(
-                StackedBarCodegenConfig(
-                    series =
-                        listOf(
-                            MultiSeriesCodegenInput("A", listOf(10f, 20f)),
-                            MultiSeriesCodegenInput("B", listOf(5f, 15f)),
-                        ),
-                    categories = listOf("Q1", "Q2"),
-                    styleProperties =
-                        StylePropertiesSnapshot(
-                            current = listOf(styleProperty("barAlpha", 0.8f), styleProperty("selectionLineWidth", 2f)),
-                            defaults = listOf(styleProperty("barAlpha", 0.8f), styleProperty("selectionLineWidth", 2f)),
-                        ),
-                    codegenMode = CodegenMode.FULL,
-                ),
-            )
-
-        assertTrue(snippet.code.contains("barAlpha = 0.8f,"))
-        assertTrue(snippet.code.contains("selectionLineWidth = 2f,"))
     }
 }

@@ -54,5 +54,5 @@ private fun listLiteral(
     )
 }
 
-private fun colorLiteral(color: ColorValue): String =
+internal fun colorLiteral(color: ColorValue): String =
     "Color(0x${color.argb.toString(16).uppercase().padStart(length = 8, padChar = '0')})"

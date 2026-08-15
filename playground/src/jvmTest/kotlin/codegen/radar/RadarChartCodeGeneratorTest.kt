@@ -4,7 +4,6 @@ import codegen.MultiSeriesCodegenInput
 import codegen.RadarCodegenConfig
 import codegen.StylePropertiesSnapshot
 import codegen.styleProperty
-import domain.CodegenMode
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -33,7 +32,7 @@ class RadarChartCodeGeneratorTest {
     }
 
     @Test
-    fun minimal_mode_omits_defaults_and_keeps_changes() {
+    fun omits_defaults_and_keeps_changes() {
         val snippet =
             generator.generate(
                 RadarCodegenConfig(
@@ -44,31 +43,10 @@ class RadarChartCodeGeneratorTest {
                             current = listOf(styleProperty("lineWidth", 2f), styleProperty("gridVisible", false)),
                             defaults = listOf(styleProperty("lineWidth", 2f), styleProperty("gridVisible", true)),
                         ),
-                    codegenMode = CodegenMode.MINIMAL,
                 ),
             )
 
         assertFalse(snippet.code.contains("lineWidth = 2f,"))
         assertTrue(snippet.code.contains("gridVisible = false,"))
-    }
-
-    @Test
-    fun full_mode_emits_values_that_match_defaults() {
-        val snippet =
-            generator.generate(
-                RadarCodegenConfig(
-                    series = listOf(MultiSeriesCodegenInput("Android", listOf(80f, 75f, 70f))),
-                    categories = listOf("Perf", "UX", "Security"),
-                    styleProperties =
-                        StylePropertiesSnapshot(
-                            current = listOf(styleProperty("pointVisible", true), styleProperty("fillAlpha", 0.3f)),
-                            defaults = listOf(styleProperty("pointVisible", true), styleProperty("fillAlpha", 0.3f)),
-                        ),
-                    codegenMode = CodegenMode.FULL,
-                ),
-            )
-
-        assertTrue(snippet.code.contains("pointVisible = true,"))
-        assertTrue(snippet.code.contains("fillAlpha = 0.3f,"))
     }
 }

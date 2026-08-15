@@ -184,7 +184,6 @@ internal object HistogramChartDefinition : ChartDefinition, ChartCodegenAdapter 
                     points = points,
                     title = spec.title,
                     styleProperties = styleProperties,
-                    codegenMode = spec.codegenMode,
                     functionName = deriveFunctionName(spec.title, type),
                 ),
             ).code

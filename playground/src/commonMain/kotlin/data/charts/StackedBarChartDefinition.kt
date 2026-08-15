@@ -213,7 +213,6 @@ internal object StackedBarChartDefinition : ChartDefinition, ChartCodegenAdapter
                     categories = categories,
                     title = spec.title,
                     styleProperties = styleProperties,
-                    codegenMode = spec.codegenMode,
                     functionName = deriveFunctionName(spec.title, type),
                 ),
             ).code

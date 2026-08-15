@@ -4,7 +4,6 @@ data class ChartDraft(
     val title: String,
     val dataTable: DataTableState,
     val styleState: ChartStyleState,
-    val codegenMode: CodegenMode,
 )
 
 data class ValidatedChartSpec(
@@ -12,7 +11,6 @@ data class ValidatedChartSpec(
     val title: String,
     val data: ChartData,
     val styleState: ChartStyleState,
-    val codegenMode: CodegenMode,
 )
 
 sealed interface ChartValidationState {

@@ -14,7 +14,7 @@ internal class LineChartCodeGenerator(
 ) : ChartCodeGenerator<LineCodegenConfig> {
     override fun generate(config: LineCodegenConfig): GeneratedSnippet {
         val items = normalizePoints(config.points)
-        val styleArguments = resolveStyleArguments(config.styleProperties, config.codegenMode)
+        val styleArguments = resolveStyleArguments(config.styleProperties)
         val includeStyle = styleArguments.isNotEmpty()
         val imports =
             buildChartImports(

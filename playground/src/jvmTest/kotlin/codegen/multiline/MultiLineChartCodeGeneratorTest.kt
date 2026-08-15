@@ -4,7 +4,6 @@ import codegen.MultiLineCodegenConfig
 import codegen.MultiSeriesCodegenInput
 import codegen.StylePropertiesSnapshot
 import codegen.styleProperty
-import domain.CodegenMode
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -31,7 +30,7 @@ class MultiLineChartCodeGeneratorTest {
     }
 
     @Test
-    fun minimal_mode_omits_defaults_and_keeps_changes() {
+    fun omits_defaults_and_keeps_changes() {
         val snippet =
             generator.generate(
                 MultiLineCodegenConfig(
@@ -42,31 +41,10 @@ class MultiLineChartCodeGeneratorTest {
                             current = listOf(styleProperty("bezier", true), styleProperty("pointVisible", false)),
                             defaults = listOf(styleProperty("bezier", true), styleProperty("pointVisible", true)),
                         ),
-                    codegenMode = CodegenMode.MINIMAL,
                 ),
             )
 
         assertFalse(snippet.code.contains("bezier = true,"))
         assertTrue(snippet.code.contains("pointVisible = false,"))
-    }
-
-    @Test
-    fun full_mode_emits_values_that_match_defaults() {
-        val snippet =
-            generator.generate(
-                MultiLineCodegenConfig(
-                    series = listOf(MultiSeriesCodegenInput("Web", listOf(120f, 140f, 150f))),
-                    categories = listOf("W1", "W2", "W3"),
-                    styleProperties =
-                        StylePropertiesSnapshot(
-                            current = listOf(styleProperty("bezier", true), styleProperty("lineAlpha", 1f)),
-                            defaults = listOf(styleProperty("bezier", true), styleProperty("lineAlpha", 1f)),
-                        ),
-                    codegenMode = CodegenMode.FULL,
-                ),
-            )
-
-        assertTrue(snippet.code.contains("bezier = true,"))
-        assertTrue(snippet.code.contains("lineAlpha = 1f,"))
     }
 }

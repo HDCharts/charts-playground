@@ -22,9 +22,6 @@
     <string name="playground_right_panel_settings">Settings</string>
     <string name="playground_right_panel_code">Code</string>
     <string name="playground_code_title">Code</string>
-    <string name="playground_code_minimal">Minimal</string>
-    <string name="playground_code_minimal_compact">Min</string>
-    <string name="playground_code_full">Full</string>
     <string name="playground_code_copy">Copy code</string>
     <string name="playground_code_copied">Copied</string>
     <string name="playground_code_copy_failed">Copy failed</string>

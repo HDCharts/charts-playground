@@ -222,7 +222,6 @@ internal object RadarChartDefinition : ChartDefinition, ChartCodegenAdapter {
                     categories = data.axes,
                     title = spec.title,
                     styleProperties = styleProperties,
-                    codegenMode = spec.codegenMode,
                     functionName = deriveFunctionName(spec.title, type),
                 ),
             ).code
