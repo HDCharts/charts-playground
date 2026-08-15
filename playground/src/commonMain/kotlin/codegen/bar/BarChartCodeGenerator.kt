@@ -14,7 +14,7 @@ internal class BarChartCodeGenerator(
 ) : ChartCodeGenerator<BarCodegenConfig> {
     override fun generate(config: BarCodegenConfig): GeneratedSnippet {
         val items = normalizePoints(config.points)
-        val styleArguments = resolveStyleArguments(config.styleProperties, config.codegenMode)
+        val styleArguments = resolveStyleArguments(config.styleProperties)
         val includeStyle = styleArguments.isNotEmpty()
         val imports =
             buildChartImports(

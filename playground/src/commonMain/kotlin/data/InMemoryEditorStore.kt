@@ -5,7 +5,6 @@ import domain.ChartDefinition
 import domain.ChartEditorState
 import domain.ChartSession
 import domain.ChartValidationState
-import domain.CodegenMode
 import domain.DataTableState
 import domain.EditorAction
 import domain.EditorStore
@@ -50,14 +49,6 @@ class InMemoryEditorStore(
                         validatedSpec = session.validatedSpec.copy(title = action.title),
                     )
                 }
-            is EditorAction.UpdateCodegenMode ->
-                updateCurrentSession(state) { session, _ ->
-                    val draft = session.draft.copy(codegenMode = action.mode)
-                    session.copy(
-                        draft = draft,
-                        validatedSpec = session.validatedSpec.copy(codegenMode = action.mode),
-                    )
-                }
             is EditorAction.UpdateSetting ->
                 updateCurrentSession(state) { session, _ ->
                     updateSetting(session, action.change)
@@ -88,7 +79,7 @@ class InMemoryEditorStore(
                 }
             EditorAction.Reset ->
                 updateCurrentSession(state) { session, definition ->
-                    newSession(definition, session.draft.codegenMode)
+                    newSession(definition)
                 }
         }
 
@@ -131,7 +122,6 @@ class InMemoryEditorStore(
                     session.validatedSpec.copy(
                         title = nextDraft.title,
                         styleState = nextDraft.styleState,
-                        codegenMode = nextDraft.codegenMode,
                     ),
                 validation = ChartValidationState.Invalid(result.issues),
             )
@@ -145,16 +135,12 @@ class InMemoryEditorStore(
                     title = nextDraft.title,
                     data = nextData,
                     styleState = nextDraft.styleState,
-                    codegenMode = nextDraft.codegenMode,
                 ),
             validation = ChartValidationState.Valid(result.issues, result.appliedRowCount),
         )
     }
 
-    private fun newSession(
-        definition: ChartDefinition,
-        codegenMode: CodegenMode,
-    ): ChartSession = refresh(definition, definition.resetSession(codegenMode))
+    private fun newSession(definition: ChartDefinition): ChartSession = refresh(definition, definition.resetSession())
 
     private fun refresh(
         definition: ChartDefinition,
@@ -215,7 +201,7 @@ private fun initialSession(
     definition: ChartDefinition,
     codegenService: ChartCodegenService,
 ): ChartSession =
-    definition.resetSession(codegenMode = CodegenMode.MINIMAL).let { session ->
+    definition.resetSession().let { session ->
         session.copy(
             settings = definition.settingsSchema(session),
             generatedCode = codegenService.generate(session.validatedSpec),

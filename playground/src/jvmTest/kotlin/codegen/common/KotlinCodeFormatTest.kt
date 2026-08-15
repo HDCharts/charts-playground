@@ -41,7 +41,6 @@ class KotlinCodeFormatTest {
                         current = listOf(codegen.styleProperty("zIndex", 1f), codegen.styleProperty("alpha", 0.5f)),
                         defaults = emptyList(),
                     ),
-                codegenMode = domain.CodegenMode.FULL,
             )
 
         assertEquals(listOf("alpha = 0.5f,", "zIndex = 1f,"), arguments.map { it.code })

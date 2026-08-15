@@ -1,5 +1,7 @@
 package codegen.common
 
+import domain.ColorValue
+
 /**
  * Renders the Kotlin fragments shared by chart-specific code generators.
  *
@@ -67,4 +69,5 @@ internal class ChartCodeRenderer {
 internal data class NormalizedPoint(
     val label: String,
     val value: Float,
+    val color: ColorValue? = null,
 )

@@ -31,6 +31,7 @@ import domain.formatEditorFloat
 import domain.sortedDeterministically
 import io.github.dautovicharis.charts.model.ChartDataSet
 import io.github.dautovicharis.charts.model.MultiChartDataSet
+import io.github.dautovicharis.charts.model.PieSlice
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -54,6 +55,12 @@ internal fun ChartDataSet.toSingleSeries(labelsOverride: List<String>? = null): 
         labels = labels.takeIf { it.isNotEmpty() },
     )
 }
+
+internal fun List<PieSlice>.toSingleSeries(): ChartData.SingleSeries =
+    ChartData.SingleSeries(
+        values = map { it.value },
+        labels = map { it.label }.takeIf { it.isNotEmpty() },
+    )
 
 internal fun MultiChartDataSet.toMultiSeries(): ChartData.MultiSeries =
     ChartData.MultiSeries(

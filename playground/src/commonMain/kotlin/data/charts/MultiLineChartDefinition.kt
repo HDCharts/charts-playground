@@ -207,7 +207,6 @@ internal object MultiLineChartDefinition : ChartDefinition, ChartCodegenAdapter 
                     categories = data.xLabels.orEmpty(),
                     title = spec.title,
                     styleProperties = styleProperties,
-                    codegenMode = spec.codegenMode,
                     functionName = deriveFunctionName(spec.title, type),
                 ),
             ).code

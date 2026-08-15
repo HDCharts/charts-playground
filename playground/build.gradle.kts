@@ -44,6 +44,7 @@ kotlin {
                 implementation(
                     "org.jetbrains.kotlin:kotlin-compiler-embeddable:${libs.versions.kotlin.multiplatform.get()}",
                 )
+                implementation(libs.kotlin.compose.compiler.plugin.embeddable)
             }
         }
 

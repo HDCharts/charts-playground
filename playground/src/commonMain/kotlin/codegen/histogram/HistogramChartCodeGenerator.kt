@@ -14,7 +14,7 @@ internal class HistogramChartCodeGenerator(
 ) : ChartCodeGenerator<HistogramCodegenConfig> {
     override fun generate(config: HistogramCodegenConfig): GeneratedSnippet {
         val items = normalizePoints(config.points)
-        val styleArguments = resolveStyleArguments(config.styleProperties, config.codegenMode)
+        val styleArguments = resolveStyleArguments(config.styleProperties)
         val includeStyle = styleArguments.isNotEmpty()
         val imports =
             buildChartImports(

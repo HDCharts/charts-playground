@@ -14,7 +14,7 @@ internal class MultiLineChartCodeGenerator(
 ) : ChartCodeGenerator<MultiLineCodegenConfig> {
     override fun generate(config: MultiLineCodegenConfig): GeneratedSnippet {
         val normalized = normalizeSeries(config)
-        val styleArguments = resolveStyleArguments(config.styleProperties, config.codegenMode)
+        val styleArguments = resolveStyleArguments(config.styleProperties)
         val includeStyle = styleArguments.isNotEmpty()
         val imports =
             buildChartImports(

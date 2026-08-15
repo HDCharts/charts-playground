@@ -42,10 +42,6 @@ sealed interface EditorAction {
         val title: String,
     ) : EditorAction
 
-    data class UpdateCodegenMode(
-        val mode: CodegenMode,
-    ) : EditorAction
-
     data class UpdateSetting(
         val change: SettingChange,
     ) : EditorAction

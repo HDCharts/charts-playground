@@ -26,6 +26,7 @@ import domain.SettingDescriptor
 import domain.ValidatedChartSpec
 import domain.ValidationResult
 import domain.deriveFunctionName
+import domain.normalizeColorCount
 import kotlin.random.Random
 
 internal object PieChartDefinition : ChartDefinition, ChartCodegenAdapter {
@@ -37,7 +38,7 @@ internal object PieChartDefinition : ChartDefinition, ChartCodegenAdapter {
 
     override fun defaultData(): ChartData {
         val sample = SampleDataSources.pie.initialPieSample()
-        return sample.dataSet.toSingleSeries(labelsOverride = sample.segmentKeys)
+        return sample.slices.toSingleSeries()
     }
 
     override fun defaultStyleState(): ChartStyleState = PieStyleState()
@@ -126,17 +127,21 @@ internal object PieChartDefinition : ChartDefinition, ChartCodegenAdapter {
     private fun codegenStyleProperties(spec: ValidatedChartSpec): StylePropertiesSnapshot =
         pieStylePropertiesSnapshot(
             spec.styleState as PieStyleState,
-            (spec.data as ChartData.SingleSeries).values.size,
         )
 
     override fun generate(spec: ValidatedChartSpec): String {
         val styleProperties = codegenStyleProperties(spec)
         val data = spec.data as ChartData.SingleSeries
+        val colors =
+            (spec.styleState as PieStyleState)
+                .pieColors
+                ?.let { normalizeColorCount(it, data.values.size) }
         val rows =
             data.values.mapIndexed { index, value ->
                 PieSliceInput(
                     label = data.labels?.getOrNull(index) ?: "Slice ${index + 1}",
                     value = value,
+                    color = colors?.getOrNull(index),
                 )
             }
 
@@ -146,7 +151,6 @@ internal object PieChartDefinition : ChartDefinition, ChartCodegenAdapter {
                     rows = rows,
                     title = spec.title,
                     styleProperties = styleProperties,
-                    codegenMode = spec.codegenMode,
                     functionName = deriveFunctionName(spec.title, type),
                 ),
             ).code

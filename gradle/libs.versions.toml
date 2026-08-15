@@ -8,6 +8,7 @@ buildConfig = "6.0.9"
 ktlint = "14.2.0"
 androidx-lifecycle = "2.11.0"
 kotlinx-datetime = "0.8.0"
+kotlin-compose-compiler-plugin-embeddable = "2.4.10"
 
 [libraries]
 compose-mpp-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "compose-plugin" }
@@ -18,6 +19,7 @@ compose-mpp-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "compos
 compose-mpp-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "compose-plugin" }
 androidx-lifecycle-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel", version.ref = "androidx-lifecycle" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
+kotlin-compose-compiler-plugin-embeddable = { module = "org.jetbrains.kotlin:kotlin-compose-compiler-plugin-embeddable", version.ref = "kotlin-compose-compiler-plugin-embeddable" }
 
 [plugins]
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin-multiplatform" }

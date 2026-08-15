@@ -15,7 +15,7 @@ internal class AreaChartCodeGenerator(
 ) : ChartCodeGenerator<AreaCodegenConfig> {
     override fun generate(config: AreaCodegenConfig): GeneratedSnippet {
         val normalized = normalizeSeries(config)
-        val styleArguments = resolveStyleArguments(config.styleProperties, config.codegenMode)
+        val styleArguments = resolveStyleArguments(config.styleProperties)
         val includeStyle = styleArguments.isNotEmpty()
         val imports =
             buildChartImports(

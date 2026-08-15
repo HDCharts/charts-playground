@@ -4,7 +4,6 @@ import codegen.AreaCodegenConfig
 import codegen.MultiSeriesCodegenInput
 import codegen.StylePropertiesSnapshot
 import codegen.styleProperty
-import domain.CodegenMode
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -33,7 +32,7 @@ class AreaChartCodeGeneratorTest {
     }
 
     @Test
-    fun minimal_mode_omits_defaults_and_keeps_changes() {
+    fun omits_defaults_and_keeps_changes() {
         val snippet =
             generator.generate(
                 AreaCodegenConfig(
@@ -44,31 +43,10 @@ class AreaChartCodeGeneratorTest {
                             current = listOf(styleProperty("fillAlpha", 0.4f), styleProperty("lineVisible", false)),
                             defaults = listOf(styleProperty("fillAlpha", 0.4f), styleProperty("lineVisible", true)),
                         ),
-                    codegenMode = CodegenMode.MINIMAL,
                 ),
             )
 
         assertFalse(snippet.code.contains("fillAlpha = 0.4f,"))
         assertTrue(snippet.code.contains("lineVisible = false,"))
-    }
-
-    @Test
-    fun full_mode_emits_values_that_match_defaults() {
-        val snippet =
-            generator.generate(
-                AreaCodegenConfig(
-                    series = listOf(MultiSeriesCodegenInput("Free", listOf(60f, 80f))),
-                    categories = listOf("Jan", "Feb"),
-                    styleProperties =
-                        StylePropertiesSnapshot(
-                            current = listOf(styleProperty("fillAlpha", 0.4f), styleProperty("bezier", true)),
-                            defaults = listOf(styleProperty("fillAlpha", 0.4f), styleProperty("bezier", true)),
-                        ),
-                    codegenMode = CodegenMode.FULL,
-                ),
-            )
-
-        assertTrue(snippet.code.contains("fillAlpha = 0.4f,"))
-        assertTrue(snippet.code.contains("bezier = true,"))
     }
 }

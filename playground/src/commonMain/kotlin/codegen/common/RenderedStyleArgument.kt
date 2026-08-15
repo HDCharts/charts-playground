@@ -2,17 +2,13 @@ package codegen.common
 
 import codegen.StylePropertiesSnapshot
 import codegen.StyleProperty
-import domain.CodegenMode
 
 data class RenderedStyleArgument(
     val code: String,
     val additionalImports: Set<String> = emptySet(),
 )
 
-fun resolveStyleArguments(
-    styleProperties: StylePropertiesSnapshot?,
-    codegenMode: CodegenMode,
-): List<RenderedStyleArgument> {
+fun resolveStyleArguments(styleProperties: StylePropertiesSnapshot?): List<RenderedStyleArgument> {
     if (styleProperties == null) {
         return emptyList()
     }
@@ -22,12 +18,7 @@ fun resolveStyleArguments(
         val name = property.name
         val currentValue = property.value
         val defaultValue = defaultsByName[name]
-        val shouldRender =
-            when (codegenMode) {
-                CodegenMode.MINIMAL -> currentValue != defaultValue
-                CodegenMode.FULL -> true
-            }
-        if (!shouldRender) {
+        if (currentValue == defaultValue) {
             null
         } else {
             val literal = toKotlinLiteral(propertyName = name, value = currentValue)

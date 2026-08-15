@@ -15,7 +15,7 @@ internal class RadarChartCodeGenerator(
 ) : ChartCodeGenerator<RadarCodegenConfig> {
     override fun generate(config: RadarCodegenConfig): GeneratedSnippet {
         val normalized = normalizeSeries(config)
-        val styleArguments = resolveStyleArguments(config.styleProperties, config.codegenMode)
+        val styleArguments = resolveStyleArguments(config.styleProperties)
         val includeStyle = styleArguments.isNotEmpty()
         val imports =
             buildChartImports(

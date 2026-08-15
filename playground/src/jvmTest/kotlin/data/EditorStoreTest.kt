@@ -10,7 +10,6 @@ import dev.hdcode.charts.sampleshared.data.stackedAreaSampleUseCase
 import dev.hdcode.charts.sampleshared.data.stackedBarSampleUseCase
 import domain.ChartData
 import domain.ChartType
-import domain.CodegenMode
 import domain.ColorValue
 import domain.EditorAction
 import domain.LineStyleState
@@ -245,11 +244,10 @@ class EditorStoreTest {
     }
 
     @Test
-    fun reset_restores_chart_defaults_and_preserves_codegen_mode() {
+    fun reset_restores_chart_defaults() {
         val store = newStore()
 
         store.dispatch(EditorAction.UpdateTitle("Changed"))
-        store.dispatch(EditorAction.UpdateCodegenMode(CodegenMode.FULL))
         store.dispatch(EditorAction.UpdateSetting(SettingChange.FloatValue("lineAlpha", 0.2f)))
         store.dispatch(EditorAction.Reset)
 
@@ -257,7 +255,6 @@ class EditorStoreTest {
             store.state.value.sessions
                 .getValue(ChartType.LINE)
         assertEquals(domain.LINE_CHART_TITLE, session.draft.title)
-        assertEquals(CodegenMode.FULL, session.draft.codegenMode)
         assertEquals(null, (session.draft.styleState as LineStyleState).lineAlpha)
         assertTrue(session.generatedCode.isNotBlank())
     }
@@ -297,29 +294,6 @@ class EditorStoreTest {
     }
 
     @Test
-    fun codegen_mode_is_persisted_per_chart_session() {
-        val store = newStore()
-
-        store.dispatch(EditorAction.UpdateCodegenMode(CodegenMode.FULL))
-        store.dispatch(EditorAction.SelectChart(ChartType.PIE))
-        store.dispatch(EditorAction.UpdateCodegenMode(CodegenMode.MINIMAL))
-        store.dispatch(EditorAction.SelectChart(ChartType.LINE))
-
-        assertEquals(
-            CodegenMode.FULL,
-            store.state.value.sessions
-                .getValue(ChartType.LINE)
-                .draft.codegenMode,
-        )
-        assertEquals(
-            CodegenMode.MINIMAL,
-            store.state.value.sessions
-                .getValue(ChartType.PIE)
-                .draft.codegenMode,
-        )
-    }
-
-    @Test
     fun default_sessions_use_charts_sample_use_cases() {
         val state = newStore().state.value
 
@@ -329,11 +303,10 @@ class EditorStoreTest {
                 .validatedSpec.data as ChartData.SingleSeries
         val pieSample = pieSampleUseCase().initialPieSample()
         assertEquals(
-            pieSample.dataSet.data.item.points
-                .map(Double::toFloat),
+            pieSample.slices.map { it.value },
             pieData.values,
         )
-        assertEquals(pieSample.segmentKeys, pieData.labels)
+        assertEquals(pieSample.slices.map { it.label }, pieData.labels)
 
         val lineData =
             state.sessions

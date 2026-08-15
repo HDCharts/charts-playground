@@ -1,9 +1,7 @@
 package presentation.code
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,8 +16,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.ErrorOutline
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -40,11 +36,7 @@ import chartsproject.playground.generated.resources.Res
 import chartsproject.playground.generated.resources.playground_code_copied
 import chartsproject.playground.generated.resources.playground_code_copy
 import chartsproject.playground.generated.resources.playground_code_copy_failed
-import chartsproject.playground.generated.resources.playground_code_full
-import chartsproject.playground.generated.resources.playground_code_minimal
-import chartsproject.playground.generated.resources.playground_code_minimal_compact
 import chartsproject.playground.generated.resources.playground_code_title
-import domain.CodegenMode
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -58,8 +50,6 @@ private enum class CopyState {
 @Composable
 fun CodePreviewPanel(
     code: String,
-    mode: CodegenMode,
-    onModeChange: (CodegenMode) -> Unit,
     onCopyCode: suspend (String) -> Boolean,
     expandToFillHeight: Boolean = false,
     showTitle: Boolean = true,
@@ -106,75 +96,16 @@ fun CodePreviewPanel(
                 }
             }
 
-            BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-                val showCompactModeControls = maxWidth < 360.dp
-                if (showCompactModeControls) {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(4.dp),
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            Button(
-                                onClick = { onModeChange(CodegenMode.MINIMAL) },
-                                contentPadding = PaddingValues(horizontal = 8.dp),
-                                colors = codeModeButtonColors(mode == CodegenMode.MINIMAL),
-                                modifier = Modifier.weight(1f),
-                            ) {
-                                Text(stringResource(Res.string.playground_code_minimal_compact), maxLines = 1)
-                            }
-                            Button(
-                                onClick = { onModeChange(CodegenMode.FULL) },
-                                contentPadding = PaddingValues(horizontal = 8.dp),
-                                colors = codeModeButtonColors(mode == CodegenMode.FULL),
-                                modifier = Modifier.weight(1f),
-                            ) {
-                                Text(stringResource(Res.string.playground_code_full), maxLines = 1)
-                            }
-                        }
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.End,
-                        ) {
-                            CopyCodeButton(
-                                icon = copyIcon,
-                                contentDescription = copyDescription,
-                                copyState = copyState,
-                                onClick = { copyCodeToClipboard() },
-                            )
-                        }
-                    }
-                } else {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        Button(
-                            onClick = { onModeChange(CodegenMode.MINIMAL) },
-                            contentPadding = PaddingValues(horizontal = 8.dp),
-                            colors = codeModeButtonColors(mode == CodegenMode.MINIMAL),
-                            modifier = Modifier.weight(1f),
-                        ) {
-                            Text(stringResource(Res.string.playground_code_minimal), maxLines = 1)
-                        }
-                        Button(
-                            onClick = { onModeChange(CodegenMode.FULL) },
-                            contentPadding = PaddingValues(horizontal = 8.dp),
-                            colors = codeModeButtonColors(mode == CodegenMode.FULL),
-                            modifier = Modifier.weight(1f),
-                        ) {
-                            Text(stringResource(Res.string.playground_code_full), maxLines = 1)
-                        }
-                        CopyCodeButton(
-                            icon = copyIcon,
-                            contentDescription = copyDescription,
-                            copyState = copyState,
-                            onClick = { copyCodeToClipboard() },
-                        )
-                    }
-                }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+            ) {
+                CopyCodeButton(
+                    icon = copyIcon,
+                    contentDescription = copyDescription,
+                    copyState = copyState,
+                    onClick = { copyCodeToClipboard() },
+                )
             }
 
             SelectionContainer(
@@ -205,17 +136,6 @@ fun CodePreviewPanel(
         }
     }
 }
-
-@Composable
-private fun codeModeButtonColors(selected: Boolean) =
-    if (selected) {
-        ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-        )
-    } else {
-        ButtonDefaults.outlinedButtonColors()
-    }
 
 @Composable
 private fun CopyCodeButton(

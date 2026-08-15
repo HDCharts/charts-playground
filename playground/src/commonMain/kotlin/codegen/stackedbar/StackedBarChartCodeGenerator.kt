@@ -15,7 +15,7 @@ internal class StackedBarChartCodeGenerator(
 ) : ChartCodeGenerator<StackedBarCodegenConfig> {
     override fun generate(config: StackedBarCodegenConfig): GeneratedSnippet {
         val normalized = normalizeSeries(config)
-        val styleArguments = resolveStyleArguments(config.styleProperties, config.codegenMode)
+        val styleArguments = resolveStyleArguments(config.styleProperties)
         val includeStyle = styleArguments.isNotEmpty()
         val imports =
             buildChartImports(

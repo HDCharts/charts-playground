@@ -1,10 +1,5 @@
 package domain
 
-enum class CodegenMode {
-    MINIMAL,
-    FULL,
-}
-
 fun deriveFunctionName(
     title: String,
     chartType: ChartType,

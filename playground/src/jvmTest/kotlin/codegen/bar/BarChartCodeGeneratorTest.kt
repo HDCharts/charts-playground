@@ -4,7 +4,6 @@ import codegen.BarCodegenConfig
 import codegen.PieSliceInput
 import codegen.StylePropertiesSnapshot
 import codegen.styleProperty
-import domain.CodegenMode
 import domain.ColorValue
 import kotlin.test.Test
 import kotlin.test.assertFalse
@@ -33,7 +32,7 @@ class BarChartCodeGeneratorTest {
     }
 
     @Test
-    fun minimal_mode_omits_defaults_and_keeps_changes() {
+    fun omits_defaults_and_keeps_changes() {
         val snippet =
             generator.generate(
                 BarCodegenConfig(
@@ -47,43 +46,11 @@ class BarChartCodeGeneratorTest {
                             current = listOf(styleProperty("barAlpha", 0.8f), styleProperty("gridVisible", false)),
                             defaults = listOf(styleProperty("barAlpha", 0.8f), styleProperty("gridVisible", true)),
                         ),
-                    codegenMode = CodegenMode.MINIMAL,
                 ),
             )
 
         assertFalse(snippet.code.contains("barAlpha = 0.8f,"))
         assertTrue(snippet.code.contains("gridVisible = false,"))
-    }
-
-    @Test
-    fun full_mode_emits_values_that_match_defaults() {
-        val snippet =
-            generator.generate(
-                BarCodegenConfig(
-                    points =
-                        listOf(
-                            PieSliceInput(label = "A", value = 1f),
-                            PieSliceInput(label = "B", value = 2f),
-                        ),
-                    styleProperties =
-                        StylePropertiesSnapshot(
-                            current =
-                                listOf(
-                                    styleProperty("axisVisible", true),
-                                    styleProperty("selectionLineWidth", 1.5f),
-                                ),
-                            defaults =
-                                listOf(
-                                    styleProperty("axisVisible", true),
-                                    styleProperty("selectionLineWidth", 1.5f),
-                                ),
-                        ),
-                    codegenMode = CodegenMode.FULL,
-                ),
-            )
-
-        assertTrue(snippet.code.contains("axisVisible = true,"))
-        assertTrue(snippet.code.contains("selectionLineWidth = 1.5f,"))
     }
 
     @Test
@@ -107,7 +74,6 @@ class BarChartCodeGeneratorTest {
                                 ),
                             defaults = listOf(styleProperty("barColors", emptyList())),
                         ),
-                    codegenMode = CodegenMode.MINIMAL,
                 ),
             )
 
