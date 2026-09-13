@@ -12,7 +12,7 @@ class MultiLineChartCodeGeneratorTest {
     private val generator = MultiLineChartCodeGenerator()
 
     @Test
-    fun generator_escapes_dollar_signs_in_prefix_and_labels() {
+    fun generator_escapes_dollar_signs_in_title_and_labels() {
         val snippet =
             generator.generate(
                 MultiLineCodegenConfig(
@@ -23,10 +23,9 @@ class MultiLineChartCodeGeneratorTest {
             )
         val escapedTemplate = "\\$" + "{value}"
 
-        assertTrue(snippet.code.contains("prefix = \"\\$\","))
-        assertTrue(snippet.code.contains("\"Revenue \\$\" to listOf(120f, 140f)"))
+        assertTrue(snippet.code.contains("\"Revenue \\$\" to listOf(120.0, 140.0)"))
         assertTrue(snippet.code.contains("categories = listOf(\"Q\\$1\", \"$escapedTemplate\")"))
-        assertTrue(snippet.code.contains("title = \"Growth \\$\","))
+        assertTrue(snippet.code.contains("LineChart(data = data, title = \"Growth \\$\")"))
     }
 
     @Test
@@ -45,6 +44,6 @@ class MultiLineChartCodeGeneratorTest {
             )
 
         assertFalse(snippet.code.contains("bezier = true,"))
-        assertTrue(snippet.code.contains("pointVisible = false,"))
+        assertTrue(snippet.code.contains("points = LineChartDefaults.points(visible = false,)"))
     }
 }

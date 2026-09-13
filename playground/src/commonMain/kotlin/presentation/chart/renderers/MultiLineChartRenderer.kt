@@ -7,7 +7,7 @@ import domain.MultiLineStyleState
 import domain.ValidatedChartSpec
 import domain.normalizeColorCount
 import io.github.dautovicharis.charts.LineChart
-import io.github.dautovicharis.charts.model.toMultiChartDataSet
+import io.github.dautovicharis.charts.model.toChartData
 import io.github.dautovicharis.charts.style.LineChartDefaults
 import presentation.colors.toComposeColor
 
@@ -15,27 +15,33 @@ import presentation.colors.toComposeColor
 internal fun MultiLineChartRenderer(spec: ValidatedChartSpec) {
     val data = spec.data as ChartData.MultiSeries
     val styleState = spec.styleState as MultiLineStyleState
-    val dataSet =
+    val chartData =
         data.series
-            .map { series -> series.name to series.values }
-            .toMultiChartDataSet(
-                title = spec.title,
-                categories = data.xLabels.orEmpty(),
-                prefix = "$",
-            )
+            .map { series -> series.name to series.values.map(Float::toDouble) }
+            .toChartData(categories = data.xLabels.orEmpty())
     val defaultStyle = LineChartDefaults.style()
     val style =
         LineChartDefaults.style(
-            lineColors =
-                styleState.lineColors?.let { colors ->
-                    normalizeColorCount(colors, data.series.size).map { it.toComposeColor() }
-                } ?: defaultStyle.lineColors,
-            lineAlpha = styleState.lineAlpha ?: MultiLineStyleDefaults.lineAlpha,
-            bezier = styleState.bezier ?: MultiLineStyleDefaults.bezier,
-            pointVisible = styleState.pointVisible ?: MultiLineStyleDefaults.pointVisible,
-            dragPointVisible = styleState.dragPointVisible ?: MultiLineStyleDefaults.dragPointVisible,
-            pointColor = styleState.pointColor?.toComposeColor() ?: defaultStyle.pointColor,
-            dragPointColor = styleState.dragPointColor?.toComposeColor() ?: defaultStyle.dragPointColor,
+            line =
+                LineChartDefaults.line(
+                    colors =
+                        styleState.lineColors?.let { colors ->
+                            normalizeColorCount(colors, data.series.size).map { it.toComposeColor() }
+                        } ?: defaultStyle.line.colors,
+                    alpha = styleState.lineAlpha ?: MultiLineStyleDefaults.lineAlpha,
+                    bezier = styleState.bezier ?: MultiLineStyleDefaults.bezier,
+                    strokeWidth = defaultStyle.line.strokeWidth,
+                ),
+            points =
+                LineChartDefaults.points(
+                    visible = styleState.pointVisible ?: MultiLineStyleDefaults.pointVisible,
+                    color = styleState.pointColor?.toComposeColor() ?: defaultStyle.points.color,
+                ),
+            selection =
+                LineChartDefaults.selection(
+                    visible = styleState.dragPointVisible ?: MultiLineStyleDefaults.dragPointVisible,
+                    color = styleState.dragPointColor?.toComposeColor() ?: defaultStyle.selection.color,
+                ),
         )
-    LineChart(dataSet = dataSet, style = style)
+    LineChart(data = chartData, title = spec.title, style = style)
 }

@@ -14,7 +14,7 @@ internal class LineChartCodeGenerator(
 ) : ChartCodeGenerator<LineCodegenConfig> {
     override fun generate(config: LineCodegenConfig): GeneratedSnippet {
         val items = normalizePoints(config.points)
-        val styleArguments = resolveStyleArguments(config.styleProperties)
+        val styleArguments = resolveStyleArguments(config.styleProperties, STYLE_BUILDER)
         val includeStyle = styleArguments.isNotEmpty()
         val imports =
             buildChartImports(
@@ -24,7 +24,7 @@ internal class LineChartCodeGenerator(
             )
         val bodyLines = mutableListOf<String>()
 
-        bodyLines += renderer.renderDataSet(items, config.title)
+        bodyLines += renderer.renderData(items)
         bodyLines += ""
 
         if (includeStyle) {
@@ -32,7 +32,7 @@ internal class LineChartCodeGenerator(
             bodyLines += ""
         }
 
-        bodyLines += renderer.renderChartCall(COMPONENT_NAME, includeStyle)
+        bodyLines += renderer.renderChartCall(COMPONENT_NAME, config.title, includeStyle)
 
         val code = renderer.renderFunction(imports, config.functionName, bodyLines)
         return GeneratedSnippet(code = code)
@@ -52,7 +52,7 @@ internal class LineChartCodeGenerator(
             listOf(
                 "import androidx.compose.runtime.Composable",
                 "import io.github.dautovicharis.charts.LineChart",
-                "import io.github.dautovicharis.charts.model.toChartDataSet",
+                "import io.github.dautovicharis.charts.model.toChartData",
             )
         const val STYLE_IMPORT = "import io.github.dautovicharis.charts.style.LineChartDefaults"
         const val COMPONENT_NAME = "LineChart"

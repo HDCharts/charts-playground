@@ -29,11 +29,10 @@ import domain.ValidationResult
 import domain.ValidationSeverity
 import domain.formatEditorFloat
 import domain.sortedDeterministically
-import io.github.dautovicharis.charts.model.ChartDataSet
-import io.github.dautovicharis.charts.model.MultiChartDataSet
 import io.github.dautovicharis.charts.model.PieSlice
 import kotlin.math.max
 import kotlin.math.roundToInt
+import io.github.dautovicharis.charts.model.ChartData as LibraryChartData
 
 internal const val LABEL_COLUMN_ID = "label"
 
@@ -48,38 +47,39 @@ internal object SampleDataSources {
     val radar: RadarSampleUseCase = radarSampleUseCase()
 }
 
-internal fun ChartDataSet.toSingleSeries(labelsOverride: List<String>? = null): ChartData.SingleSeries {
-    val labels = labelsOverride ?: data.item.labels.toList()
+internal fun LibraryChartData.toSingleSeries(labelsOverride: List<String>? = null): ChartData.SingleSeries {
+    val series = series.single()
+    val labels = labelsOverride ?: categories.toList()
     return ChartData.SingleSeries(
-        values = data.item.points.map(Double::toFloat),
+        values = series.values.map(Double::toFloat),
         labels = labels.takeIf { it.isNotEmpty() },
     )
 }
 
 internal fun List<PieSlice>.toSingleSeries(): ChartData.SingleSeries =
     ChartData.SingleSeries(
-        values = map { it.value },
+        values = map { it.value.toFloat() },
         labels = map { it.label }.takeIf { it.isNotEmpty() },
     )
 
-internal fun MultiChartDataSet.toMultiSeries(): ChartData.MultiSeries =
+internal fun LibraryChartData.toMultiSeries(): ChartData.MultiSeries =
     ChartData.MultiSeries(
         series =
-            data.items.map { item ->
+            series.map { item ->
                 ChartData.MultiSeries.Series(
-                    name = item.label,
-                    values = item.item.points.map(Double::toFloat),
+                    name = item.name.orEmpty(),
+                    values = item.values.map(Double::toFloat),
                 )
             },
-        xLabels = data.categories.toList().takeIf { it.isNotEmpty() },
+        xLabels = categories.toList().takeIf { it.isNotEmpty() },
     )
 
-internal fun MultiChartDataSet.toStackedSeries(): ChartData.StackedSeries {
-    val segmentNames = data.items.map { item -> item.label }
-    val categoryLabels = data.categories.toList()
+internal fun LibraryChartData.toStackedSeries(): ChartData.StackedSeries {
+    val segmentNames = series.map { item -> item.name.orEmpty() }
+    val categoryLabels = categories.toList()
     val valuesPerSegment =
-        data.items.map { item ->
-            item.item.points.map(Double::toFloat)
+        series.map { item ->
+            item.values.map(Double::toFloat)
         }
     val maxPoints =
         max(
@@ -108,18 +108,18 @@ internal fun MultiChartDataSet.toStackedSeries(): ChartData.StackedSeries {
     )
 }
 
-internal fun MultiChartDataSet.toRadarSeries(): ChartData.RadarSeries {
+internal fun LibraryChartData.toRadarSeries(): ChartData.RadarSeries {
     val entries =
-        data.items.map { item ->
+        series.map { item ->
             ChartData.RadarSeries.RadarEntry(
-                name = item.label,
-                values = item.item.points.map(Double::toFloat),
+                name = item.name.orEmpty(),
+                values = item.values.map(Double::toFloat),
             )
         }
     val maxPoints = entries.maxOfOrNull { entry -> entry.values.size } ?: 0
     val axes =
-        if (data.categories.isNotEmpty()) {
-            data.categories.toList()
+        if (categories.isNotEmpty()) {
+            categories.toList()
         } else {
             List(maxPoints) { index -> "Axis ${index + 1}" }
         }

@@ -9,7 +9,7 @@ import codegen.common.NormalizedPoint
 import codegen.common.buildChartImports
 import codegen.common.colorLiteral
 import codegen.common.escapeKotlinString
-import codegen.common.formatKotlinFloatLiteral
+import codegen.common.formatKotlinDoubleLiteral
 import codegen.common.kotlinLine
 
 internal class PieChartCodeGenerator(
@@ -49,7 +49,7 @@ internal class PieChartCodeGenerator(
                 val args =
                     listOfNotNull(
                         "label = \"${escapeKotlinString(item.label)}\"",
-                        "value = ${formatKotlinFloatLiteral(item.value)}",
+                        "value = ${formatKotlinDoubleLiteral(item.value)}",
                         item.color?.let { "color = ${colorLiteral(it)}" },
                     ).joinToString(", ")
                 kotlinLine(3, "PieSlice($args),")

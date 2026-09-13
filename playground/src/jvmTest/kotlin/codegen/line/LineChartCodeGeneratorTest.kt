@@ -26,7 +26,7 @@ class LineChartCodeGeneratorTest {
 
         assertTrue(snippet.code.contains("import io.github.dautovicharis.charts.LineChart"))
         assertTrue(snippet.code.contains("fun PlaygroundLineChartExample()"))
-        assertTrue(snippet.code.contains("LineChart(dataSet = dataSet)"))
+        assertTrue(snippet.code.contains("LineChart(data = data, title = \"Monthly Trend\")"))
         assertFalse(snippet.code.contains("LineChartDefaults.style("))
     }
 
@@ -49,7 +49,7 @@ class LineChartCodeGeneratorTest {
             )
 
         assertFalse(snippet.code.contains("bezier = true,"))
-        assertTrue(snippet.code.contains("axisVisible = false,"))
+        assertTrue(snippet.code.contains("axis = LineChartDefaults.axis(visible = false,)"))
     }
 
     @Test

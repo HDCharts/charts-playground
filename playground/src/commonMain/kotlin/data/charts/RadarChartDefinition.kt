@@ -44,7 +44,7 @@ internal object RadarChartDefinition : ChartDefinition, ChartCodegenAdapter {
     override fun defaultData(): ChartData =
         SampleDataSources.radar
             .initialRadarSample()
-            .customDataSet
+            .customData
             .toRadarSeries()
 
     override fun defaultStyleState(): ChartStyleState = RadarStyleState()

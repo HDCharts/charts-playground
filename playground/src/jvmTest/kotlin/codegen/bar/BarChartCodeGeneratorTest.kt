@@ -27,7 +27,7 @@ class BarChartCodeGeneratorTest {
 
         assertTrue(snippet.code.contains("import io.github.dautovicharis.charts.BarChart"))
         assertTrue(snippet.code.contains("fun PlaygroundBarChartExample()"))
-        assertTrue(snippet.code.contains("BarChart(dataSet = dataSet)"))
+        assertTrue(snippet.code.contains("BarChart(data = data, title = \"Weekly Performance\")"))
         assertFalse(snippet.code.contains("BarChartDefaults.style("))
     }
 
@@ -50,7 +50,7 @@ class BarChartCodeGeneratorTest {
             )
 
         assertFalse(snippet.code.contains("barAlpha = 0.8f,"))
-        assertTrue(snippet.code.contains("gridVisible = false,"))
+        assertTrue(snippet.code.contains("grid = BarChartDefaults.grid(visible = false,)"))
     }
 
     @Test
@@ -78,6 +78,6 @@ class BarChartCodeGeneratorTest {
             )
 
         assertTrue(snippet.code.contains("import androidx.compose.ui.graphics.Color"))
-        assertTrue(snippet.code.contains("barColors = listOf(Color("))
+        assertTrue(snippet.code.contains("bars = BarChartDefaults.bars(colors = listOf(Color("))
     }
 }

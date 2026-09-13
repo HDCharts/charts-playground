@@ -45,7 +45,7 @@ internal object AreaChartDefinition : ChartDefinition, ChartCodegenAdapter {
     override fun defaultData(): ChartData =
         SampleDataSources.stackedArea
             .initialStackedAreaSample()
-            .dataSet
+            .data
             .toMultiSeries()
 
     override fun defaultStyleState(): ChartStyleState = AreaStyleState()

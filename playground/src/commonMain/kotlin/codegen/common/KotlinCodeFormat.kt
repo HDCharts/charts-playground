@@ -16,3 +16,10 @@ fun formatKotlinFloatLiteral(value: Float): String {
     val normalized = rounded.toString().removeSuffix(".0")
     return "${normalized}f"
 }
+
+fun formatKotlinDoubleLiteral(value: Float): String {
+    require(value.isFinite()) { "Generated Kotlin literals require finite floats: $value" }
+    val rounded = round(value.toDouble() * FLOAT_ROUNDING_SCALE) / FLOAT_ROUNDING_SCALE
+    val normalized = rounded.toString()
+    return if (normalized.contains('.') || normalized.contains('e', ignoreCase = true)) normalized else "$normalized.0"
+}

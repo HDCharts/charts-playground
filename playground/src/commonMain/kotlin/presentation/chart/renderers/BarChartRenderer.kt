@@ -1,13 +1,14 @@
 package presentation.chart.renderers
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.dp
 import domain.BarStyleDefaults
 import domain.BarStyleState
 import domain.ChartData
 import domain.ValidatedChartSpec
 import domain.normalizeColorCount
 import io.github.dautovicharis.charts.BarChart
-import io.github.dautovicharis.charts.model.toChartDataSet
+import io.github.dautovicharis.charts.model.toChartData
 import io.github.dautovicharis.charts.style.BarChartDefaults
 import presentation.colors.toComposeColor
 
@@ -15,21 +16,29 @@ import presentation.colors.toComposeColor
 internal fun BarChartRenderer(spec: ValidatedChartSpec) {
     val data = spec.data as ChartData.SingleSeries
     val styleState = spec.styleState as BarStyleState
-    val dataSet = data.values.toChartDataSet(title = spec.title, labels = data.labels)
+    val chartData = data.values.map(Float::toDouble).toChartData(categories = data.labels.orEmpty())
     val defaultStyle = BarChartDefaults.style()
     val style =
         BarChartDefaults.style(
-            barColor = styleState.barColor?.toComposeColor() ?: defaultStyle.barColor,
-            barColors =
-                styleState.barColors?.let { colors ->
-                    normalizeColorCount(colors, data.values.size).map { it.toComposeColor() }
-                } ?: defaultStyle.barColors,
-            barAlpha = styleState.barAlpha ?: BarStyleDefaults.barAlpha,
-            gridVisible = styleState.gridVisible ?: BarStyleDefaults.gridVisible,
-            axisVisible = styleState.axisVisible ?: BarStyleDefaults.axisVisible,
-            selectionLineVisible = styleState.selectionLineVisible ?: BarStyleDefaults.selectionLineVisible,
-            selectionLineWidth = styleState.selectionLineWidth ?: BarStyleDefaults.selectionLineWidth,
+            bars =
+                BarChartDefaults.bars(
+                    color = styleState.barColor?.toComposeColor() ?: defaultStyle.bars.color,
+                    colors =
+                        styleState.barColors?.let { colors ->
+                            normalizeColorCount(colors, data.values.size).map { it.toComposeColor() }
+                        } ?: defaultStyle.bars.colors,
+                    alpha = styleState.barAlpha ?: BarStyleDefaults.barAlpha,
+                    space = defaultStyle.bars.space,
+                    minBarWidth = defaultStyle.bars.minBarWidth,
+                ),
+            grid = BarChartDefaults.grid(visible = styleState.gridVisible ?: BarStyleDefaults.gridVisible),
+            axis = BarChartDefaults.axis(visible = styleState.axisVisible ?: BarStyleDefaults.axisVisible),
+            selectionLine =
+                BarChartDefaults.selectionLine(
+                    visible = styleState.selectionLineVisible ?: BarStyleDefaults.selectionLineVisible,
+                    width = (styleState.selectionLineWidth ?: BarStyleDefaults.selectionLineWidth).dp,
+                ),
             zoomControlsVisible = styleState.zoomControlsVisible ?: BarStyleDefaults.zoomControlsVisible,
         )
-    BarChart(dataSet = dataSet, style = style)
+    BarChart(data = chartData, title = spec.title, style = style)
 }
