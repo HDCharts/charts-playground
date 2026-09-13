@@ -12,7 +12,7 @@ class StackedBarChartCodeGeneratorTest {
     private val generator = StackedBarChartCodeGenerator()
 
     @Test
-    fun generator_escapes_dollar_signs_in_prefix_and_labels() {
+    fun generator_escapes_dollar_signs_in_title_and_labels() {
         val snippet =
             generator.generate(
                 StackedBarCodegenConfig(
@@ -23,10 +23,9 @@ class StackedBarChartCodeGeneratorTest {
             )
         val escapedTemplate = "\\$" + "{segment}"
 
-        assertTrue(snippet.code.contains("prefix = \"\\$\","), snippet.code)
-        assertTrue(snippet.code.contains("\"$escapedTemplate\" to listOf(10f, 20f)"), snippet.code)
+        assertTrue(snippet.code.contains("\"$escapedTemplate\" to listOf(10.0, 20.0)"), snippet.code)
         assertTrue(snippet.code.contains("\"Q\\$2\""), snippet.code)
-        assertTrue(snippet.code.contains("title = \"Revenue \\$\","), snippet.code)
+        assertTrue(snippet.code.contains("StackedBarChart(data = data, title = \"Revenue \\$\")"), snippet.code)
     }
 
     @Test
@@ -57,6 +56,6 @@ class StackedBarChartCodeGeneratorTest {
             )
 
         assertFalse(snippet.code.contains("barAlpha = 0.8f,"))
-        assertTrue(snippet.code.contains("selectionLineVisible = false,"))
+        assertTrue(snippet.code.contains("selection = StackedBarChartDefaults.selection(visible = false,)"))
     }
 }

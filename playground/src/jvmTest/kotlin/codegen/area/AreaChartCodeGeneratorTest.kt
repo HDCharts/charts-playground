@@ -27,7 +27,7 @@ class AreaChartCodeGeneratorTest {
 
         assertTrue(snippet.code.contains("import io.github.dautovicharis.charts.StackedAreaChart"))
         assertTrue(snippet.code.contains("fun PlaygroundAreaChartExample()"))
-        assertTrue(snippet.code.contains("StackedAreaChart(dataSet = dataSet)"))
+        assertTrue(snippet.code.contains("StackedAreaChart(data = data, title = \"Plan Distribution\")"))
         assertFalse(snippet.code.contains("StackedAreaChartDefaults.style("))
     }
 
@@ -47,6 +47,6 @@ class AreaChartCodeGeneratorTest {
             )
 
         assertFalse(snippet.code.contains("fillAlpha = 0.4f,"))
-        assertTrue(snippet.code.contains("lineVisible = false,"))
+        assertTrue(snippet.code.contains("boundary = StackedAreaChartDefaults.boundary(visible = false,)"))
     }
 }

@@ -124,7 +124,7 @@ class EditorStoreTest {
             store.state.value.sessions
                 .getValue(ChartType.LINE)
         assertEquals(0.8f, (session.draft.styleState as LineStyleState).lineAlpha)
-        assertTrue(session.generatedCode.contains("lineAlpha = 0.8f"))
+        assertTrue(session.generatedCode.contains("line = LineChartDefaults.line(alpha = 0.8f,"))
     }
 
     @Test
@@ -303,7 +303,7 @@ class EditorStoreTest {
                 .validatedSpec.data as ChartData.SingleSeries
         val pieSample = pieSampleUseCase().initialPieSample()
         assertEquals(
-            pieSample.slices.map { it.value },
+            pieSample.slices.map { it.value.toFloat() },
             pieData.values,
         )
         assertEquals(pieSample.slices.map { it.label }, pieData.labels)
@@ -314,15 +314,13 @@ class EditorStoreTest {
                 .validatedSpec.data as ChartData.SingleSeries
         val lineDataSet = lineSampleUseCase().initialLineDataSet()
         assertEquals(
-            lineDataSet.data.item.points
+            lineDataSet.series
+                .single()
+                .values
                 .map(Double::toFloat),
             lineData.values,
         )
-        assertEquals(
-            lineDataSet.data.item.labels
-                .toList(),
-            lineData.labels,
-        )
+        assertEquals(lineDataSet.categories.toList(), lineData.labels)
 
         val barData =
             state.sessions
@@ -330,15 +328,13 @@ class EditorStoreTest {
                 .validatedSpec.data as ChartData.SingleSeries
         val barDataSet = barSampleUseCase().initialBarDataSet()
         assertEquals(
-            barDataSet.data.item.points
+            barDataSet.series
+                .single()
+                .values
                 .map(Double::toFloat),
             barData.values,
         )
-        assertEquals(
-            barDataSet.data.item.labels
-                .toList(),
-            barData.labels,
-        )
+        assertEquals(barDataSet.categories.toList(), barData.labels)
 
         val histogramData =
             state.sessions
@@ -346,30 +342,26 @@ class EditorStoreTest {
                 .validatedSpec.data as ChartData.SingleSeries
         val histogramDataSet = histogramSampleUseCase().initialHistogramDataSet()
         assertEquals(
-            histogramDataSet.data.item.points
+            histogramDataSet.series
+                .single()
+                .values
                 .map(Double::toFloat),
             histogramData.values,
         )
-        assertEquals(
-            histogramDataSet.data.item.labels
-                .toList(),
-            histogramData.labels,
-        )
+        assertEquals(histogramDataSet.categories.toList(), histogramData.labels)
 
         val multiLineData =
             state.sessions
                 .getValue(ChartType.MULTI_LINE)
                 .validatedSpec.data as ChartData.MultiSeries
         val multiLineDataSet = multiLineSampleUseCase().initialMultiLineSample().dataSet
-        assertEquals(multiLineDataSet.data.categories.toList(), multiLineData.xLabels)
+        assertEquals(multiLineDataSet.categories.toList(), multiLineData.xLabels)
         assertEquals(
-            multiLineDataSet.data.items.map { item ->
-                item.label
-            },
+            multiLineDataSet.series.map { item -> item.name.orEmpty() },
             multiLineData.series.map { series -> series.name },
         )
         assertEquals(
-            multiLineDataSet.data.items.map { item -> item.item.points.map(Double::toFloat) },
+            multiLineDataSet.series.map { item -> item.values.map(Double::toFloat) },
             multiLineData.series.map { series -> series.values },
         )
 
@@ -377,14 +369,14 @@ class EditorStoreTest {
             state.sessions
                 .getValue(ChartType.AREA)
                 .validatedSpec.data as ChartData.MultiSeries
-        val areaDataSet = stackedAreaSampleUseCase().initialStackedAreaSample().dataSet
-        assertEquals(areaDataSet.data.categories.toList(), areaData.xLabels)
+        val areaDataSet = stackedAreaSampleUseCase().initialStackedAreaSample().data
+        assertEquals(areaDataSet.categories.toList(), areaData.xLabels)
         assertEquals(
-            areaDataSet.data.items.map { item -> item.label },
+            areaDataSet.series.map { item -> item.name.orEmpty() },
             areaData.series.map { series -> series.name },
         )
         assertEquals(
-            areaDataSet.data.items.map { item -> item.item.points.map(Double::toFloat) },
+            areaDataSet.series.map { item -> item.values.map(Double::toFloat) },
             areaData.series.map { series -> series.values },
         )
 
@@ -394,12 +386,12 @@ class EditorStoreTest {
                     ChartType.STACKED_BAR,
                 ).validatedSpec.data as ChartData.StackedSeries
         val stackedBarDataSet = stackedBarSampleUseCase().initialStackedBarSample().dataSet
-        assertEquals(stackedBarDataSet.data.items.map { item -> item.label }, stackedBarData.segmentNames)
-        assertEquals(stackedBarDataSet.data.categories.toList(), stackedBarData.bars.map { bar -> bar.label })
+        assertEquals(stackedBarDataSet.series.map { item -> item.name.orEmpty() }, stackedBarData.segmentNames)
+        assertEquals(stackedBarDataSet.categories.toList(), stackedBarData.bars.map { bar -> bar.label })
         assertEquals(
-            stackedBarDataSet.data.categories.indices.map { categoryIndex ->
-                stackedBarDataSet.data.items.map { item ->
-                    item.item.points[categoryIndex].toFloat()
+            stackedBarDataSet.categories.indices.map { categoryIndex ->
+                stackedBarDataSet.series.map { item ->
+                    item.values[categoryIndex].toFloat()
                 }
             },
             stackedBarData.bars.map { bar -> bar.values },
@@ -409,14 +401,14 @@ class EditorStoreTest {
             state.sessions
                 .getValue(ChartType.RADAR)
                 .validatedSpec.data as ChartData.RadarSeries
-        val radarDataSet = radarSampleUseCase().initialRadarSample().customDataSet
-        assertEquals(radarDataSet.data.categories.toList(), radarData.axes)
+        val radarDataSet = radarSampleUseCase().initialRadarSample().customData
+        assertEquals(radarDataSet.categories.toList(), radarData.axes)
         assertEquals(
-            radarDataSet.data.items.map { item -> item.label },
+            radarDataSet.series.map { item -> item.name.orEmpty() },
             radarData.entries.map { entry -> entry.name },
         )
         assertEquals(
-            radarDataSet.data.items.map { item -> item.item.points.map(Double::toFloat) },
+            radarDataSet.series.map { item -> item.values.map(Double::toFloat) },
             radarData.entries.map { entry -> entry.values },
         )
     }

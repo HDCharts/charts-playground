@@ -74,12 +74,12 @@ class PieChartCodeGeneratorTest {
         assertTrue(snippet.code.contains("listOf("))
         assertTrue(
             snippet.code.contains(
-                "            PieSlice(label = \"A\", value = 1f, color = Color(0xFF1D3557)),",
+                "            PieSlice(label = \"A\", value = 1.0, color = Color(0xFF1D3557)),",
             ),
         )
         assertTrue(
             snippet.code.contains(
-                "            PieSlice(label = \"B\", value = 2f, color = Color(0xFF457B9D)),",
+                "            PieSlice(label = \"B\", value = 2.0, color = Color(0xFF457B9D)),",
             ),
         )
         assertFalse(snippet.code.contains("PieChartDefaults.slices(colors"))

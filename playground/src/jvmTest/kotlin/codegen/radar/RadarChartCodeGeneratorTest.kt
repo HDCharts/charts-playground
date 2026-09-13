@@ -27,7 +27,7 @@ class RadarChartCodeGeneratorTest {
 
         assertTrue(snippet.code.contains("import io.github.dautovicharis.charts.RadarChart"))
         assertTrue(snippet.code.contains("fun PlaygroundRadarChartExample()"))
-        assertTrue(snippet.code.contains("RadarChart(dataSet = dataSet)"))
+        assertTrue(snippet.code.contains("RadarChart(data = data, title = \"Platform Capability\")"))
         assertFalse(snippet.code.contains("RadarChartDefaults.style("))
     }
 
@@ -47,6 +47,6 @@ class RadarChartCodeGeneratorTest {
             )
 
         assertFalse(snippet.code.contains("lineWidth = 2f,"))
-        assertTrue(snippet.code.contains("gridVisible = false,"))
+        assertTrue(snippet.code.contains("grid = RadarChartDefaults.grid(visible = false,)"))
     }
 }

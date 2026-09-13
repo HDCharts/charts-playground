@@ -6,7 +6,7 @@ import codegen.RadarCodegenConfig
 import codegen.common.ChartCodeRenderer
 import codegen.common.MultiSeriesItem
 import codegen.common.buildChartImports
-import codegen.common.buildMultiChartDataSetCode
+import codegen.common.buildMultiChartDataCode
 import codegen.common.resolveStyleArguments
 import kotlin.math.max
 
@@ -15,7 +15,7 @@ internal class RadarChartCodeGenerator(
 ) : ChartCodeGenerator<RadarCodegenConfig> {
     override fun generate(config: RadarCodegenConfig): GeneratedSnippet {
         val normalized = normalizeSeries(config)
-        val styleArguments = resolveStyleArguments(config.styleProperties)
+        val styleArguments = resolveStyleArguments(config.styleProperties, STYLE_BUILDER)
         val includeStyle = styleArguments.isNotEmpty()
         val imports =
             buildChartImports(
@@ -26,9 +26,8 @@ internal class RadarChartCodeGenerator(
 
         val bodyLines = mutableListOf<String>()
         bodyLines +=
-            buildMultiChartDataSetCode(
+            buildMultiChartDataCode(
                 items = normalized.series,
-                title = config.title,
                 categories = normalized.categories,
             )
         bodyLines += ""
@@ -38,7 +37,7 @@ internal class RadarChartCodeGenerator(
             bodyLines += ""
         }
 
-        bodyLines += renderer.renderChartCall(COMPONENT_NAME, includeStyle)
+        bodyLines += renderer.renderChartCall(COMPONENT_NAME, config.title, includeStyle)
         val code = renderer.renderFunction(imports, config.functionName, bodyLines)
         return GeneratedSnippet(code = code)
     }
@@ -77,7 +76,7 @@ internal class RadarChartCodeGenerator(
             listOf(
                 "import androidx.compose.runtime.Composable",
                 "import io.github.dautovicharis.charts.RadarChart",
-                "import io.github.dautovicharis.charts.model.toMultiChartDataSet",
+                "import io.github.dautovicharis.charts.model.toChartData",
             )
         const val STYLE_IMPORT = "import io.github.dautovicharis.charts.style.RadarChartDefaults"
         const val COMPONENT_NAME = "RadarChart"

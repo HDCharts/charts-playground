@@ -23,7 +23,7 @@ internal fun PieChartRenderer(spec: ValidatedChartSpec) {
             data.values.mapIndexed { index, value ->
                 PieSlice(
                     label = labels[index],
-                    value = value,
+                    value = value.toDouble(),
                     color = palette?.getOrNull(index)?.toComposeColor(),
                 )
             }

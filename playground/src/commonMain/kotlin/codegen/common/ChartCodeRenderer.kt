@@ -23,18 +23,14 @@ internal class ChartCodeRenderer {
             append("\n}\n")
         }
 
-    fun renderDataSet(
-        items: List<NormalizedPoint>,
-        title: String,
-    ): List<String> {
-        val valuesCode = items.joinToString(", ") { item -> formatKotlinFloatLiteral(item.value) }
+    fun renderData(items: List<NormalizedPoint>): List<String> {
+        val valuesCode = items.joinToString(", ") { item -> formatKotlinDoubleLiteral(item.value) }
         val labelsCode = items.joinToString(", ") { item -> "\"${escapeKotlinString(item.label)}\"" }
 
         return buildList {
-            add(kotlinLine(1, "val dataSet ="))
-            add(kotlinLine(2, "listOf($valuesCode).toChartDataSet("))
-            add(kotlinLine(3, "title = \"${escapeKotlinString(title)}\","))
-            add(kotlinLine(3, "labels = listOf($labelsCode),"))
+            add(kotlinLine(1, "val data ="))
+            add(kotlinLine(2, "listOf($valuesCode).toChartData("))
+            add(kotlinLine(3, "categories = listOf($labelsCode),"))
             add(kotlinLine(2, ")"))
         }
     }
@@ -52,17 +48,19 @@ internal class ChartCodeRenderer {
 
     fun renderChartCall(
         componentName: String,
+        title: String,
         includeStyle: Boolean,
     ): List<String> =
         if (includeStyle) {
             listOf(
                 kotlinLine(1, "$componentName("),
-                kotlinLine(2, "dataSet = dataSet,"),
+                kotlinLine(2, "data = data,"),
+                kotlinLine(2, "title = \"${escapeKotlinString(title)}\","),
                 kotlinLine(2, "style = style,"),
                 kotlinLine(1, ")"),
             )
         } else {
-            listOf(kotlinLine(1, "$componentName(dataSet = dataSet)"))
+            listOf(kotlinLine(1, "$componentName(data = data, title = \"${escapeKotlinString(title)}\")"))
         }
 }
 
