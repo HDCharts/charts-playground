@@ -7,9 +7,9 @@ import domain.BarStyleState
 import domain.ChartData
 import domain.ValidatedChartSpec
 import domain.normalizeColorCount
-import io.github.dautovicharis.charts.BarChart
-import io.github.dautovicharis.charts.model.toChartData
-import io.github.dautovicharis.charts.style.BarChartDefaults
+import io.github.hdcharts.charts.BarChart
+import io.github.hdcharts.charts.model.toChartData
+import io.github.hdcharts.charts.style.BarChartDefaults
 import presentation.colors.toComposeColor
 
 @Composable

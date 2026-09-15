@@ -2,9 +2,12 @@ package codegen.pie
 
 import codegen.StylePropertiesSnapshot
 import codegen.StyleProperty
+import codegen.StylePropertyValue
 import codegen.common.KotlinLiteral
 import codegen.common.RenderedStyleArgument
 import codegen.common.toKotlinLiteral
+
+private const val DP_IMPORT = "import androidx.compose.ui.unit.dp"
 
 private val PIE_GROUP_ORDER = listOf("donut", "slices", "border", "legend")
 
@@ -23,6 +26,9 @@ private val PIE_PROPERTY_GROUP =
         "borderWidth" to ("border" to "width"),
         "legendVisible" to ("legend" to "visible"),
     )
+
+private val PIE_PROPERTY_DP =
+    setOf("borderWidth")
 
 /**
  * Resolves a flat [StylePropertiesSnapshot] into grouped pie style arguments.
@@ -47,7 +53,14 @@ fun resolvePieStyleArguments(styleProperties: StylePropertiesSnapshot?): List<Re
             if (property.value == defaultsByName[property.name]) {
                 return@forEach
             }
-            val literal = toKotlinLiteral(propertyName = property.name, value = property.value)
+            var literal = toKotlinLiteral(propertyName = property.name, value = property.value)
+            if (property.name in PIE_PROPERTY_DP && property.value is StylePropertyValue.FloatValue) {
+                literal =
+                    literal.copy(
+                        code = "${literal.code.removeSuffix("f")}.dp",
+                        additionalImports = literal.additionalImports + DP_IMPORT,
+                    )
+            }
             additionalImports += literal.additionalImports
             membersByGroup.getOrPut(group) { mutableListOf() } += argumentName to literal
         }

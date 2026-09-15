@@ -1,21 +1,5 @@
 package data
 
-import dev.hdcode.charts.sampleshared.data.BarSampleUseCase
-import dev.hdcode.charts.sampleshared.data.HistogramSampleUseCase
-import dev.hdcode.charts.sampleshared.data.LineSampleUseCase
-import dev.hdcode.charts.sampleshared.data.MultiLineSampleUseCase
-import dev.hdcode.charts.sampleshared.data.PieSampleUseCase
-import dev.hdcode.charts.sampleshared.data.RadarSampleUseCase
-import dev.hdcode.charts.sampleshared.data.StackedAreaSampleUseCase
-import dev.hdcode.charts.sampleshared.data.StackedBarSampleUseCase
-import dev.hdcode.charts.sampleshared.data.barSampleUseCase
-import dev.hdcode.charts.sampleshared.data.histogramSampleUseCase
-import dev.hdcode.charts.sampleshared.data.lineSampleUseCase
-import dev.hdcode.charts.sampleshared.data.multiLineSampleUseCase
-import dev.hdcode.charts.sampleshared.data.pieSampleUseCase
-import dev.hdcode.charts.sampleshared.data.radarSampleUseCase
-import dev.hdcode.charts.sampleshared.data.stackedAreaSampleUseCase
-import dev.hdcode.charts.sampleshared.data.stackedBarSampleUseCase
 import domain.ChartData
 import domain.DataTableColumn
 import domain.DataTableRow
@@ -29,10 +13,26 @@ import domain.ValidationResult
 import domain.ValidationSeverity
 import domain.formatEditorFloat
 import domain.sortedDeterministically
-import io.github.dautovicharis.charts.model.PieSlice
+import io.github.hdcharts.charts.model.PieSlice
+import io.github.hdcharts.sampleshared.data.BarSampleUseCase
+import io.github.hdcharts.sampleshared.data.HistogramSampleUseCase
+import io.github.hdcharts.sampleshared.data.LineSampleUseCase
+import io.github.hdcharts.sampleshared.data.MultiLineSampleUseCase
+import io.github.hdcharts.sampleshared.data.PieSampleUseCase
+import io.github.hdcharts.sampleshared.data.RadarSampleUseCase
+import io.github.hdcharts.sampleshared.data.StackedAreaSampleUseCase
+import io.github.hdcharts.sampleshared.data.StackedBarSampleUseCase
+import io.github.hdcharts.sampleshared.data.barSampleUseCase
+import io.github.hdcharts.sampleshared.data.histogramSampleUseCase
+import io.github.hdcharts.sampleshared.data.lineSampleUseCase
+import io.github.hdcharts.sampleshared.data.multiLineSampleUseCase
+import io.github.hdcharts.sampleshared.data.pieSampleUseCase
+import io.github.hdcharts.sampleshared.data.radarSampleUseCase
+import io.github.hdcharts.sampleshared.data.stackedAreaSampleUseCase
+import io.github.hdcharts.sampleshared.data.stackedBarSampleUseCase
 import kotlin.math.max
 import kotlin.math.roundToInt
-import io.github.dautovicharis.charts.model.ChartData as LibraryChartData
+import io.github.hdcharts.charts.model.ChartData as LibraryChartData
 
 internal const val LABEL_COLUMN_ID = "label"
 

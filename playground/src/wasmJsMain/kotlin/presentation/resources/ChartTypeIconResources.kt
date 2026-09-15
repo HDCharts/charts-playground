@@ -1,16 +1,16 @@
 package presentation.resources
 
-import chartsproject.sample_shared.generated.resources.ic_bar_chart
-import chartsproject.sample_shared.generated.resources.ic_histogram_chart
-import chartsproject.sample_shared.generated.resources.ic_line_chart
-import chartsproject.sample_shared.generated.resources.ic_multi_line_chart
-import chartsproject.sample_shared.generated.resources.ic_pie_chart
-import chartsproject.sample_shared.generated.resources.ic_radar_chart
-import chartsproject.sample_shared.generated.resources.ic_stacked_area_chart
-import chartsproject.sample_shared.generated.resources.ic_stacked_bar_chart
 import domain.ChartType
+import hdcharts.sample_shared.generated.resources.ic_bar_chart
+import hdcharts.sample_shared.generated.resources.ic_histogram_chart
+import hdcharts.sample_shared.generated.resources.ic_line_chart
+import hdcharts.sample_shared.generated.resources.ic_multi_line_chart
+import hdcharts.sample_shared.generated.resources.ic_pie_chart
+import hdcharts.sample_shared.generated.resources.ic_radar_chart
+import hdcharts.sample_shared.generated.resources.ic_stacked_area_chart
+import hdcharts.sample_shared.generated.resources.ic_stacked_bar_chart
 import org.jetbrains.compose.resources.DrawableResource
-import chartsproject.sample_shared.generated.resources.Res as SharedRes
+import hdcharts.sample_shared.generated.resources.Res as SharedRes
 
 internal fun chartTypeIconResource(type: ChartType): DrawableResource =
     when (type) {

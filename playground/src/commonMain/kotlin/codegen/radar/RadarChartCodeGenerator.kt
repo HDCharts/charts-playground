@@ -75,10 +75,10 @@ internal class RadarChartCodeGenerator(
         val BASE_IMPORTS =
             listOf(
                 "import androidx.compose.runtime.Composable",
-                "import io.github.dautovicharis.charts.RadarChart",
-                "import io.github.dautovicharis.charts.model.toChartData",
+                "import io.github.hdcharts.charts.RadarChart",
+                "import io.github.hdcharts.charts.model.toChartData",
             )
-        const val STYLE_IMPORT = "import io.github.dautovicharis.charts.style.RadarChartDefaults"
+        const val STYLE_IMPORT = "import io.github.hdcharts.charts.style.RadarChartDefaults"
         const val COMPONENT_NAME = "RadarChart"
         const val STYLE_BUILDER = "RadarChartDefaults.style"
     }

@@ -7,11 +7,11 @@ import domain.StackedBarStyleDefaults
 import domain.StackedBarStyleState
 import domain.ValidatedChartSpec
 import domain.normalizeColorCount
-import io.github.dautovicharis.charts.StackedBarChart
-import io.github.dautovicharis.charts.model.ChartSeries
-import io.github.dautovicharis.charts.style.StackedBarChartDefaults
+import io.github.hdcharts.charts.StackedBarChart
+import io.github.hdcharts.charts.model.ChartSeries
+import io.github.hdcharts.charts.style.StackedBarChartDefaults
 import presentation.colors.toComposeColor
-import io.github.dautovicharis.charts.model.ChartData as LibraryChartData
+import io.github.hdcharts.charts.model.ChartData as LibraryChartData
 
 @Composable
 internal fun StackedBarChartRenderer(spec: ValidatedChartSpec) {

@@ -49,10 +49,10 @@ internal class HistogramChartCodeGenerator(
         val BASE_IMPORTS =
             listOf(
                 "import androidx.compose.runtime.Composable",
-                "import io.github.dautovicharis.charts.HistogramChart",
-                "import io.github.dautovicharis.charts.model.toChartData",
+                "import io.github.hdcharts.charts.HistogramChart",
+                "import io.github.hdcharts.charts.model.toChartData",
             )
-        const val STYLE_IMPORT = "import io.github.dautovicharis.charts.style.HistogramChartDefaults"
+        const val STYLE_IMPORT = "import io.github.hdcharts.charts.style.HistogramChartDefaults"
         const val COMPONENT_NAME = "HistogramChart"
         const val STYLE_BUILDER = "HistogramChartDefaults.style"
     }

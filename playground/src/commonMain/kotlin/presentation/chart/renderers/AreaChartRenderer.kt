@@ -7,9 +7,9 @@ import domain.AreaStyleState
 import domain.ChartData
 import domain.ValidatedChartSpec
 import domain.normalizeColorCount
-import io.github.dautovicharis.charts.StackedAreaChart
-import io.github.dautovicharis.charts.model.toChartData
-import io.github.dautovicharis.charts.style.StackedAreaChartDefaults
+import io.github.hdcharts.charts.StackedAreaChart
+import io.github.hdcharts.charts.model.toChartData
+import io.github.hdcharts.charts.style.StackedAreaChartDefaults
 import presentation.colors.toComposeColor
 
 @Composable

@@ -7,9 +7,10 @@ import domain.BarStyleState
 import domain.ChartData
 import domain.ValidatedChartSpec
 import domain.normalizeColorCount
-import io.github.dautovicharis.charts.HistogramChart
-import io.github.dautovicharis.charts.model.toChartData
-import io.github.dautovicharis.charts.style.HistogramChartDefaults
+import io.github.hdcharts.charts.HistogramChart
+import io.github.hdcharts.charts.model.toChartData
+import io.github.hdcharts.charts.style.BarChartDefaults
+import io.github.hdcharts.charts.style.HistogramChartDefaults
 import presentation.colors.toComposeColor
 
 @Composable
@@ -32,17 +33,15 @@ internal fun HistogramChartRenderer(spec: ValidatedChartSpec) {
                     minBarWidth = defaultStyle.bars.minBarWidth,
                 ),
             grid =
-                HistogramChartDefaults.style().grid.copy(
-                    visible =
-                        styleState.gridVisible ?: BarStyleDefaults.gridVisible,
+                BarChartDefaults.grid(
+                    visible = styleState.gridVisible ?: BarStyleDefaults.gridVisible,
                 ),
             axis =
-                HistogramChartDefaults.style().axis.copy(
-                    visible =
-                        styleState.axisVisible ?: BarStyleDefaults.axisVisible,
+                BarChartDefaults.axis(
+                    visible = styleState.axisVisible ?: BarStyleDefaults.axisVisible,
                 ),
             selectionLine =
-                HistogramChartDefaults.style().selectionLine.copy(
+                BarChartDefaults.selectionLine(
                     visible = styleState.selectionLineVisible ?: BarStyleDefaults.selectionLineVisible,
                     width = (styleState.selectionLineWidth ?: BarStyleDefaults.selectionLineWidth).dp,
                 ),

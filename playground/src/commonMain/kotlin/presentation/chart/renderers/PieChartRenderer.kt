@@ -2,14 +2,15 @@ package presentation.chart.renderers
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.unit.dp
 import domain.ChartData
 import domain.PieStyleDefaults
 import domain.PieStyleState
 import domain.ValidatedChartSpec
 import domain.normalizeColorCount
-import io.github.dautovicharis.charts.PieChart
-import io.github.dautovicharis.charts.model.PieSlice
-import io.github.dautovicharis.charts.style.PieChartDefaults
+import io.github.hdcharts.charts.PieChart
+import io.github.hdcharts.charts.model.PieSlice
+import io.github.hdcharts.charts.style.PieChartDefaults
 import presentation.colors.toComposeColor
 
 @Composable
@@ -43,7 +44,7 @@ internal fun PieChartRenderer(spec: ValidatedChartSpec) {
             border =
                 PieChartDefaults.border(
                     color = defaultStyle.border.color,
-                    width = styleState.borderWidth ?: PieStyleDefaults.borderWidth,
+                    width = (styleState.borderWidth ?: PieStyleDefaults.borderWidth).dp,
                 ),
             legend =
                 PieChartDefaults.legend(

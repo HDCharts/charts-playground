@@ -24,7 +24,7 @@ class LineChartCodeGeneratorTest {
                 ),
             )
 
-        assertTrue(snippet.code.contains("import io.github.dautovicharis.charts.LineChart"))
+        assertTrue(snippet.code.contains("import io.github.hdcharts.charts.LineChart"))
         assertTrue(snippet.code.contains("fun PlaygroundLineChartExample()"))
         assertTrue(snippet.code.contains("LineChart(data = data, title = \"Monthly Trend\")"))
         assertFalse(snippet.code.contains("LineChartDefaults.style("))

@@ -75,10 +75,10 @@ internal class AreaChartCodeGenerator(
         val BASE_IMPORTS =
             listOf(
                 "import androidx.compose.runtime.Composable",
-                "import io.github.dautovicharis.charts.StackedAreaChart",
-                "import io.github.dautovicharis.charts.model.toChartData",
+                "import io.github.hdcharts.charts.StackedAreaChart",
+                "import io.github.hdcharts.charts.model.toChartData",
             )
-        const val STYLE_IMPORT = "import io.github.dautovicharis.charts.style.StackedAreaChartDefaults"
+        const val STYLE_IMPORT = "import io.github.hdcharts.charts.style.StackedAreaChartDefaults"
         const val COMPONENT_NAME = "StackedAreaChart"
         const val STYLE_BUILDER = "StackedAreaChartDefaults.style"
     }

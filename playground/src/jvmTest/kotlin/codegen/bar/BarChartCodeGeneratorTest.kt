@@ -25,7 +25,7 @@ class BarChartCodeGeneratorTest {
                 ),
             )
 
-        assertTrue(snippet.code.contains("import io.github.dautovicharis.charts.BarChart"))
+        assertTrue(snippet.code.contains("import io.github.hdcharts.charts.BarChart"))
         assertTrue(snippet.code.contains("fun PlaygroundBarChartExample()"))
         assertTrue(snippet.code.contains("BarChart(data = data, title = \"Weekly Performance\")"))
         assertFalse(snippet.code.contains("BarChartDefaults.style("))

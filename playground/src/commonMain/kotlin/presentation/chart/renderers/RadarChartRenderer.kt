@@ -6,9 +6,9 @@ import domain.RadarStyleDefaults
 import domain.RadarStyleState
 import domain.ValidatedChartSpec
 import domain.normalizeColorCount
-import io.github.dautovicharis.charts.RadarChart
-import io.github.dautovicharis.charts.model.toChartData
-import io.github.dautovicharis.charts.style.RadarChartDefaults
+import io.github.hdcharts.charts.RadarChart
+import io.github.hdcharts.charts.model.toChartData
+import io.github.hdcharts.charts.style.RadarChartDefaults
 import presentation.colors.toComposeColor
 
 @Composable

@@ -51,10 +51,10 @@ internal class LineChartCodeGenerator(
         val BASE_IMPORTS =
             listOf(
                 "import androidx.compose.runtime.Composable",
-                "import io.github.dautovicharis.charts.LineChart",
-                "import io.github.dautovicharis.charts.model.toChartData",
+                "import io.github.hdcharts.charts.LineChart",
+                "import io.github.hdcharts.charts.model.toChartData",
             )
-        const val STYLE_IMPORT = "import io.github.dautovicharis.charts.style.LineChartDefaults"
+        const val STYLE_IMPORT = "import io.github.hdcharts.charts.style.LineChartDefaults"
         const val COMPONENT_NAME = "LineChart"
         const val STYLE_BUILDER = "LineChartDefaults.style"
     }

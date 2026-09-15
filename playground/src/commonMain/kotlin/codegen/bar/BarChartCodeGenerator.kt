@@ -49,10 +49,10 @@ internal class BarChartCodeGenerator(
         val BASE_IMPORTS =
             listOf(
                 "import androidx.compose.runtime.Composable",
-                "import io.github.dautovicharis.charts.BarChart",
-                "import io.github.dautovicharis.charts.model.toChartData",
+                "import io.github.hdcharts.charts.BarChart",
+                "import io.github.hdcharts.charts.model.toChartData",
             )
-        const val STYLE_IMPORT = "import io.github.dautovicharis.charts.style.BarChartDefaults"
+        const val STYLE_IMPORT = "import io.github.hdcharts.charts.style.BarChartDefaults"
         const val COMPONENT_NAME = "BarChart"
         const val STYLE_BUILDER = "BarChartDefaults.style"
     }
