@@ -6,9 +6,9 @@ import domain.ChartData
 import domain.LineStyleDefaults
 import domain.LineStyleState
 import domain.ValidatedChartSpec
-import io.github.dautovicharis.charts.LineChart
-import io.github.dautovicharis.charts.model.toChartData
-import io.github.dautovicharis.charts.style.LineChartDefaults
+import io.github.hdcharts.charts.LineChart
+import io.github.hdcharts.charts.model.toChartData
+import io.github.hdcharts.charts.style.LineChartDefaults
 import presentation.colors.toComposeColor
 
 @Composable

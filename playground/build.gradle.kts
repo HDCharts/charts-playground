@@ -10,8 +10,8 @@ val chartsDisplayVersion =
         ?.takeIf { it.isNotBlank() }
         ?: "dev-local"
 val localChartsModuleVersion = "dev-local"
-val localChartsDependency = "io.github.dautovicharis:charts:$localChartsModuleVersion"
-val localChartsSampleSharedDependency = "io.github.dautovicharis:sample-shared:$localChartsModuleVersion"
+val localChartsDependency = "io.github.hdcharts:charts:$localChartsModuleVersion"
+val localChartsSampleSharedDependency = "io.github.hdcharts:sample-shared:$localChartsModuleVersion"
 
 kotlin {
     jvmToolchain(

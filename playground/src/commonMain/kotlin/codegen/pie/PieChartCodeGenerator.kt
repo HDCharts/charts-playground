@@ -97,10 +97,10 @@ internal class PieChartCodeGenerator(
             listOf(
                 "import androidx.compose.runtime.Composable",
                 "import androidx.compose.runtime.remember",
-                "import io.github.dautovicharis.charts.PieChart",
-                "import io.github.dautovicharis.charts.model.PieSlice",
+                "import io.github.hdcharts.charts.PieChart",
+                "import io.github.hdcharts.charts.model.PieSlice",
             )
-        const val STYLE_IMPORT = "import io.github.dautovicharis.charts.style.PieChartDefaults"
+        const val STYLE_IMPORT = "import io.github.hdcharts.charts.style.PieChartDefaults"
         const val STYLE_BUILDER = "PieChartDefaults.style"
     }
 }

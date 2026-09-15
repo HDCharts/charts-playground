@@ -25,7 +25,7 @@ class RadarChartCodeGeneratorTest {
                 ),
             )
 
-        assertTrue(snippet.code.contains("import io.github.dautovicharis.charts.RadarChart"))
+        assertTrue(snippet.code.contains("import io.github.hdcharts.charts.RadarChart"))
         assertTrue(snippet.code.contains("fun PlaygroundRadarChartExample()"))
         assertTrue(snippet.code.contains("RadarChart(data = data, title = \"Platform Capability\")"))
         assertFalse(snippet.code.contains("RadarChartDefaults.style("))

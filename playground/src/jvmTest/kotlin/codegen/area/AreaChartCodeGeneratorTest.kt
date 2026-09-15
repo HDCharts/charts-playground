@@ -25,7 +25,7 @@ class AreaChartCodeGeneratorTest {
                 ),
             )
 
-        assertTrue(snippet.code.contains("import io.github.dautovicharis.charts.StackedAreaChart"))
+        assertTrue(snippet.code.contains("import io.github.hdcharts.charts.StackedAreaChart"))
         assertTrue(snippet.code.contains("fun PlaygroundAreaChartExample()"))
         assertTrue(snippet.code.contains("StackedAreaChart(data = data, title = \"Plan Distribution\")"))
         assertFalse(snippet.code.contains("StackedAreaChartDefaults.style("))

@@ -32,15 +32,15 @@ import chartsproject.playground.generated.resources.playground_metadata_charts
 import chartsproject.playground.generated.resources.playground_metadata_playground
 import chartsproject.playground.generated.resources.playground_metadata_published
 import chartsproject.playground.generated.resources.playground_title
-import chartsproject.sample_shared.generated.resources.charts_logo
 import config.BuildConfig
 import domain.ChartEditorState
 import domain.ChartType
 import domain.EditorAction
+import hdcharts.sample_shared.generated.resources.charts_logo
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import presentation.resources.chartTypeIconResource
-import chartsproject.sample_shared.generated.resources.Res as SharedRes
+import hdcharts.sample_shared.generated.resources.Res as SharedRes
 
 private const val CHARTS_GITHUB_URL = "https://github.com/HDCharts/charts"
 private const val PLAYGROUND_GITHUB_URL = "https://github.com/HDCharts/charts-playground"

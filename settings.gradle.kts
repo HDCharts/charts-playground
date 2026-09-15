@@ -42,9 +42,9 @@ check(
 
 includeBuild(localChartsDir) {
     dependencySubstitution {
-        substitute(module("io.github.dautovicharis:charts"))
+        substitute(module("io.github.hdcharts:charts"))
             .using(project(":charts"))
-        substitute(module("io.github.dautovicharis:sample-shared"))
+        substitute(module("io.github.hdcharts:sample-shared"))
             .using(project(":sample-shared"))
     }
 }

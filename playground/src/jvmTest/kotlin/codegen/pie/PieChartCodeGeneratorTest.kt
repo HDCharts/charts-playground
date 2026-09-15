@@ -27,7 +27,7 @@ class PieChartCodeGeneratorTest {
 
         assertTrue(snippet.code.contains("import androidx.compose.runtime.Composable"))
         assertTrue(snippet.code.contains("import androidx.compose.runtime.remember"))
-        assertTrue(snippet.code.contains("import io.github.dautovicharis.charts.PieChart"))
+        assertTrue(snippet.code.contains("import io.github.hdcharts.charts.PieChart"))
         assertTrue(snippet.code.contains("fun PlaygroundPieChartExample()"))
         assertTrue(snippet.code.contains("val data ="))
         assertTrue(snippet.code.contains("    remember {"))
