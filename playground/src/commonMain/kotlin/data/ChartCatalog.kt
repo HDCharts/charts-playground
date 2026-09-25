@@ -9,31 +9,22 @@ import data.charts.PieChartDefinition
 import data.charts.RadarChartDefinition
 import data.charts.StackedBarChartDefinition
 import domain.ChartCatalog
-import domain.ChartType
+
+/** Every chart, in navigation order: related chart families sit next to each other. */
+internal val playgroundCharts: List<PlaygroundChart> =
+    listOf(
+        LineChartDefinition,
+        MultiLineChartDefinition,
+        AreaChartDefinition,
+        BarChartDefinition,
+        StackedBarChartDefinition,
+        HistogramChartDefinition,
+        PieChartDefinition,
+        RadarChartDefinition,
+    )
 
 val chartCatalog: ChartCatalog =
     ChartCatalog(
-        charts =
-            listOf(
-                LineChartDefinition,
-                BarChartDefinition,
-                HistogramChartDefinition,
-                PieChartDefinition,
-                RadarChartDefinition,
-                AreaChartDefinition,
-                MultiLineChartDefinition,
-                StackedBarChartDefinition,
-            ),
-        // Navigation order: related chart families sit next to each other.
-        chartTypes =
-            listOf(
-                ChartType.LINE,
-                ChartType.MULTI_LINE,
-                ChartType.AREA,
-                ChartType.BAR,
-                ChartType.STACKED_BAR,
-                ChartType.HISTOGRAM,
-                ChartType.PIE,
-                ChartType.RADAR,
-            ),
+        charts = playgroundCharts,
+        chartTypes = playgroundCharts.map { it.type },
     )

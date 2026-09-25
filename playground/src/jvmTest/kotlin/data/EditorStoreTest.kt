@@ -2,14 +2,14 @@ package data
 
 import domain.ChartData
 import domain.ChartType
-import domain.ColorValue
 import domain.EditorAction
-import domain.LineStyleState
 import domain.RightPanelTab
 import domain.RowId
 import domain.SettingChange
-import domain.SettingDescriptor
+import domain.SettingControl
+import domain.StyleValue
 import domain.ValidationIssueCode
+import domain.styleSettings
 import io.github.hdcharts.sampleshared.data.barSampleUseCase
 import io.github.hdcharts.sampleshared.data.histogramSampleUseCase
 import io.github.hdcharts.sampleshared.data.lineSampleUseCase
@@ -18,6 +18,7 @@ import io.github.hdcharts.sampleshared.data.pieSampleUseCase
 import io.github.hdcharts.sampleshared.data.radarSampleUseCase
 import io.github.hdcharts.sampleshared.data.stackedAreaSampleUseCase
 import io.github.hdcharts.sampleshared.data.stackedBarSampleUseCase
+import testing.changeEverySetting
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -118,12 +119,12 @@ class EditorStoreTest {
     fun setting_changes_are_applied_by_the_store_and_regenerate_code() {
         val store = newStore()
 
-        store.dispatch(EditorAction.UpdateSetting(SettingChange.FloatValue("lineAlpha", 0.8f)))
+        store.dispatch(EditorAction.UpdateSetting(SettingChange("line.alpha", StyleValue.Number(0.8f))))
 
         val session =
             store.state.value.sessions
                 .getValue(ChartType.LINE)
-        assertEquals(0.8f, (session.draft.styleState as LineStyleState).lineAlpha)
+        assertEquals(StyleValue.Number(0.8f), session.draft.styleState["line.alpha"])
         assertTrue(session.generatedCode.contains("line = LineChartDefaults.line(alpha = 0.8f,"))
     }
 
@@ -137,44 +138,13 @@ class EditorStoreTest {
                 store.state.value.sessions
                     .getValue(definition.type)
 
-            session.settings.forEach { descriptor ->
-                when (descriptor) {
-                    is SettingDescriptor.Section,
-                    SettingDescriptor.Divider,
-                    -> Unit
-                    is SettingDescriptor.Toggle ->
-                        store.dispatch(
-                            EditorAction.UpdateSetting(
-                                SettingChange.BooleanValue(descriptor.id, !descriptor.defaultValue),
-                            ),
-                        )
-                    is SettingDescriptor.Slider ->
-                        store.dispatch(
-                            EditorAction.UpdateSetting(SettingChange.FloatValue(descriptor.id, descriptor.min)),
-                        )
-                    is SettingDescriptor.Dropdown ->
-                        store.dispatch(
-                            EditorAction.UpdateSetting(
-                                SettingChange.TextValue(descriptor.id, descriptor.options.first().value),
-                            ),
-                        )
-                    is SettingDescriptor.Color ->
-                        store.dispatch(
-                            EditorAction.UpdateSetting(
-                                SettingChange.ColorValue(descriptor.id, ColorValue(0xFFFF0000L)),
-                            ),
-                        )
-                    is SettingDescriptor.ColorPalette ->
-                        store.dispatch(
-                            EditorAction.UpdateSetting(
-                                SettingChange.ColorListValue(
-                                    descriptor.id,
-                                    List(descriptor.itemCount(session)) { ColorValue(0xFFFF0000L) },
-                                ),
-                            ),
-                        )
-                }
+            session.settings.changeEverySetting(session.validatedSpec.data).forEach { change ->
+                store.dispatch(EditorAction.UpdateSetting(change))
             }
+            val changed =
+                store.state.value.sessions
+                    .getValue(definition.type)
+            assertEquals(session.settings.styleSettings.size, changed.draft.styleState.values.size)
 
             assertTrue(
                 store.state.value.sessions
@@ -248,14 +218,14 @@ class EditorStoreTest {
         val store = newStore()
 
         store.dispatch(EditorAction.UpdateTitle("Changed"))
-        store.dispatch(EditorAction.UpdateSetting(SettingChange.FloatValue("lineAlpha", 0.2f)))
+        store.dispatch(EditorAction.UpdateSetting(SettingChange("line.alpha", StyleValue.Number(0.2f))))
         store.dispatch(EditorAction.Reset)
 
         val session =
             store.state.value.sessions
                 .getValue(ChartType.LINE)
-        assertEquals(domain.LINE_CHART_TITLE, session.draft.title)
-        assertEquals(null, (session.draft.styleState as LineStyleState).lineAlpha)
+        assertEquals(data.charts.LineChartDefinition.defaultTitle, session.draft.title)
+        assertEquals(null, session.draft.styleState["line.alpha"])
         assertTrue(session.generatedCode.isNotBlank())
     }
 
@@ -283,14 +253,13 @@ class EditorStoreTest {
         assertEquals(beforeRows.map { row -> row.id }, afterRows.dropLast(1).map { row -> row.id })
         assertEquals(afterRows.last().cells.getValue("label"), afterData.labels?.last())
 
-        val descriptor =
-            chartCatalog
-                .definition(ChartType.PIE)
-                .settingsSchema(afterSession)
-                .filterIsInstance<SettingDescriptor.ColorPalette>()
+        val palette =
+            afterSession.settings.styleSettings
+                .map { it.control }
+                .filterIsInstance<SettingControl.Palette>()
                 .firstOrNull()
-        assertNotNull(descriptor)
-        assertEquals(afterData.values.size, descriptor.itemCount(afterSession))
+        assertNotNull(palette)
+        assertEquals(afterData.values.size, palette.itemCount(afterSession.validatedSpec.data))
     }
 
     @Test
@@ -355,7 +324,7 @@ class EditorStoreTest {
                 .getValue(ChartType.MULTI_LINE)
                 .validatedSpec.data as ChartData.MultiSeries
         val multiLineDataSet = multiLineSampleUseCase().initialMultiLineSample().dataSet
-        assertEquals(multiLineDataSet.categories.toList(), multiLineData.xLabels)
+        assertEquals(multiLineDataSet.categories.toList(), multiLineData.categories)
         assertEquals(
             multiLineDataSet.series.map { item -> item.name.orEmpty() },
             multiLineData.series.map { series -> series.name },
@@ -370,7 +339,7 @@ class EditorStoreTest {
                 .getValue(ChartType.AREA)
                 .validatedSpec.data as ChartData.MultiSeries
         val areaDataSet = stackedAreaSampleUseCase().initialStackedAreaSample().data
-        assertEquals(areaDataSet.categories.toList(), areaData.xLabels)
+        assertEquals(areaDataSet.categories.toList(), areaData.categories)
         assertEquals(
             areaDataSet.series.map { item -> item.name.orEmpty() },
             areaData.series.map { series -> series.name },
@@ -380,36 +349,20 @@ class EditorStoreTest {
             areaData.series.map { series -> series.values },
         )
 
-        val stackedBarData =
-            state.sessions
-                .getValue(
-                    ChartType.STACKED_BAR,
-                ).validatedSpec.data as ChartData.StackedSeries
-        val stackedBarDataSet = stackedBarSampleUseCase().initialStackedBarSample().dataSet
-        assertEquals(stackedBarDataSet.series.map { item -> item.name.orEmpty() }, stackedBarData.segmentNames)
-        assertEquals(stackedBarDataSet.categories.toList(), stackedBarData.bars.map { bar -> bar.label })
-        assertEquals(
-            stackedBarDataSet.categories.indices.map { categoryIndex ->
-                stackedBarDataSet.series.map { item ->
-                    item.values[categoryIndex].toFloat()
-                }
-            },
-            stackedBarData.bars.map { bar -> bar.values },
-        )
-
-        val radarData =
-            state.sessions
-                .getValue(ChartType.RADAR)
-                .validatedSpec.data as ChartData.RadarSeries
-        val radarDataSet = radarSampleUseCase().initialRadarSample().customData
-        assertEquals(radarDataSet.categories.toList(), radarData.axes)
-        assertEquals(
-            radarDataSet.series.map { item -> item.name.orEmpty() },
-            radarData.entries.map { entry -> entry.name },
-        )
-        assertEquals(
-            radarDataSet.series.map { item -> item.values.map(Double::toFloat) },
-            radarData.entries.map { entry -> entry.values },
-        )
+        listOf(
+            ChartType.STACKED_BAR to stackedBarSampleUseCase().initialStackedBarSample().dataSet,
+            ChartType.RADAR to radarSampleUseCase().initialRadarSample().customData,
+        ).forEach { (type, dataSet) ->
+            val data =
+                state.sessions
+                    .getValue(type)
+                    .validatedSpec.data as ChartData.MultiSeries
+            assertEquals(dataSet.categories.toList(), data.categories)
+            assertEquals(dataSet.series.map { item -> item.name.orEmpty() }, data.series.map { series -> series.name })
+            assertEquals(
+                dataSet.series.map { item -> item.values.map(Double::toFloat) },
+                data.series.map { series -> series.values },
+            )
+        }
     }
 }

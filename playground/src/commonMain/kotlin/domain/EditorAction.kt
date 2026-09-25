@@ -1,33 +1,10 @@
 package domain
 
-sealed interface SettingChange {
-    val id: String
-
-    data class BooleanValue(
-        override val id: String,
-        val value: Boolean,
-    ) : SettingChange
-
-    data class FloatValue(
-        override val id: String,
-        val value: Float,
-    ) : SettingChange
-
-    data class TextValue(
-        override val id: String,
-        val value: String,
-    ) : SettingChange
-
-    data class ColorValue(
-        override val id: String,
-        val value: domain.ColorValue?,
-    ) : SettingChange
-
-    data class ColorListValue(
-        override val id: String,
-        val value: List<domain.ColorValue>?,
-    ) : SettingChange
-}
+/** Sets a style value, or resets it to the default when [value] is null. */
+data class SettingChange(
+    val path: String,
+    val value: StyleValue?,
+)
 
 sealed interface EditorAction {
     data class SelectChart(

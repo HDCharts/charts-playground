@@ -10,9 +10,9 @@ import domain.EditorAction
 import domain.EditorStore
 import domain.RightPanelTab
 import domain.SettingChange
-import domain.SettingDescriptor
 import domain.SnapshotPublishMetadata
 import domain.ValidatedChartSpec
+import domain.styleSettings
 import domain.toUI
 import domain.updateCell
 import domain.withAddedRow
@@ -78,8 +78,8 @@ class InMemoryEditorStore(
                     applyValidation(session, definition, definition.randomize(session.draft.dataTable))
                 }
             EditorAction.Reset ->
-                updateCurrentSession(state) { session, definition ->
-                    newSession(definition)
+                updateCurrentSession(state) { _, definition ->
+                    definition.resetSession()
                 }
         }
 
@@ -90,7 +90,7 @@ class InMemoryEditorStore(
         val chartType = state.selectedChartType
         val definition = catalog.definition(chartType)
         val current = state.sessions.getValue(chartType)
-        val next = refresh(definition, update(current, definition))
+        val next = update(current, definition).withGeneratedCode(codegenService)
         return state.copy(sessions = state.sessions + (chartType to next))
     }
 
@@ -98,8 +98,8 @@ class InMemoryEditorStore(
         session: ChartSession,
         change: SettingChange,
     ): ChartSession {
-        val descriptor = session.settings.firstOrNull { descriptor -> descriptor.matches(change) } ?: return session
-        val nextStyle = descriptor.applyChange(session.draft.styleState, change) ?: return session
+        if (session.settings.styleSettings.none { it.path == change.path }) return session
+        val nextStyle = session.draft.styleState.with(change.path, change.value)
         return session.copy(
             draft = session.draft.copy(styleState = nextStyle),
             validatedSpec = session.validatedSpec.copy(styleState = nextStyle),
@@ -139,17 +139,6 @@ class InMemoryEditorStore(
             validation = ChartValidationState.Valid(result.issues, result.appliedRowCount),
         )
     }
-
-    private fun newSession(definition: ChartDefinition): ChartSession = refresh(definition, definition.resetSession())
-
-    private fun refresh(
-        definition: ChartDefinition,
-        session: ChartSession,
-    ): ChartSession =
-        session.copy(
-            settings = definition.settingsSchema(session),
-            generatedCode = codegenService.generate(session.validatedSpec),
-        )
 }
 
 private fun defaultEditorState(
@@ -159,7 +148,7 @@ private fun defaultEditorState(
 ): ChartEditorState {
     val sessions =
         catalog.charts.associate { definition ->
-            definition.type to initialSession(definition, codegenService)
+            definition.type to definition.resetSession().withGeneratedCode(codegenService)
         }
     val initialType = catalog.chartTypes.firstOrNull() ?: catalog.charts.first().type
     return ChartEditorState(
@@ -171,38 +160,5 @@ private fun defaultEditorState(
     )
 }
 
-private fun SettingDescriptor.matches(change: SettingChange): Boolean =
-    when (this) {
-        is SettingDescriptor.Section,
-        SettingDescriptor.Divider,
-        -> false
-        is SettingDescriptor.Toggle -> id == change.id
-        is SettingDescriptor.Slider -> id == change.id
-        is SettingDescriptor.Dropdown -> id == change.id
-        is SettingDescriptor.Color -> id == change.id
-        is SettingDescriptor.ColorPalette -> id == change.id
-    }
-
-private fun SettingDescriptor.applyChange(
-    style: domain.ChartStyleState,
-    change: SettingChange,
-): domain.ChartStyleState? =
-    when {
-        this is SettingDescriptor.Toggle && change is SettingChange.BooleanValue -> write(style, change.value)
-        this is SettingDescriptor.Slider && change is SettingChange.FloatValue -> write(style, change.value)
-        this is SettingDescriptor.Dropdown && change is SettingChange.TextValue -> write(style, change.value)
-        this is SettingDescriptor.Color && change is SettingChange.ColorValue -> write(style, change.value)
-        this is SettingDescriptor.ColorPalette && change is SettingChange.ColorListValue -> write(style, change.value)
-        else -> null
-    }
-
-private fun initialSession(
-    definition: ChartDefinition,
-    codegenService: ChartCodegenService,
-): ChartSession =
-    definition.resetSession().let { session ->
-        session.copy(
-            settings = definition.settingsSchema(session),
-            generatedCode = codegenService.generate(session.validatedSpec),
-        )
-    }
+private fun ChartSession.withGeneratedCode(codegenService: ChartCodegenService): ChartSession =
+    copy(generatedCode = codegenService.generate(validatedSpec))

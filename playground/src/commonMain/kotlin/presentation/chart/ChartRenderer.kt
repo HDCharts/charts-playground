@@ -2,6 +2,7 @@ package presentation.chart
 
 import androidx.compose.runtime.Composable
 import domain.ChartType
+import domain.SettingDescriptor
 import domain.ValidatedChartSpec
 import presentation.chart.renderers.AreaChartRenderer
 import presentation.chart.renderers.BarChartRenderer
@@ -16,15 +17,17 @@ import presentation.chart.renderers.StackedBarChartRenderer
 internal fun ChartRenderer(
     type: ChartType,
     spec: ValidatedChartSpec,
+    settings: List<SettingDescriptor>,
 ) {
+    val styleReader = StyleReader.active(settings, spec.styleState)
     when (type) {
-        ChartType.PIE -> PieChartRenderer(spec)
-        ChartType.LINE -> LineChartRenderer(spec)
-        ChartType.MULTI_LINE -> MultiLineChartRenderer(spec)
-        ChartType.BAR -> BarChartRenderer(spec)
-        ChartType.HISTOGRAM -> HistogramChartRenderer(spec)
-        ChartType.STACKED_BAR -> StackedBarChartRenderer(spec)
-        ChartType.AREA -> AreaChartRenderer(spec)
-        ChartType.RADAR -> RadarChartRenderer(spec)
+        ChartType.PIE -> PieChartRenderer(spec, styleReader)
+        ChartType.LINE -> LineChartRenderer(spec, styleReader)
+        ChartType.MULTI_LINE -> MultiLineChartRenderer(spec, styleReader)
+        ChartType.BAR -> BarChartRenderer(spec, styleReader)
+        ChartType.HISTOGRAM -> HistogramChartRenderer(spec, styleReader)
+        ChartType.STACKED_BAR -> StackedBarChartRenderer(spec, styleReader)
+        ChartType.AREA -> AreaChartRenderer(spec, styleReader)
+        ChartType.RADAR -> RadarChartRenderer(spec, styleReader)
     }
 }

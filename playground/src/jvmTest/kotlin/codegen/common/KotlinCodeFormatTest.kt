@@ -31,18 +31,4 @@ class KotlinCodeFormatTest {
         assertTrue("NaN" !in extremeLiteral)
         assertTrue("Infinity" !in extremeLiteral)
     }
-
-    @Test
-    fun style_arguments_have_stable_name_order() {
-        val arguments =
-            resolveStyleArguments(
-                styleProperties =
-                    codegen.StylePropertiesSnapshot(
-                        current = listOf(codegen.styleProperty("zIndex", 1f), codegen.styleProperty("alpha", 0.5f)),
-                        defaults = emptyList(),
-                    ),
-            )
-
-        assertEquals(listOf("alpha = 0.5f,", "zIndex = 1f,"), arguments.map { it.code })
-    }
 }
