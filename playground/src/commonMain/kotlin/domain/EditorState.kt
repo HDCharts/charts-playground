@@ -9,7 +9,6 @@ data class ChartEditorState(
     val selectedChartType: ChartType,
     val rightPanelTab: RightPanelTab,
     val sessions: Map<ChartType, ChartSession>,
-    val primaryChartTypes: List<ChartType>,
-    val overflowChartTypes: List<ChartType>,
+    val chartTypes: List<ChartType>,
     val snapshotMetadata: SnapshotMetadataUi? = null,
 )

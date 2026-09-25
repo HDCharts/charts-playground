@@ -28,8 +28,7 @@ class EditorViewModelTest {
                     selectedChartType = ChartType.LINE,
                     rightPanelTab = RightPanelTab.SETTINGS,
                     sessions = emptyMap(),
-                    primaryChartTypes = emptyList(),
-                    overflowChartTypes = emptyList(),
+                    chartTypes = emptyList(),
                 ),
             )
 

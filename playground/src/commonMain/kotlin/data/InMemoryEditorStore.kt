@@ -161,13 +161,12 @@ private fun defaultEditorState(
         catalog.charts.associate { definition ->
             definition.type to initialSession(definition, codegenService)
         }
-    val initialType = catalog.primaryChartTypes.firstOrNull() ?: catalog.charts.first().type
+    val initialType = catalog.chartTypes.firstOrNull() ?: catalog.charts.first().type
     return ChartEditorState(
         selectedChartType = initialType,
         rightPanelTab = RightPanelTab.SETTINGS,
         sessions = sessions,
-        primaryChartTypes = catalog.primaryChartTypes,
-        overflowChartTypes = catalog.overflowChartTypes,
+        chartTypes = catalog.chartTypes,
         snapshotMetadata = snapshotMetadata?.toUI(),
     )
 }
