@@ -1,6 +1,8 @@
 package presentation.editor
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.HorizontalScrollbar
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -14,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -47,6 +50,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import chartsproject.playground.generated.resources.Res
 import chartsproject.playground.generated.resources.playground_editor_add_row
@@ -65,6 +69,9 @@ import domain.RowId
 import domain.ValidationPath
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
+
+// Width of one column weight unit; below this, data columns scroll horizontally instead of shrinking.
+private val MinColumnUnitWidth = 88.dp
 
 private enum class ConfirmationAction {
     RANDOMIZE,
@@ -119,261 +126,310 @@ fun DataTableEditor(
         shape = RoundedCornerShape(16.dp),
         tonalElevation = 2.dp,
     ) {
+        val fillHeightModifier = if (expandToFillHeight) Modifier.fillMaxHeight() else Modifier
         val panelModifier =
             Modifier
                 .fillMaxWidth()
-                .then(if (expandToFillHeight) Modifier.fillMaxHeight() else Modifier)
+                .then(fillHeightModifier)
                 .padding(16.dp)
 
-        Column(modifier = panelModifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-                val showCompactActions = maxWidth < EditorCompactLayoutBreakpoint
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    if (showCompactActions) {
-                        IconButton(onClick = onAddRow) {
-                            Icon(
-                                imageVector = Icons.Filled.Add,
-                                contentDescription = stringResource(Res.string.playground_editor_add_row),
-                            )
-                        }
-                        IconButton(onClick = { confirmationAction = ConfirmationAction.RANDOMIZE }) {
-                            Icon(
-                                imageVector = Icons.Filled.Shuffle,
-                                contentDescription = stringResource(Res.string.playground_editor_randomize),
-                            )
-                        }
-                        IconButton(onClick = { confirmationAction = ConfirmationAction.RESET }) {
-                            Icon(
-                                imageVector = Icons.Filled.Refresh,
-                                contentDescription = stringResource(Res.string.playground_editor_reset),
-                            )
-                        }
-                        Spacer(modifier = Modifier.weight(1f))
-                    } else {
-                        Button(
-                            onClick = onAddRow,
-                            colors =
-                                ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                                ),
-                            modifier = Modifier.weight(1f),
-                        ) {
-                            Text(
-                                text = stringResource(Res.string.playground_editor_add_row),
-                                maxLines = 1,
-                                softWrap = false,
-                                overflow = TextOverflow.Ellipsis,
-                            )
-                        }
-                        Button(
-                            onClick = { confirmationAction = ConfirmationAction.RANDOMIZE },
-                            colors = ButtonDefaults.outlinedButtonColors(),
-                            modifier = Modifier.weight(1f),
-                        ) {
-                            Text(
-                                text = stringResource(Res.string.playground_editor_randomize),
-                                maxLines = 1,
-                                softWrap = false,
-                                overflow = TextOverflow.Ellipsis,
-                            )
-                        }
-                        Button(
-                            onClick = { confirmationAction = ConfirmationAction.RESET },
-                            colors = ButtonDefaults.outlinedButtonColors(),
-                            modifier = Modifier.weight(1f),
-                        ) {
-                            Text(
-                                text = stringResource(Res.string.playground_editor_reset),
-                                maxLines = 1,
-                                softWrap = false,
-                                overflow = TextOverflow.Ellipsis,
-                            )
-                        }
-                    }
-                }
-            }
-
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.75f),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.75f)),
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().height(cellHeight),
-                    horizontalArrangement = Arrangement.spacedBy(0.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Box(
-                        modifier = Modifier.width(rowNumberColumnWidth).fillMaxHeight(),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            text = stringResource(Res.string.playground_editor_row_number_header),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                    VerticalDivider(
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.75f),
-                        modifier = Modifier.fillMaxHeight(),
-                    )
-                    dataTable.columns.forEachIndexed { index, column ->
-                        Box(
-                            modifier = Modifier.weight(column.weight).fillMaxHeight().padding(horizontal = 10.dp),
-                            contentAlignment = Alignment.CenterStart,
-                        ) {
-                            Text(
-                                text = column.label,
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                        if (index < dataTable.columns.lastIndex) {
-                            VerticalDivider(
-                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.75f),
-                                modifier = Modifier.fillMaxHeight(),
-                            )
-                        }
-                    }
-                    Box(modifier = Modifier.width(actionColumnWidth).fillMaxHeight())
-                }
-            }
-            HorizontalDivider()
+        BoxWithConstraints(modifier = panelModifier) {
+            val totalColumnWeight = dataTable.columns.sumOf { column -> column.weight.toDouble() }.toFloat()
+            val fittedColumnUnitWidth = (maxWidth - rowNumberColumnWidth - actionColumnWidth) / totalColumnWeight
+            val columnsOverflow = fittedColumnUnitWidth < MinColumnUnitWidth
+            val columnUnitWidth = fittedColumnUnitWidth.coerceAtLeast(MinColumnUnitWidth)
+            val columnsScrollState = rememberScrollState()
 
             Column(
-                modifier =
-                    if (expandToFillHeight) {
-                        Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState())
-                    } else {
-                        Modifier.fillMaxWidth()
-                    },
-                verticalArrangement = Arrangement.spacedBy(0.dp),
+                modifier = Modifier.fillMaxWidth().then(fillHeightModifier),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                visibleRows.forEachIndexed { visualRowIndex, row ->
-                    val rowIndex = dataTable.rows.lastIndex - visualRowIndex
-                    val rowContainerColor =
-                        when {
-                            row.id in invalidRowIds ->
-                                MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.32f)
-                            row.id == highlightedRowId ->
-                                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.25f)
-                            visualRowIndex % 2 == 0 -> MaterialTheme.colorScheme.surface
-                            else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.16f)
-                        }
+                BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                    val showCompactActions = maxWidth < EditorCompactLayoutBreakpoint
                     Row(
                         modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        if (showCompactActions) {
+                            IconButton(onClick = onAddRow) {
+                                Icon(
+                                    imageVector = Icons.Filled.Add,
+                                    contentDescription = stringResource(Res.string.playground_editor_add_row),
+                                )
+                            }
+                            IconButton(onClick = { confirmationAction = ConfirmationAction.RANDOMIZE }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Shuffle,
+                                    contentDescription = stringResource(Res.string.playground_editor_randomize),
+                                )
+                            }
+                            IconButton(onClick = { confirmationAction = ConfirmationAction.RESET }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Refresh,
+                                    contentDescription = stringResource(Res.string.playground_editor_reset),
+                                )
+                            }
+                            Spacer(modifier = Modifier.weight(1f))
+                        } else {
+                            Button(
+                                onClick = onAddRow,
+                                colors =
+                                    ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    ),
+                                modifier = Modifier.weight(1f),
+                            ) {
+                                Text(
+                                    text = stringResource(Res.string.playground_editor_add_row),
+                                    maxLines = 1,
+                                    softWrap = false,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            }
+                            Button(
+                                onClick = { confirmationAction = ConfirmationAction.RANDOMIZE },
+                                colors = ButtonDefaults.outlinedButtonColors(),
+                                modifier = Modifier.weight(1f),
+                            ) {
+                                Text(
+                                    text = stringResource(Res.string.playground_editor_randomize),
+                                    maxLines = 1,
+                                    softWrap = false,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            }
+                            Button(
+                                onClick = { confirmationAction = ConfirmationAction.RESET },
+                                colors = ButtonDefaults.outlinedButtonColors(),
+                                modifier = Modifier.weight(1f),
+                            ) {
+                                Text(
+                                    text = stringResource(Res.string.playground_editor_reset),
+                                    maxLines = 1,
+                                    softWrap = false,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.75f),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.75f)),
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().height(cellHeight),
                         horizontalArrangement = Arrangement.spacedBy(0.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Surface(
-                            modifier = Modifier.width(rowNumberColumnWidth),
-                            color = rowContainerColor,
-                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.75f)),
+                        Box(
+                            modifier = Modifier.width(rowNumberColumnWidth).fillMaxHeight(),
+                            contentAlignment = Alignment.Center,
                         ) {
-                            Box(
-                                modifier = Modifier.fillMaxWidth().height(cellHeight),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                Text(
-                                    text = (rowIndex + 1).toString(),
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
+                            Text(
+                                text = stringResource(Res.string.playground_editor_row_number_header),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            VerticalDivider(
+                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.75f),
+                                modifier = Modifier.fillMaxHeight().align(Alignment.CenterEnd),
+                            )
                         }
-                        dataTable.columns.forEach { column ->
-                            val isInvalidCell =
-                                ValidationPath(rowId = row.id, columnId = column.id) in invalidCellPaths
-                            Surface(
-                                modifier = Modifier.weight(column.weight),
-                                color = rowContainerColor,
-                                border =
-                                    BorderStroke(
-                                        1.dp,
-                                        if (isInvalidCell) {
-                                            MaterialTheme.colorScheme.error
-                                        } else {
-                                            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.75f)
-                                        },
-                                    ),
-                            ) {
-                                TextField(
-                                    value = row.cells[column.id].orEmpty(),
-                                    onValueChange = { nextValue ->
-                                        onCellChange(row.id, column.id, nextValue)
-                                    },
-                                    singleLine = true,
-                                    isError = isInvalidCell,
-                                    modifier =
-                                        Modifier
-                                            .fillMaxWidth()
-                                            .height(cellHeight)
-                                            .semantics {
-                                                contentDescription = "${column.label}, row ${rowIndex + 1}"
-                                            },
-                                    colors =
-                                        TextFieldDefaults.colors(
-                                            focusedContainerColor = Color.Transparent,
-                                            unfocusedContainerColor = Color.Transparent,
-                                            disabledContainerColor = Color.Transparent,
-                                            focusedIndicatorColor = Color.Transparent,
-                                            unfocusedIndicatorColor = Color.Transparent,
-                                            disabledIndicatorColor = Color.Transparent,
-                                        ),
-                                )
-                            }
-                        }
-
-                        Surface(
-                            modifier = Modifier.width(actionColumnWidth),
-                            color = rowContainerColor,
-                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.75f)),
-                        ) {
-                            Box(
-                                modifier = Modifier.fillMaxWidth().height(cellHeight),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                IconButton(
-                                    onClick = { onDeleteRow(row.id) },
-                                    enabled = canDeleteRows,
-                                    modifier = Modifier.alpha(if (canDeleteRows) 1f else 0.45f),
+                        Row(modifier = Modifier.weight(1f).fillMaxHeight().horizontalScroll(columnsScrollState)) {
+                            dataTable.columns.forEachIndexed { index, column ->
+                                Box(
+                                    modifier = Modifier.width(columnUnitWidth * column.weight).fillMaxHeight(),
+                                    contentAlignment = Alignment.CenterStart,
                                 ) {
-                                    Icon(
-                                        Icons.Filled.Delete,
-                                        contentDescription =
-                                            stringResource(Res.string.playground_editor_delete_row_content_description),
-                                        modifier = Modifier.size(16.dp),
+                                    Text(
+                                        text = column.label,
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier.padding(horizontal = 10.dp),
                                     )
+                                    if (index < dataTable.columns.lastIndex) {
+                                        VerticalDivider(
+                                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.75f),
+                                            modifier = Modifier.fillMaxHeight().align(Alignment.CenterEnd),
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                        Box(modifier = Modifier.width(actionColumnWidth).fillMaxHeight())
+                    }
+                }
+                HorizontalDivider()
+
+                // Rows shrink to their content so the scrollbar sits right below the last row.
+                Column(
+                    modifier =
+                        if (expandToFillHeight) {
+                            Modifier.fillMaxWidth().weight(1f)
+                        } else {
+                            Modifier.fillMaxWidth()
+                        },
+                ) {
+                    Column(
+                        modifier =
+                            if (expandToFillHeight) {
+                                Modifier.fillMaxWidth().weight(1f, fill = false).verticalScroll(rememberScrollState())
+                            } else {
+                                Modifier.fillMaxWidth()
+                            },
+                        verticalArrangement = Arrangement.spacedBy(0.dp),
+                    ) {
+                        visibleRows.forEachIndexed { visualRowIndex, row ->
+                            val rowIndex = dataTable.rows.lastIndex - visualRowIndex
+                            val rowContainerColor =
+                                when {
+                                    row.id in invalidRowIds ->
+                                        MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.32f)
+                                    row.id == highlightedRowId ->
+                                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.25f)
+                                    visualRowIndex % 2 == 0 -> MaterialTheme.colorScheme.surface
+                                    else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.16f)
+                                }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(0.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Surface(
+                                    modifier = Modifier.width(rowNumberColumnWidth),
+                                    color = rowContainerColor,
+                                    border =
+                                        BorderStroke(
+                                            1.dp,
+                                            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.75f),
+                                        ),
+                                ) {
+                                    Box(
+                                        modifier = Modifier.fillMaxWidth().height(cellHeight),
+                                        contentAlignment = Alignment.Center,
+                                    ) {
+                                        Text(
+                                            text = (rowIndex + 1).toString(),
+                                            style = MaterialTheme.typography.labelMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                    }
+                                }
+                                Row(modifier = Modifier.weight(1f).horizontalScroll(columnsScrollState)) {
+                                    dataTable.columns.forEach { column ->
+                                        val isInvalidCell =
+                                            ValidationPath(rowId = row.id, columnId = column.id) in invalidCellPaths
+                                        Surface(
+                                            modifier = Modifier.width(columnUnitWidth * column.weight),
+                                            color = rowContainerColor,
+                                            border =
+                                                BorderStroke(
+                                                    1.dp,
+                                                    if (isInvalidCell) {
+                                                        MaterialTheme.colorScheme.error
+                                                    } else {
+                                                        MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.75f)
+                                                    },
+                                                ),
+                                        ) {
+                                            TextField(
+                                                value = row.cells[column.id].orEmpty(),
+                                                onValueChange = { nextValue ->
+                                                    onCellChange(row.id, column.id, nextValue)
+                                                },
+                                                singleLine = true,
+                                                isError = isInvalidCell,
+                                                modifier =
+                                                    Modifier
+                                                        .fillMaxWidth()
+                                                        .height(cellHeight)
+                                                        .semantics {
+                                                            contentDescription = "${column.label}, row ${rowIndex + 1}"
+                                                        },
+                                                colors =
+                                                    TextFieldDefaults.colors(
+                                                        focusedContainerColor = Color.Transparent,
+                                                        unfocusedContainerColor = Color.Transparent,
+                                                        disabledContainerColor = Color.Transparent,
+                                                        focusedIndicatorColor = Color.Transparent,
+                                                        unfocusedIndicatorColor = Color.Transparent,
+                                                        disabledIndicatorColor = Color.Transparent,
+                                                    ),
+                                            )
+                                        }
+                                    }
+                                }
+
+                                Surface(
+                                    modifier = Modifier.width(actionColumnWidth),
+                                    color = rowContainerColor,
+                                    border =
+                                        BorderStroke(
+                                            1.dp,
+                                            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.75f),
+                                        ),
+                                ) {
+                                    Box(
+                                        modifier = Modifier.fillMaxWidth().height(cellHeight),
+                                        contentAlignment = Alignment.Center,
+                                    ) {
+                                        IconButton(
+                                            onClick = { onDeleteRow(row.id) },
+                                            enabled = canDeleteRows,
+                                            modifier = Modifier.alpha(if (canDeleteRows) 1f else 0.45f),
+                                        ) {
+                                            Icon(
+                                                Icons.Filled.Delete,
+                                                contentDescription =
+                                                    stringResource(
+                                                        Res.string.playground_editor_delete_row_content_description,
+                                                    ),
+                                                modifier = Modifier.size(16.dp),
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
-                }
-            }
 
-            validationMessage?.let { message ->
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text(
-                        text = message,
-                        color =
-                            if (!validationIsBlocking) {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            } else {
-                                MaterialTheme.colorScheme.error
-                            },
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                    if (validationIsBlocking) {
+                    if (columnsOverflow) {
+                        HorizontalScrollbar(
+                            adapter = rememberScrollbarAdapter(columnsScrollState),
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(start = rowNumberColumnWidth, end = actionColumnWidth, top = 4.dp),
+                        )
+                    }
+                }
+
+                validationMessage?.let { message ->
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Text(
-                            text = stringResource(Res.string.playground_editor_preview_unchanged),
-                            color = MaterialTheme.colorScheme.error,
+                            text = message,
+                            color =
+                                if (!validationIsBlocking) {
+                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                } else {
+                                    MaterialTheme.colorScheme.error
+                                },
                             style = MaterialTheme.typography.bodySmall,
                         )
+                        if (validationIsBlocking) {
+                            Text(
+                                text = stringResource(Res.string.playground_editor_preview_unchanged),
+                                color = MaterialTheme.colorScheme.error,
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
                     }
                 }
             }

@@ -35,7 +35,11 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun EditorRoute(viewModel: EditorViewModel) {
+fun EditorRoute(
+    viewModel: EditorViewModel,
+    darkTheme: Boolean,
+    onToggleTheme: () -> Unit,
+) {
     val state by viewModel.state.collectAsState()
     val clipboard = LocalClipboard.current
     val uriHandler = LocalUriHandler.current
@@ -45,6 +49,8 @@ fun EditorRoute(viewModel: EditorViewModel) {
         onAction = viewModel::dispatch,
         onCopyCode = { code -> copyTextToClipboard(clipboard, code) },
         onOpenUri = uriHandler::openUri,
+        darkTheme = darkTheme,
+        onToggleTheme = onToggleTheme,
     )
 }
 
@@ -54,6 +60,8 @@ fun EditorScreen(
     onAction: (EditorAction) -> Unit,
     onCopyCode: suspend (String) -> Boolean,
     onOpenUri: (String) -> Unit,
+    darkTheme: Boolean,
+    onToggleTheme: () -> Unit,
 ) {
     Surface(modifier = Modifier.fillMaxSize()) {
         BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
@@ -65,6 +73,8 @@ fun EditorScreen(
                         snapshotMetadata = state.snapshotMetadata,
                         onTypeSelected = { chartType -> onAction(EditorAction.SelectChart(chartType)) },
                         onOpenUri = onOpenUri,
+                        darkTheme = darkTheme,
+                        onToggleTheme = onToggleTheme,
                     )
                     ChartTypeRailDivider()
                     EditorContent(
@@ -80,6 +90,8 @@ fun EditorScreen(
                     onAction = onAction,
                     onCopyCode = onCopyCode,
                     onOpenUri = onOpenUri,
+                    darkTheme = darkTheme,
+                    onToggleTheme = onToggleTheme,
                 )
             }
         }
@@ -92,6 +104,8 @@ private fun CompactEditorScreen(
     onAction: (EditorAction) -> Unit,
     onCopyCode: suspend (String) -> Boolean,
     onOpenUri: (String) -> Unit,
+    darkTheme: Boolean,
+    onToggleTheme: () -> Unit,
 ) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -130,6 +144,10 @@ private fun CompactEditorScreen(
                         text = state.selectedChartType.displayName,
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    ThemeToggleButton(
+                        darkTheme = darkTheme,
+                        onToggle = onToggleTheme,
                     )
                     BuildInfoButton(
                         snapshotMetadata = state.snapshotMetadata,

@@ -20,6 +20,8 @@
     <string name="playground_chart_title_label">Chart title</string>
     <string name="playground_nav_build_info">Build info</string>
     <string name="playground_nav_open_menu">Open chart menu</string>
+    <string name="playground_nav_switch_to_dark">Switch to dark theme</string>
+    <string name="playground_nav_switch_to_light">Switch to light theme</string>
     <string name="playground_right_panel_settings">Settings</string>
     <string name="playground_right_panel_code">Code</string>
     <string name="playground_code_title">Code</string>
