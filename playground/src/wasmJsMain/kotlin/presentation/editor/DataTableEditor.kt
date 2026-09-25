@@ -127,7 +127,7 @@ fun DataTableEditor(
 
         Column(modifier = panelModifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
             BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-                val showCompactActions = maxWidth < EditorCompactHeaderBreakpoint
+                val showCompactActions = maxWidth < EditorCompactLayoutBreakpoint
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),

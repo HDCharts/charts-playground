@@ -24,18 +24,16 @@ val chartCatalog: ChartCatalog =
                 MultiLineChartDefinition,
                 StackedBarChartDefinition,
             ),
-        primaryChartTypes =
+        // Navigation order: related chart families sit next to each other.
+        chartTypes =
             listOf(
                 ChartType.LINE,
+                ChartType.MULTI_LINE,
+                ChartType.AREA,
                 ChartType.BAR,
+                ChartType.STACKED_BAR,
+                ChartType.HISTOGRAM,
                 ChartType.PIE,
                 ChartType.RADAR,
-                ChartType.AREA,
-            ),
-        overflowChartTypes =
-            listOf(
-                ChartType.MULTI_LINE,
-                ChartType.HISTOGRAM,
-                ChartType.STACKED_BAR,
             ),
     )

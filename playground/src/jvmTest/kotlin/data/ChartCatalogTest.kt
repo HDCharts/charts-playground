@@ -13,12 +13,17 @@ class ChartCatalogTest {
         assertEquals(ChartType.entries.toSet(), types.toSet())
         assertEquals(types.size, types.toSet().size)
         assertEquals(
-            listOf(ChartType.LINE, ChartType.BAR, ChartType.PIE, ChartType.RADAR, ChartType.AREA),
-            chartCatalog.primaryChartTypes,
-        )
-        assertEquals(
-            listOf(ChartType.MULTI_LINE, ChartType.HISTOGRAM, ChartType.STACKED_BAR),
-            chartCatalog.overflowChartTypes,
+            listOf(
+                ChartType.LINE,
+                ChartType.MULTI_LINE,
+                ChartType.AREA,
+                ChartType.BAR,
+                ChartType.STACKED_BAR,
+                ChartType.HISTOGRAM,
+                ChartType.PIE,
+                ChartType.RADAR,
+            ),
+            chartCatalog.chartTypes,
         )
     }
 
@@ -30,16 +35,16 @@ class ChartCatalogTest {
     }
 
     @Test
-    fun catalog_rejects_duplicate_primary_types() {
+    fun catalog_rejects_duplicate_navigation_types() {
         assertFailsWith<IllegalArgumentException> {
-            chartCatalog.copy(primaryChartTypes = chartCatalog.primaryChartTypes + ChartType.LINE)
+            chartCatalog.copy(chartTypes = chartCatalog.chartTypes + ChartType.LINE)
         }
     }
 
     @Test
-    fun catalog_rejects_duplicate_overflow_types() {
+    fun catalog_rejects_navigation_types_missing_a_chart() {
         assertFailsWith<IllegalArgumentException> {
-            chartCatalog.copy(overflowChartTypes = chartCatalog.overflowChartTypes + ChartType.HISTOGRAM)
+            chartCatalog.copy(chartTypes = chartCatalog.chartTypes - ChartType.HISTOGRAM)
         }
     }
 }

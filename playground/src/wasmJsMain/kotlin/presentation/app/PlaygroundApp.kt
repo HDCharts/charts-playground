@@ -5,7 +5,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.ComposeViewport
 import chartsproject.playground.generated.resources.Res
-import chartsproject.playground.generated.resources.playground_chart_selector_more
 import chartsproject.playground.generated.resources.playground_chart_title_label
 import chartsproject.playground.generated.resources.playground_code_copied
 import chartsproject.playground.generated.resources.playground_code_copy
@@ -27,6 +26,8 @@ import chartsproject.playground.generated.resources.playground_logo_content_desc
 import chartsproject.playground.generated.resources.playground_metadata_charts
 import chartsproject.playground.generated.resources.playground_metadata_playground
 import chartsproject.playground.generated.resources.playground_metadata_published
+import chartsproject.playground.generated.resources.playground_nav_build_info
+import chartsproject.playground.generated.resources.playground_nav_open_menu
 import chartsproject.playground.generated.resources.playground_right_panel_code
 import chartsproject.playground.generated.resources.playground_right_panel_settings
 import chartsproject.playground.generated.resources.playground_style_color_content_description
@@ -101,7 +102,8 @@ private fun rememberPlaygroundStartupResourcesReady(): Boolean {
                 Res.string.playground_metadata_playground,
                 Res.string.playground_metadata_published,
                 Res.string.playground_chart_title_label,
-                Res.string.playground_chart_selector_more,
+                Res.string.playground_nav_build_info,
+                Res.string.playground_nav_open_menu,
                 Res.string.playground_right_panel_settings,
                 Res.string.playground_right_panel_code,
                 Res.string.playground_code_title,
