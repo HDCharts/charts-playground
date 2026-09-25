@@ -15,7 +15,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -42,6 +44,8 @@ import chartsproject.playground.generated.resources.playground_metadata_charts
 import chartsproject.playground.generated.resources.playground_metadata_playground
 import chartsproject.playground.generated.resources.playground_metadata_published
 import chartsproject.playground.generated.resources.playground_nav_build_info
+import chartsproject.playground.generated.resources.playground_nav_switch_to_dark
+import chartsproject.playground.generated.resources.playground_nav_switch_to_light
 import chartsproject.playground.generated.resources.playground_title
 import config.BuildConfig
 import domain.ChartType
@@ -67,6 +71,8 @@ internal fun ChartTypeRail(
     snapshotMetadata: SnapshotMetadataUi?,
     onTypeSelected: (ChartType) -> Unit,
     onOpenUri: (String) -> Unit,
+    darkTheme: Boolean,
+    onToggleTheme: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Surface(
@@ -110,10 +116,15 @@ internal fun ChartTypeRail(
             }
 
             HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+            ThemeToggleButton(
+                darkTheme = darkTheme,
+                onToggle = onToggleTheme,
+                modifier = Modifier.padding(top = 8.dp),
+            )
             BuildInfoButton(
                 snapshotMetadata = snapshotMetadata,
                 onOpenUri = onOpenUri,
-                modifier = Modifier.padding(vertical = 8.dp),
+                modifier = Modifier.padding(bottom = 8.dp),
             )
         }
     }
@@ -169,6 +180,28 @@ internal fun PlaygroundBrand(modifier: Modifier = Modifier) {
             text = stringResource(Res.string.playground_title),
             style = MaterialTheme.typography.titleLarge,
         )
+    }
+}
+
+/** Switches between the light and dark playground themes. */
+@Composable
+internal fun ThemeToggleButton(
+    darkTheme: Boolean,
+    onToggle: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    IconButton(onClick = onToggle, modifier = modifier) {
+        if (darkTheme) {
+            Icon(
+                imageVector = Icons.Outlined.LightMode,
+                contentDescription = stringResource(Res.string.playground_nav_switch_to_light),
+            )
+        } else {
+            Icon(
+                imageVector = Icons.Outlined.DarkMode,
+                contentDescription = stringResource(Res.string.playground_nav_switch_to_dark),
+            )
+        }
     }
 }
 

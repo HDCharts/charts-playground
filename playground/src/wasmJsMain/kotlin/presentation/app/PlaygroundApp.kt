@@ -1,7 +1,11 @@
 package presentation.app
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.ComposeViewport
 import chartsproject.playground.generated.resources.Res
@@ -28,6 +32,8 @@ import chartsproject.playground.generated.resources.playground_metadata_playgrou
 import chartsproject.playground.generated.resources.playground_metadata_published
 import chartsproject.playground.generated.resources.playground_nav_build_info
 import chartsproject.playground.generated.resources.playground_nav_open_menu
+import chartsproject.playground.generated.resources.playground_nav_switch_to_dark
+import chartsproject.playground.generated.resources.playground_nav_switch_to_light
 import chartsproject.playground.generated.resources.playground_right_panel_code
 import chartsproject.playground.generated.resources.playground_right_panel_settings
 import chartsproject.playground.generated.resources.playground_style_color_content_description
@@ -43,7 +49,9 @@ import io.github.hdcharts.sampleshared.startup.ChartsStartupGate
 import io.github.hdcharts.sampleshared.startup.StartupResources
 import io.github.hdcharts.sampleshared.startup.rememberStartupResourcesReady
 import io.github.hdcharts.sampleshared.theme.AppTheme
-import io.github.hdcharts.sampleshared.theme.docsSlate
+import io.github.hdcharts.sampleshared.theme.docsTheme
+import platform.loadDarkThemePreference
+import platform.saveDarkThemePreference
 import platform.snapshotPublishMetadata
 import presentation.editor.EditorRoute
 import presentation.editor.EditorViewModel
@@ -61,13 +69,23 @@ fun main() {
             }
 
         val resourcesReady = rememberPlaygroundStartupResourcesReady()
+        val systemDarkTheme = isSystemInDarkTheme()
+        var darkTheme by remember { mutableStateOf(loadDarkThemePreference() ?: systemDarkTheme) }
 
         AppTheme(
-            theme = docsSlate,
+            theme = docsTheme,
+            darkTheme = darkTheme,
             useDynamicColors = false,
         ) {
             ChartsStartupGate(resourcesReady) {
-                EditorRoute(viewModel)
+                EditorRoute(
+                    viewModel = viewModel,
+                    darkTheme = darkTheme,
+                    onToggleTheme = {
+                        darkTheme = !darkTheme
+                        saveDarkThemePreference(darkTheme)
+                    },
+                )
             }
         }
     }
@@ -104,6 +122,8 @@ private fun rememberPlaygroundStartupResourcesReady(): Boolean {
                 Res.string.playground_chart_title_label,
                 Res.string.playground_nav_build_info,
                 Res.string.playground_nav_open_menu,
+                Res.string.playground_nav_switch_to_dark,
+                Res.string.playground_nav_switch_to_light,
                 Res.string.playground_right_panel_settings,
                 Res.string.playground_right_panel_code,
                 Res.string.playground_code_title,
@@ -120,8 +140,7 @@ private fun rememberPlaygroundStartupResourcesReady(): Boolean {
     val resources =
         remember(iconResources, stringResources) {
             StartupResources(
-                bitmapDrawables = listOf(SharedRes.drawable.charts_logo),
-                vectorDrawables = iconResources,
+                vectorDrawables = iconResources + SharedRes.drawable.charts_logo,
                 strings = stringResources,
             )
         }

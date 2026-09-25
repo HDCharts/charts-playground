@@ -19,6 +19,11 @@ import domain.EditorAction
 import presentation.chart.ChartPanel
 import presentation.code.CodePreviewPanel
 
+// Fixed for every chart type so switching charts never shifts the panels; wide tables scroll instead.
+private const val DATA_TABLE_PANEL_WEIGHT = 30f
+private const val CHART_PANEL_WEIGHT = 40f
+private const val RIGHT_PANEL_WEIGHT = 30f
+
 @Composable
 internal fun EditorWorkspace(
     state: ChartEditorState,
@@ -28,13 +33,6 @@ internal fun EditorWorkspace(
     onCopyCode: suspend (String) -> Boolean,
     wideLayout: Boolean,
 ) {
-    val dataColumnCount = session.draft.dataTable.columns.size
-    // Three or more data columns use a balanced three-panel layout; simple tables favor preview space.
-    val useEqualPanelWeights = dataColumnCount >= 3
-    val dataTableWeight = if (useEqualPanelWeights) 1f else 30f
-    val chartWeight = if (useEqualPanelWeights) 1f else 40f
-    val rightPanelWeight = if (useEqualPanelWeights) 1f else 30f
-
     @Composable
     fun dataTableContent(modifier: Modifier) {
         DataTableEditor(
@@ -114,9 +112,9 @@ internal fun EditorWorkspace(
         Row(
             modifier = Modifier.fillMaxSize(),
         ) {
-            dataTableContent(Modifier.weight(dataTableWeight).fillMaxHeight())
-            chartContent(Modifier.weight(chartWeight).fillMaxHeight().padding(start = 16.dp))
-            rightPanelContent(Modifier.weight(rightPanelWeight).fillMaxHeight().padding(start = 16.dp))
+            dataTableContent(Modifier.weight(DATA_TABLE_PANEL_WEIGHT).fillMaxHeight())
+            chartContent(Modifier.weight(CHART_PANEL_WEIGHT).fillMaxHeight().padding(start = 16.dp))
+            rightPanelContent(Modifier.weight(RIGHT_PANEL_WEIGHT).fillMaxHeight().padding(start = 16.dp))
         }
     } else {
         Column(
