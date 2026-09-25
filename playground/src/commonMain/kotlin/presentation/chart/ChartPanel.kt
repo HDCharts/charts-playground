@@ -82,7 +82,7 @@ fun ChartPanel(
                                 contentDescription = previewSummary
                             },
                 ) {
-                    ChartRenderer(type = chartType, spec = session.validatedSpec)
+                    ChartRenderer(type = chartType, spec = session.validatedSpec, settings = session.settings)
                 }
             }
         }
@@ -94,11 +94,5 @@ private fun ValidatedChartSpec.previewSummary(): String =
         is ChartData.SingleSeries -> "${chartType.displayName} preview with ${chartData.values.size} values."
         is ChartData.MultiSeries ->
             "${chartType.displayName} preview with ${chartData.series.size} series and " +
-                "${chartData.xLabels?.size ?: 0} categories."
-        is ChartData.StackedSeries ->
-            "${chartType.displayName} preview with ${chartData.bars.size} bars and " +
-                "${chartData.segmentNames.size} segments."
-        is ChartData.RadarSeries ->
-            "${chartType.displayName} preview with ${chartData.entries.size} entries and " +
-                "${chartData.axes.size} axes."
+                "${chartData.categories.size} categories."
     }

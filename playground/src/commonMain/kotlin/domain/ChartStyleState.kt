@@ -1,79 +1,46 @@
 package domain
 
-sealed interface ChartStyleState
+/** A value the user set for one style setting. The setting's [StyleKind] says how to interpret it. */
+sealed interface StyleValue {
+    data class Bool(
+        val value: Boolean,
+    ) : StyleValue
 
-data class PieStyleState(
-    val donutPercentage: Float? = null,
-    val borderWidth: Float? = null,
-    val pieAlpha: Float? = null,
-    val legendVisible: Boolean? = null,
-    val pieColors: List<ColorValue>? = null,
-) : ChartStyleState
+    data class Number(
+        val value: Float,
+    ) : StyleValue
 
-data class LineStyleState(
-    val lineColor: ColorValue? = null,
-    val lineAlpha: Float? = null,
-    val bezier: Boolean? = null,
-    val pointColor: ColorValue? = null,
-    val pointVisible: Boolean? = null,
-    val pointSize: Float? = null,
-    val dragPointColor: ColorValue? = null,
-    val dragPointVisible: Boolean? = null,
-    val dragPointSize: Float? = null,
-    val dragActivePointSize: Float? = null,
-    val axisVisible: Boolean? = null,
-    val axisLineWidth: Float? = null,
-    val xAxisLabelsVisible: Boolean? = null,
-    val yAxisLabelsVisible: Boolean? = null,
-    val zoomControlsVisible: Boolean? = null,
-) : ChartStyleState
+    data class Color(
+        val value: ColorValue,
+    ) : StyleValue
 
-data class MultiLineStyleState(
-    val lineColors: List<ColorValue>? = null,
-    val lineAlpha: Float? = null,
-    val bezier: Boolean? = null,
-    val pointVisible: Boolean? = null,
-    val dragPointVisible: Boolean? = null,
-    val pointColor: ColorValue? = null,
-    val dragPointColor: ColorValue? = null,
-) : ChartStyleState
+    data class Colors(
+        val value: List<ColorValue>,
+    ) : StyleValue
+}
 
-data class BarStyleState(
-    val barColor: ColorValue? = null,
-    val barColors: List<ColorValue>? = null,
-    val barAlpha: Float? = null,
-    val gridVisible: Boolean? = null,
-    val axisVisible: Boolean? = null,
-    val selectionLineVisible: Boolean? = null,
-    val selectionLineWidth: Float? = null,
-    val zoomControlsVisible: Boolean? = null,
-) : ChartStyleState
+/**
+ * The style values the user has set, keyed by setting path (for library settings, the path of the
+ * property in the chart's library style, e.g. `points.size`). A missing path means the library
+ * default applies.
+ */
+data class ChartStyleState(
+    val values: Map<String, StyleValue> = emptyMap(),
+) {
+    operator fun get(path: String): StyleValue? = values[path]
 
-data class StackedBarStyleState(
-    val barColors: List<ColorValue>? = null,
-    val barAlpha: Float? = null,
-    val selectionLineVisible: Boolean? = null,
-    val selectionLineWidth: Float? = null,
-    val zoomControlsVisible: Boolean? = null,
-) : ChartStyleState
+    fun with(
+        path: String,
+        value: StyleValue?,
+    ): ChartStyleState = copy(values = if (value == null) values - path else values + (path to value))
+}
 
-data class AreaStyleState(
-    val areaColors: List<ColorValue>? = null,
-    val lineColors: List<ColorValue>? = null,
-    val fillAlpha: Float? = null,
-    val lineVisible: Boolean? = null,
-    val lineWidth: Float? = null,
-    val bezier: Boolean? = null,
-    val zoomControlsVisible: Boolean? = null,
-) : ChartStyleState
+/** Looks up the effective value of a setting: the user's value, or its default. */
+fun interface StyleResolver {
+    fun value(path: String): StyleValue?
 
-data class RadarStyleState(
-    val lineColors: List<ColorValue>? = null,
-    val lineWidth: Float? = null,
-    val pointVisible: Boolean? = null,
-    val pointSize: Float? = null,
-    val fillVisible: Boolean? = null,
-    val fillAlpha: Float? = null,
-    val gridVisible: Boolean? = null,
-    val categoryLegendVisible: Boolean? = null,
-) : ChartStyleState
+    fun isOn(path: String): Boolean = (value(path) as? StyleValue.Bool)?.value == true
+}
+
+/** Per-slice pie colors, which the pie chart takes on its data rows rather than its style. */
+const val PIE_SLICE_COLORS_PATH = "data.sliceColors"

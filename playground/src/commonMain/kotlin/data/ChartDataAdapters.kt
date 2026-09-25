@@ -1,6 +1,7 @@
 package data
 
 import domain.ChartData
+import domain.ChartType
 import domain.DataTableColumn
 import domain.DataTableRow
 import domain.DataTableState
@@ -62,74 +63,29 @@ internal fun List<PieSlice>.toSingleSeries(): ChartData.SingleSeries =
         labels = map { it.label }.takeIf { it.isNotEmpty() },
     )
 
-internal fun LibraryChartData.toMultiSeries(): ChartData.MultiSeries =
-    ChartData.MultiSeries(
+/**
+ * Library data as named series over shared categories. Missing categories are named with
+ * [labelPrefix] and missing values are 0, so every series has one value per category.
+ */
+internal fun LibraryChartData.toMultiSeries(labelPrefix: String): ChartData.MultiSeries {
+    val size = max(categories.size, series.maxOfOrNull { item -> item.values.size } ?: 0)
+    return ChartData.MultiSeries(
+        categories = List(size) { index -> categories.getOrNull(index) ?: "$labelPrefix ${index + 1}" },
         series =
             series.map { item ->
                 ChartData.MultiSeries.Series(
                     name = item.name.orEmpty(),
-                    values = item.values.map(Double::toFloat),
+                    values = List(size) { index -> item.values.getOrNull(index)?.toFloat() ?: 0f },
                 )
             },
-        xLabels = categories.toList().takeIf { it.isNotEmpty() },
     )
-
-internal fun LibraryChartData.toStackedSeries(): ChartData.StackedSeries {
-    val segmentNames = series.map { item -> item.name.orEmpty() }
-    val categoryLabels = categories.toList()
-    val valuesPerSegment =
-        series.map { item ->
-            item.values.map(Double::toFloat)
-        }
-    val maxPoints =
-        max(
-            categoryLabels.size,
-            valuesPerSegment.maxOfOrNull { points -> points.size } ?: 0,
-        )
-    val labels =
-        if (maxPoints == 0) {
-            emptyList()
-        } else {
-            List(maxPoints) { index ->
-                categoryLabels.getOrNull(index) ?: "Bar ${index + 1}"
-            }
-        }
-    val bars =
-        labels.indices.map { pointIndex ->
-            ChartData.StackedSeries.StackedBar(
-                label = labels[pointIndex],
-                values = valuesPerSegment.map { points -> points.getOrElse(pointIndex) { 0f } },
-            )
-        }
-    return ChartData.StackedSeries(
-        segmentNames = segmentNames,
-        bars = bars,
-        labels = labels,
-    )
-}
-
-internal fun LibraryChartData.toRadarSeries(): ChartData.RadarSeries {
-    val entries =
-        series.map { item ->
-            ChartData.RadarSeries.RadarEntry(
-                name = item.name.orEmpty(),
-                values = item.values.map(Double::toFloat),
-            )
-        }
-    val maxPoints = entries.maxOfOrNull { entry -> entry.values.size } ?: 0
-    val axes =
-        if (categories.isNotEmpty()) {
-            categories.toList()
-        } else {
-            List(maxPoints) { index -> "Axis ${index + 1}" }
-        }
-    return ChartData.RadarSeries(entries = entries, axes = axes)
 }
 
 internal fun createSingleSeriesTable(
     model: ChartData.SingleSeries,
     minRows: Int,
     labelHeader: String,
+    labelPrefix: String,
 ): DataTableState {
     val labels = model.labels.orEmpty()
     val rowCount = max(labels.size, model.values.size)
@@ -144,7 +100,7 @@ internal fun createSingleSeriesTable(
                 id = RowId(index + 1),
                 cells =
                     mapOf(
-                        LABEL_COLUMN_ID to (labels.getOrNull(index) ?: "Item ${index + 1}"),
+                        LABEL_COLUMN_ID to (labels.getOrNull(index) ?: "$labelPrefix ${index + 1}"),
                         "value" to formatEditorFloat(model.values.getOrElse(index) { 0f }),
                     ),
             )
@@ -152,38 +108,102 @@ internal fun createSingleSeriesTable(
     return DataTableState(columns = columns, rows = rows, minRows = minRows)
 }
 
+/** A table with a label column and one numeric column per series, one row per category. */
+internal fun createMultiSeriesTable(
+    model: ChartData.MultiSeries,
+    minRows: Int,
+    labelHeader: String,
+): DataTableState {
+    val columns =
+        listOf(DataTableColumn(id = LABEL_COLUMN_ID, label = labelHeader, numeric = false, weight = 1.4f)) +
+            model.series.mapIndexed { index, series ->
+                DataTableColumn(
+                    id = "series_$index",
+                    label = series.name,
+                    numeric = true,
+                    weight = 1f,
+                    defaultValue = "0",
+                )
+            }
+    val rows =
+        model.categories.mapIndexed { rowIndex, category ->
+            val values =
+                model.series.mapIndexed { index, series ->
+                    "series_$index" to
+                        formatEditorFloat(series.values[rowIndex])
+                }
+            DataTableRow(id = RowId(rowIndex + 1), cells = mapOf(LABEL_COLUMN_ID to category) + values)
+        }
+    return DataTableState(columns = columns, rows = rows, minRows = minRows)
+}
+
 internal fun validateSingleSeries(
     dataTable: DataTableState,
-    chartName: String,
+    chartType: ChartType,
     minRows: Int,
     labelPrefix: String,
-    clampToPositive: Boolean,
+    nonNegative: Boolean,
+): ValidationResult =
+    validateTable(dataTable, chartType, minRows, labelPrefix, nonNegative) { parsed ->
+        val valueColumn = parsed.numericColumns.first()
+        ChartData.SingleSeries(values = parsed.valuesByColumn.getValue(valueColumn.id), labels = parsed.labels)
+    }
+
+/** Each numeric column is a series named by its header; each row is a category. */
+internal fun validateMultiSeries(
+    dataTable: DataTableState,
+    chartType: ChartType,
+    minRows: Int,
+    labelPrefix: String,
+    nonNegative: Boolean,
+): ValidationResult =
+    validateTable(dataTable, chartType, minRows, labelPrefix, nonNegative) { parsed ->
+        ChartData.MultiSeries(
+            categories = parsed.labels,
+            series =
+                parsed.numericColumns.map { column ->
+                    ChartData.MultiSeries.Series(
+                        name = column.label,
+                        values = parsed.valuesByColumn.getValue(column.id),
+                    )
+                },
+        )
+    }
+
+/**
+ * Checks the table, then builds the chart data from the parsed table. With [nonNegative], negative
+ * values are errors, so parsed values are never clamped silently.
+ */
+private fun validateTable(
+    dataTable: DataTableState,
+    chartType: ChartType,
+    minRows: Int,
+    labelPrefix: String,
+    nonNegative: Boolean,
+    toData: (ParsedEditorTable) -> ChartData,
 ): ValidationResult {
     val issues =
         editorTableIssues(
             dataTable = dataTable,
-            chartName = chartName,
+            chartName = chartType.validationName,
             minRows = minRows,
-            requireNonNegative = clampToPositive,
+            requireNonNegative = nonNegative,
         )
     if (issues.hasErrors()) return invalidValidationResult(issues)
     val parsed =
-        parseEditorTable(
-            dataTable = dataTable,
-            labelPrefix = labelPrefix,
-            clampToPositive = clampToPositive,
-        ) ?: return invalidValidationResult(issues + unsupportedTableIssue())
-
-    val valueColumn = parsed.numericColumns.firstOrNull() ?: return invalidValidationResult(issues)
-    val values = parsed.valuesByColumn.getValue(valueColumn.id)
-
+        parseEditorTable(dataTable = dataTable, labelPrefix = labelPrefix)
+            ?: return invalidValidationResult(issues + unsupportedTableIssue())
     return ValidationResult(
         sanitizedTable = dataTable.copy(rows = parsed.sanitizedRows),
-        data = ChartData.SingleSeries(values = values, labels = parsed.labels),
+        data = toData(parsed),
         issues = issues,
         appliedRowCount = parsed.labels.size,
     )
 }
+
+/** The chart's name in validation messages, e.g. `Multi line chart`. */
+private val ChartType.validationName: String
+    get() = displayName.lowercase().replaceFirstChar(Char::uppercase) + " chart"
 
 internal fun editorTableIssues(
     dataTable: DataTableState,
@@ -286,7 +306,6 @@ internal data class ParsedEditorTable(
 internal fun parseEditorTable(
     dataTable: DataTableState,
     labelPrefix: String,
-    clampToPositive: Boolean,
 ): ParsedEditorTable? {
     val labelColumn =
         dataTable.columns.firstOrNull { column -> !column.numeric }
@@ -313,7 +332,7 @@ internal fun parseEditorTable(
                     .orEmpty()
                     .trim()
                     .toFloatOrNull() ?: return null
-            valuesByColumn.getValue(column.id) += if (clampToPositive) parsedValue.coerceAtLeast(0f) else parsedValue
+            valuesByColumn.getValue(column.id) += parsedValue
         }
     }
 

@@ -28,9 +28,15 @@
     <string name="playground_code_copy">Copy code</string>
     <string name="playground_code_copied">Copied</string>
     <string name="playground_code_copy_failed">Copy failed</string>
-    <string name="playground_style_override_default">Override chart default</string>
-    <string name="playground_style_use_preset_palette">Use preset palette</string>
-    <string name="playground_style_using_chart_defaults">Using chart defaults.</string>
+    <string name="playground_style_color_default">Default</string>
+    <string name="playground_style_color_reset">Reset to default</string>
+    <string name="playground_style_color_hex_label">Hex</string>
+    <string name="playground_style_color_edit_content_description">Edit %1$s</string>
+    <string name="playground_style_color_hue_content_description">%1$s hue</string>
+    <string name="playground_style_color_opacity_content_description">%1$s opacity</string>
+    <string name="playground_style_color_brightness_content_description">%1$s saturation and brightness</string>
+    <string name="playground_style_palette_custom">Custom</string>
+    <string name="playground_style_palette_hint">Select a swatch to pick its color.</string>
+    <string name="playground_style_palette_item_label">%1$s %2$d</string>
     <string name="playground_style_color_content_description">%1$s color %2$d</string>
-    <string name="playground_style_preset_palette_content_description">Preset palette %1$d</string>
 </resources>

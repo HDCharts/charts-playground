@@ -1,168 +1,151 @@
 package codegen.common
 
-import codegen.StylePropertiesSnapshot
-import codegen.StyleProperty
+import domain.ChartData
+import domain.ChartStyleState
+import domain.SettingControl
+import domain.SettingDescriptor
+import domain.StyleKind
+import domain.StyleSetting
+import domain.StyleTarget
+import domain.StyleValue
+import domain.activeValues
+import domain.normalizeColorCount
+import domain.styleSettings
+import kotlin.math.roundToInt
 
 data class RenderedStyleArgument(
     val code: String,
     val additionalImports: Set<String> = emptySet(),
 )
 
-fun resolveStyleArguments(
-    styleProperties: StylePropertiesSnapshot?,
-    styleBuilder: String = "",
-): List<RenderedStyleArgument> {
-    if (styleProperties == null) {
-        return emptyList()
-    }
-
-    val defaultsByName = styleProperties.defaults.associate { property -> property.name to property.value }
-    val mappings = groupedMappings(styleBuilder)
-    if (mappings.isEmpty()) {
-        return styleProperties.current.sortedBy(StyleProperty::name).mapNotNull { property ->
-            val currentValue = property.value
-            if (currentValue == defaultsByName[property.name]) return@mapNotNull null
-            val literal = toKotlinLiteral(propertyName = property.name, value = currentValue)
-            RenderedStyleArgument(
-                code = "${property.name} = ${literal.code},",
-                additionalImports = literal.additionalImports,
-            )
-        }
-    }
-
-    val factoryPrefix = styleBuilder.substringBeforeLast(".")
-    val grouped = mutableMapOf<String, MutableList<Pair<String, KotlinLiteral>>>()
-    val direct = mutableListOf<RenderedStyleArgument>()
-    styleProperties.current.sortedBy(StyleProperty::name).forEach { property ->
-        val name = property.name
-        val currentValue = property.value
-        val defaultValue = defaultsByName[name]
-        if (currentValue == defaultValue) {
-            return@forEach
-        }
-        val mapping = mappings[name] ?: return@forEach
-        val literal = toStyleLiteral(name, currentValue, mapping.dp)
-        if (mapping.group == null) {
-            direct +=
-                RenderedStyleArgument(
-                    code = "$name = ${literal.code},",
-                    additionalImports = literal.additionalImports,
-                )
-        } else {
-            val groupedLiteral =
-                mapping.nestedFactory?.let { nestedFactory ->
-                    literal.copy(
-                        code =
-                            "$factoryPrefix.$nestedFactory(" +
-                                "${mapping.nestedArgument} = ${literal.code})",
-                    )
-                } ?: literal
-            grouped.getOrPut(mapping.group) { mutableListOf() } += mapping.argument to groupedLiteral
-        }
-    }
-
-    val groupedArguments =
-        mappings.values
-            .mapNotNull { mapping -> mapping.group }
-            .distinct()
-            .mapNotNull { group ->
-                val members = grouped[group] ?: return@mapNotNull null
-                val builder = "$factoryPrefix.$group"
-                val memberCode = members.joinToString(" ") { (name, literal) -> "$name = ${literal.code}," }
-                RenderedStyleArgument(
-                    code = "$group = $builder($memberCode),",
-                    additionalImports = members.flatMap { it.second.additionalImports }.toSet(),
-                )
-            }
-    return (groupedArguments + direct).sortedBy { argument -> argument.code }
+/**
+ * How a chart's style is written in code. Style blocks are built with `<owner>.<block>(...)`, where
+ * the owner is [styleObject] unless [blockOwners] names another, e.g. histograms build their grid
+ * with `BarChartDefaults`.
+ *
+ * [blockDefaults] is keyed by block path (`range`, `axis.xLabels`) and lists members whose value in
+ * the chart's default style differs from what the owner's factory builds, e.g. a histogram range
+ * starts at 0 while `BarChartDefaults.range()` derives its min from the data. They are written
+ * whenever their block is, unless the user set them. BlockDefaultsTest finds the members needed.
+ */
+data class StyleCodeProfile(
+    val styleObject: String,
+    val blockOwners: Map<String, String> = emptyMap(),
+    val blockDefaults: Map<String, Map<String, String>> = emptyMap(),
+) {
+    fun owner(block: String): String = blockOwners[block] ?: styleObject
 }
 
-private data class StyleMapping(
-    val group: String?,
-    val argument: String = "",
-    val dp: Boolean = false,
-    val nestedFactory: String? = null,
-    val nestedArgument: String = "visible",
-)
+/**
+ * Renders the style arguments for the values the user set. Each setting path addresses the
+ * library style: `a` is a direct argument, `a.b` becomes `a = Owner.a(b = …)`, and `a.b.c` becomes
+ * `a = Owner.a(b = Owner.b(c = …))`. Arguments follow the settings' declaration order.
+ */
+fun renderStyleArguments(
+    settings: List<SettingDescriptor>,
+    style: ChartStyleState,
+    data: ChartData,
+    profile: StyleCodeProfile,
+): List<RenderedStyleArgument> {
+    val active = settings.activeValues(style)
+    val root = StyleBlock()
+    settings.styleSettings
+        .filter { it.target == StyleTarget.STYLE }
+        .forEach { setting ->
+            val value = active[setting.path] ?: return@forEach
+            root.put(setting.path.split('.'), literal(setting, value, data))
+        }
+    profile.blockDefaults.forEach { (blockPath, members) ->
+        root.block(blockPath.split('.'))?.putDefaults(members)
+    }
+    return root.children.map { (name, node) ->
+        val owner = profile.owner(name)
+        val argument = renderMember(name, node, owner)
+        val ownerImport = "import $STYLE_PACKAGE.$owner".takeIf { node is StyleBlock && owner != profile.styleObject }
+        argument.copy(
+            code = "${argument.code},",
+            additionalImports = argument.additionalImports + setOfNotNull(ownerImport),
+        )
+    }
+}
 
-private fun toStyleLiteral(
-    propertyName: String,
-    value: codegen.StylePropertyValue,
-    dp: Boolean,
-): KotlinLiteral {
-    val literal = toKotlinLiteral(propertyName, value)
-    if (!dp || value !is codegen.StylePropertyValue.FloatValue) return literal
-    return literal.copy(
-        code = "${literal.code.removeSuffix("f")}.dp",
-        additionalImports = literal.additionalImports + "import androidx.compose.ui.unit.dp",
+private class StyleBlock {
+    val children = linkedMapOf<String, Any>()
+
+    fun put(
+        segments: List<String>,
+        literal: RenderedStyleArgument,
+    ) {
+        if (segments.size == 1) {
+            children[segments.single()] = literal
+        } else {
+            val child = children.getOrPut(segments.first()) { StyleBlock() } as StyleBlock
+            child.put(segments.drop(1), literal)
+        }
+    }
+
+    fun block(segments: List<String>): StyleBlock? =
+        segments.fold(this as StyleBlock?) { block, name -> block?.children?.get(name) as? StyleBlock }
+
+    /** Adds [members] the user did not set, ahead of the ones they did. */
+    fun putDefaults(members: Map<String, String>) {
+        val set = LinkedHashMap(children)
+        children.clear()
+        members.filterKeys { it !in set }.forEach { (name, code) -> children[name] = RenderedStyleArgument(code) }
+        children.putAll(set)
+    }
+}
+
+/** `name = literal`, or `name = owner.name(member, …)` for a block. Top-level blocks end members with commas. */
+private fun renderMember(
+    name: String,
+    node: Any,
+    owner: String,
+    topLevel: Boolean = true,
+): RenderedStyleArgument {
+    if (node is RenderedStyleArgument) return node.copy(code = "$name = ${node.code}")
+    val members =
+        (node as StyleBlock).children.map { (child, value) ->
+            renderMember(child, value, owner, topLevel = false)
+        }
+    val memberCode =
+        if (topLevel) members.joinToString(" ") { "${it.code}," } else members.joinToString(", ") { it.code }
+    return RenderedStyleArgument(
+        code = "$name = $owner.$name($memberCode)",
+        additionalImports = members.flatMap { it.additionalImports }.toSet(),
     )
 }
 
-private fun groupedMappings(styleBuilder: String): Map<String, StyleMapping> {
-    val prefix = styleBuilder.substringBeforeLast(".")
-    return when (prefix) {
-        "LineChartDefaults" ->
-            mapOf(
-                "lineColor" to StyleMapping("line", "color"),
-                "lineAlpha" to StyleMapping("line", "alpha"),
-                "bezier" to StyleMapping("line", "bezier"),
-                "pointColor" to StyleMapping("points", "color"),
-                "pointVisible" to StyleMapping("points", "visible"),
-                "pointSize" to StyleMapping("points", "size", dp = true),
-                "dragPointColor" to StyleMapping("selection", "color"),
-                "dragPointVisible" to StyleMapping("selection", "visible"),
-                "dragPointSize" to StyleMapping("selection", "size", dp = true),
-                "dragActivePointSize" to StyleMapping("selection", "activeSize", dp = true),
-                "axisVisible" to StyleMapping("axis", "visible"),
-                "axisLineWidth" to StyleMapping("axis", "lineWidth", dp = true),
-                "xAxisLabelsVisible" to StyleMapping("axis", "xLabels", nestedFactory = "xLabels"),
-                "yAxisLabelsVisible" to StyleMapping("axis", "yLabels", nestedFactory = "yLabels"),
-                "zoomControlsVisible" to StyleMapping(null),
-                "lineColors" to StyleMapping("line", "colors"),
+private fun literal(
+    setting: StyleSetting,
+    value: StyleValue,
+    data: ChartData,
+): RenderedStyleArgument =
+    when (setting.kind) {
+        StyleKind.BOOLEAN -> RenderedStyleArgument((value as StyleValue.Bool).value.toString())
+        StyleKind.FLOAT -> RenderedStyleArgument(formatKotlinFloatLiteral(value.number))
+        StyleKind.DP ->
+            RenderedStyleArgument(
+                "${formatKotlinFloatLiteral(value.number).removeSuffix("f")}.dp",
+                setOf(DP_IMPORT),
             )
-        "BarChartDefaults", "HistogramChartDefaults" ->
-            mapOf(
-                "barColor" to StyleMapping("bars", "color"),
-                "barColors" to StyleMapping("bars", "colors"),
-                "barAlpha" to StyleMapping("bars", "alpha"),
-                "gridVisible" to StyleMapping("grid", "visible"),
-                "axisVisible" to StyleMapping("axis", "visible"),
-                "selectionLineVisible" to StyleMapping("selectionLine", "visible"),
-                "selectionLineWidth" to StyleMapping("selectionLine", "width", dp = true),
-                "zoomControlsVisible" to StyleMapping(null),
-            )
-        "StackedBarChartDefaults" ->
-            mapOf(
-                "barColor" to StyleMapping("segments", "color"),
-                "barColors" to StyleMapping("segments", "colors"),
-                "barAlpha" to StyleMapping("segments", "alpha"),
-                "selectionLineVisible" to StyleMapping("selection", "visible"),
-                "selectionLineWidth" to StyleMapping("selection", "width", dp = true),
-                "zoomControlsVisible" to StyleMapping(null),
-            )
-        "StackedAreaChartDefaults" ->
-            mapOf(
-                "areaColor" to StyleMapping("fill", "color"),
-                "areaColors" to StyleMapping("fill", "colors"),
-                "fillAlpha" to StyleMapping("fill", "alpha"),
-                "lineVisible" to StyleMapping("boundary", "visible"),
-                "lineColor" to StyleMapping("boundary", "color"),
-                "lineColors" to StyleMapping("boundary", "colors"),
-                "lineWidth" to StyleMapping("boundary", "width", dp = true),
-                "bezier" to StyleMapping("boundary", "bezier"),
-                "zoomControlsVisible" to StyleMapping(null),
-            )
-        "RadarChartDefaults" ->
-            mapOf(
-                "lineColors" to StyleMapping("polygon", "lineColors"),
-                "lineWidth" to StyleMapping("polygon", "lineWidth"),
-                "fillVisible" to StyleMapping("polygon", "fillVisible"),
-                "fillAlpha" to StyleMapping("polygon", "fillAlpha"),
-                "pointVisible" to StyleMapping("points", "visible"),
-                "pointSize" to StyleMapping("points", "size"),
-                "gridVisible" to StyleMapping("grid", "visible"),
-                "categoryLegendVisible" to StyleMapping("categories", "legendVisible"),
-            )
-        else -> emptyMap()
+        StyleKind.INT -> RenderedStyleArgument(value.number.roundToInt().toString())
+        StyleKind.DOUBLE -> RenderedStyleArgument(formatKotlinDoubleLiteral(value.number))
+        StyleKind.COLOR -> RenderedStyleArgument(colorLiteral((value as StyleValue.Color).value), setOf(COLOR_IMPORT))
+        StyleKind.COLOR_LIST -> {
+            val count = (setting.control as? SettingControl.Palette)?.itemCount?.invoke(data)
+            val colors =
+                (value as StyleValue.Colors).value.let {
+                    if (count !=
+                        null
+                    ) {
+                        normalizeColorCount(it, count)
+                    } else {
+                        it
+                    }
+                }
+            RenderedStyleArgument("listOf(${colors.joinToString(", ") { colorLiteral(it) }})", setOf(COLOR_IMPORT))
+        }
     }
-}
+
+private val StyleValue.number: Float get() = (this as StyleValue.Number).value

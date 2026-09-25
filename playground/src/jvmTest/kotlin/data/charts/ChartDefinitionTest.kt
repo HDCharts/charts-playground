@@ -3,10 +3,10 @@ package data.charts
 import codegen.CODEGEN_GENERATOR_VERSION
 import data.ChartCodegenService
 import data.chartCatalog
-import domain.SettingDescriptor
 import domain.ValidationIssueCode
 import domain.ValidationPath
 import domain.ValidationSeverity
+import domain.styleSettings
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -20,8 +20,7 @@ class ChartDefinitionTest {
         chartCatalog.charts.forEach { definition ->
             val session = definition.resetSession()
             val validation = definition.validate(session.draft.dataTable)
-            val settings = definition.settingsSchema(session)
-            val settingIds = settings.mapNotNull { it.settingId() }
+            val settingIds = definition.settings.styleSettings.map { it.path }
 
             assertEquals(definition.type, session.chartType)
             assertNotNull(validation.data, "${definition.type} default data should be valid")
@@ -36,7 +35,7 @@ class ChartDefinitionTest {
             assertEquals(CODEGEN_GENERATOR_VERSION, artifact.generatorVersion)
             assertTrue(artifact.warnings.isEmpty())
             assertTrue(artifact.source.endsWith("\n"))
-            assertEquals(settingIds.size, settingIds.toSet().size, "${definition.type} setting IDs must be unique")
+            assertEquals(settingIds.size, settingIds.toSet().size, "${definition.type} setting paths must be unique")
         }
     }
 
@@ -201,14 +200,3 @@ class ChartDefinitionTest {
         assertEquals(ValidationIssueCode.MISSING_LABEL_COLUMN, noLabelColumns.issues.single().code)
     }
 }
-
-private fun SettingDescriptor.settingId(): String? =
-    when (this) {
-        is SettingDescriptor.Section -> null
-        SettingDescriptor.Divider -> null
-        is SettingDescriptor.Toggle -> id
-        is SettingDescriptor.Slider -> id
-        is SettingDescriptor.Dropdown -> id
-        is SettingDescriptor.Color -> id
-        is SettingDescriptor.ColorPalette -> id
-    }

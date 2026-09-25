@@ -36,11 +36,16 @@ import chartsproject.playground.generated.resources.playground_nav_switch_to_dar
 import chartsproject.playground.generated.resources.playground_nav_switch_to_light
 import chartsproject.playground.generated.resources.playground_right_panel_code
 import chartsproject.playground.generated.resources.playground_right_panel_settings
+import chartsproject.playground.generated.resources.playground_style_color_brightness_content_description
 import chartsproject.playground.generated.resources.playground_style_color_content_description
-import chartsproject.playground.generated.resources.playground_style_override_default
-import chartsproject.playground.generated.resources.playground_style_preset_palette_content_description
-import chartsproject.playground.generated.resources.playground_style_use_preset_palette
-import chartsproject.playground.generated.resources.playground_style_using_chart_defaults
+import chartsproject.playground.generated.resources.playground_style_color_default
+import chartsproject.playground.generated.resources.playground_style_color_edit_content_description
+import chartsproject.playground.generated.resources.playground_style_color_hex_label
+import chartsproject.playground.generated.resources.playground_style_color_hue_content_description
+import chartsproject.playground.generated.resources.playground_style_color_reset
+import chartsproject.playground.generated.resources.playground_style_palette_custom
+import chartsproject.playground.generated.resources.playground_style_palette_hint
+import chartsproject.playground.generated.resources.playground_style_palette_item_label
 import chartsproject.playground.generated.resources.playground_title
 import data.InMemoryEditorStore
 import domain.ChartType
@@ -130,11 +135,16 @@ private fun rememberPlaygroundStartupResourcesReady(): Boolean {
                 Res.string.playground_code_copy,
                 Res.string.playground_code_copied,
                 Res.string.playground_code_copy_failed,
-                Res.string.playground_style_override_default,
-                Res.string.playground_style_use_preset_palette,
-                Res.string.playground_style_using_chart_defaults,
+                Res.string.playground_style_color_default,
+                Res.string.playground_style_color_reset,
+                Res.string.playground_style_color_hex_label,
+                Res.string.playground_style_color_edit_content_description,
+                Res.string.playground_style_color_hue_content_description,
+                Res.string.playground_style_color_brightness_content_description,
+                Res.string.playground_style_palette_custom,
+                Res.string.playground_style_palette_hint,
+                Res.string.playground_style_palette_item_label,
                 Res.string.playground_style_color_content_description,
-                Res.string.playground_style_preset_palette_content_description,
             )
         }
     val resources =
