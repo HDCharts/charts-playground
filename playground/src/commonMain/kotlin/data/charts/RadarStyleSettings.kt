@@ -17,13 +17,13 @@ internal val radarStyleSettings: List<SettingDescriptor> =
                 ->
                 style.polygon.resolveLineColors(count)
             }
-            +slider("polygon.lineWidth", "Width", StyleKind.FLOAT, 0f..8f, 0.5f) { it.polygon.lineWidth }
+            +slider("polygon.lineWidth", "Width", StyleKind.DP, 0f..8f, 0.5f) { it.polygon.lineWidth }
         }
         section("Fill", toggle = toggle("polygon.fillVisible", "Show Fill") { it.polygon.fillVisible }) {
             +slider("polygon.fillAlpha", "Transparency", StyleKind.FLOAT, 0f..1f, 0.05f) { it.polygon.fillAlpha }
         }
         section("Points", toggle = toggle("points.visible", "Show Points") { it.points.visible }) {
-            +slider("points.size", "Size", StyleKind.FLOAT, 0f..12f, 1f) { it.points.size }
+            +slider("points.size", "Size", StyleKind.DP, 0f..12f, 1f) { it.points.size }
             +toggle("points.colorSameAsLine", "Match Line Color") { it.points.colorSameAsLine }
             +color("points.color", "Color", visibleWhen = whenOff("points.colorSameAsLine")) { it.points.color }
         }

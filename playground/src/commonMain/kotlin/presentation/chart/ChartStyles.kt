@@ -279,14 +279,14 @@ internal fun radarChartStyle(
                 fillAlpha = r.float("polygon.fillAlpha", d.polygon.fillAlpha),
                 lineColor = d.polygon.lineColor,
                 lineColors = r.colors("polygon.lineColors", seriesCount, d.polygon.lineColors),
-                lineWidth = r.float("polygon.lineWidth", d.polygon.lineWidth),
+                lineWidth = r.dp("polygon.lineWidth", d.polygon.lineWidth),
             ),
         points =
             RadarChartDefaults.points(
                 visible = r.bool("points.visible", d.points.visible),
                 color = r.color("points.color", d.points.color),
                 colorSameAsLine = r.bool("points.colorSameAsLine", d.points.colorSameAsLine),
-                size = r.float("points.size", d.points.size),
+                size = r.dp("points.size", d.points.size),
             ),
         categories =
             RadarChartDefaults.categories(
