@@ -325,7 +325,6 @@ private fun StyleReader.labels(
     default.copy(
         visible = bool("$path.visible", default.visible),
         color = color("$path.color", default.color),
-        count = int("$path.count", default.count),
     )
 
 private val ChartData.singleSeriesSize: Int get() = (this as ChartData.SingleSeries).values.size

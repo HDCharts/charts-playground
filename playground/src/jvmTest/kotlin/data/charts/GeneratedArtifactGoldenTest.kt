@@ -18,14 +18,14 @@ class GeneratedArtifactGoldenTest {
 
         assertEquals(
             mapOf(
-                ChartType.LINE to "06779321159827908b7792e0c365b5f55947c625bd33e696712d63b3ef9bb8a9",
-                ChartType.BAR to "a243e5aed63f455b8694efa70018c07a0fe2f8d84cc76b34a50bca45da04de7c",
-                ChartType.HISTOGRAM to "78706f8ab1d94e0085c07506f264ae594d477bc3c8b6ee67a090ae6ee2905269",
-                ChartType.PIE to "f0c4a421264d1451322aec270ca800876276b90d4bbd3795acad4dced0f76f51",
-                ChartType.RADAR to "86ee4d104c17b2ed32d66d80da3b93fa434e221f72cb7daa7d79cea27664ca6a",
-                ChartType.AREA to "5961dc1c6a38acbd2a968d77122e96174238a2d4518205c3a50ad7b75771eec0",
-                ChartType.MULTI_LINE to "ecfc58bac7ece56000b0ff1d5d6c02fbe610442e17616d3836ef152e283498fe",
-                ChartType.STACKED_BAR to "328eee550c2fd12fb289c694df899b187f0725167326dd6acd37c1093bf1b299",
+                ChartType.LINE to "964bf7fa80975e1fbb9717bc3206c4b5dbcbc39474a16b55e05ed83f9f186c63",
+                ChartType.BAR to "a5a5b9e5cbf9c3da1a6c324a92dd6e03f66dddbbc54e80512d59ee8fd06cf4a8",
+                ChartType.HISTOGRAM to "6150eec18dc243fbbb35ebcde46926c9c837eeea2a573010c6700faf3a2ba5a4",
+                ChartType.PIE to "089e79654bc4a4e0fa386f41948a97bac60dc5799309ed40bf75ecaf368bb728",
+                ChartType.RADAR to "fb9fdd8db1532330763a84b82e45593bedc800616f37b01cecc0399619a6deb4",
+                ChartType.AREA to "3277ee670df968dd76f4129054ed82c22d4a29833d0fe85573f0167f0b6320d6",
+                ChartType.MULTI_LINE to "d418be3bc9025e4dc38db98d978a8aa4df056ba349b8d55b6254744f45746a56",
+                ChartType.STACKED_BAR to "a247769d85b738cff28e6822a32bbfb11b658c07718835fdcb3423886d5dc0fb",
             ),
             actualHashes,
         )

@@ -351,7 +351,7 @@ class EditorStoreTest {
 
         listOf(
             ChartType.STACKED_BAR to stackedBarSampleUseCase().initialStackedBarSample().dataSet,
-            ChartType.RADAR to radarSampleUseCase().initialRadarSample().customData,
+            ChartType.RADAR to radarSampleUseCase().initialRadarSample().data,
         ).forEach { (type, dataSet) ->
             val data =
                 state.sessions

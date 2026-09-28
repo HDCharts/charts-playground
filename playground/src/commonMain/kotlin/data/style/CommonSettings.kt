@@ -9,7 +9,7 @@ import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
 
-/** Show/count/color settings for the X and Y labels under [axisPath], e.g. `axis`. */
+/** Show/color settings for the X and Y labels under [axisPath], e.g. `axis`. */
 internal fun <S : Any> StyleSettingsScope<S>.axisLabelSettings(
     axisPath: String,
     xLabels: (S) -> AxisLabelStyle,
@@ -18,14 +18,6 @@ internal fun <S : Any> StyleSettingsScope<S>.axisLabelSettings(
     listOf(Triple("xLabels", "X", xLabels), Triple("yLabels", "Y", yLabels)).forEach { (key, name, labels) ->
         val base = "$axisPath.$key"
         +toggle("$base.visible", "Show $name Labels") { labels(it).visible }
-        +slider(
-            path = "$base.count",
-            label = "$name Label Count",
-            kind = StyleKind.INT,
-            range = 2f..12f,
-            step = 1f,
-            visibleWhen = whenOn("$base.visible"),
-        ) { labels(it).count }
         +color("$base.color", "$name Label Color", visibleWhen = whenOn("$base.visible")) { labels(it).color }
     }
 }
