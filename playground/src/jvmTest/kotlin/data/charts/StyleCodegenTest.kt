@@ -45,12 +45,12 @@ class StyleCodegenTest {
         val code =
             BarChartDefinition.generateWith(
                 "axis.xLabels.visible" to StyleValue.Bool(false),
-                "axis.xLabels.count" to StyleValue.Number(4f),
+                "axis.xLabels.color" to StyleValue.Color(ColorValue(0xFF112233L)),
             )
 
         assertTrue(
             code.contains(
-                "axis = BarChartDefaults.axis(xLabels = BarChartDefaults.xLabels(visible = false, count = 4),),",
+                "axis = BarChartDefaults.axis(xLabels = BarChartDefaults.xLabels(visible = false, color = Color(0xFF112233)),),",
             ),
             code,
         )

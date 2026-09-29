@@ -100,6 +100,10 @@ private val pageLayout =
     listOf("chartContainerStyle.contentPadding", "chartContainerStyle.styleTitle")
         .associateWith { "Title text style and padding belong to the page layout, not chart styling" }
 
+private val labelCounts =
+    listOf("axis.xLabels.maxCount", "axis.yLabels.maxCount")
+        .associateWith { "The chart picks how many labels fit; the playground keeps that default" }
+
 private val labelSizes = setOf("axis.xLabels.size", "axis.yLabels.size")
 
 private fun coverageFor(chartType: ChartType): StyleCoverage =
@@ -108,7 +112,7 @@ private fun coverageFor(chartType: ChartType): StyleCoverage =
             StyleCoverage(
                 styleClass = LineChartStyle::class.java,
                 notApplicable =
-                    pageLayout +
+                    pageLayout + labelCounts +
                         mapOf(
                             "line.colors" to "A single series draws with line.color",
                             "legend.visible" to "The legend is only drawn for multiple series",
@@ -119,7 +123,7 @@ private fun coverageFor(chartType: ChartType): StyleCoverage =
         ChartType.MULTI_LINE ->
             StyleCoverage(
                 styleClass = LineChartStyle::class.java,
-                notApplicable = pageLayout + ("line.color" to "Per-series colors are edited directly"),
+                notApplicable = pageLayout + labelCounts + ("line.color" to "Per-series colors are edited directly"),
                 notExposedYet = labelSizes,
             )
 
@@ -130,7 +134,8 @@ private fun coverageFor(chartType: ChartType): StyleCoverage =
         ChartType.STACKED_BAR ->
             StyleCoverage(
                 styleClass = StackedBarChartStyle::class.java,
-                notApplicable = pageLayout + ("segments.color" to "Per-segment colors are edited directly"),
+                notApplicable =
+                    pageLayout + labelCounts + ("segments.color" to "Per-segment colors are edited directly"),
                 notExposedYet = labelSizes,
             )
 
@@ -138,7 +143,7 @@ private fun coverageFor(chartType: ChartType): StyleCoverage =
             StyleCoverage(
                 styleClass = StackedAreaChartStyle::class.java,
                 notApplicable =
-                    pageLayout +
+                    pageLayout + labelCounts +
                         mapOf(
                             "fill.color" to "Per-series fill colors are edited directly",
                             "boundary.color" to "Per-series line colors are edited directly",
@@ -171,7 +176,7 @@ private fun coverageFor(chartType: ChartType): StyleCoverage =
 private fun barCoverage(styleClass: Class<*>): StyleCoverage =
     StyleCoverage(
         styleClass = styleClass,
-        notApplicable = pageLayout,
+        notApplicable = pageLayout + labelCounts,
         notExposedYet = labelSizes + setOf("grid.lineWidth", "axis.lineWidth"),
     )
 

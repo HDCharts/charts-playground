@@ -19,7 +19,7 @@ internal object RadarChartDefinition : MultiSeriesChart(
     override fun defaultData(): ChartData =
         SampleDataSources.radar
             .initialRadarSample()
-            .customData
+            .data
             .toMultiSeries(labelPrefix)
 
     override val settings: List<SettingDescriptor> = radarStyleSettings
