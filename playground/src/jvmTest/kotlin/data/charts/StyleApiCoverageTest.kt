@@ -4,13 +4,13 @@ import data.chartCatalog
 import domain.ChartType
 import domain.StyleTarget
 import domain.styleSettings
-import io.github.hdcharts.charts.style.BarChartStyle
-import io.github.hdcharts.charts.style.HistogramChartStyle
-import io.github.hdcharts.charts.style.LineChartStyle
-import io.github.hdcharts.charts.style.PieChartStyle
-import io.github.hdcharts.charts.style.RadarChartStyle
-import io.github.hdcharts.charts.style.StackedAreaChartStyle
-import io.github.hdcharts.charts.style.StackedBarChartStyle
+import io.github.hdcharts.core.style.BarChartStyle
+import io.github.hdcharts.core.style.HistogramChartStyle
+import io.github.hdcharts.line.LineChartStyle
+import io.github.hdcharts.pie.PieChartStyle
+import io.github.hdcharts.radar.RadarChartStyle
+import io.github.hdcharts.stackedarea.StackedAreaChartStyle
+import io.github.hdcharts.stackedbar.StackedBarChartStyle
 import java.io.File
 import java.lang.reflect.Modifier
 import java.net.JarURLConnection
@@ -66,7 +66,7 @@ class StyleApiCoverageTest {
 
 /** Every `*ChartStyle` class the charts library ships, across all of its modules on the classpath. */
 private fun libraryChartStyles(): Set<String> {
-    val directory = STYLE_PACKAGE.replace('.', '/')
+    val directory = LIBRARY_PACKAGE.replace('.', '/')
     val entries =
         Thread.currentThread().contextClassLoader.getResources(directory).toList().flatMap { url ->
             when (url.protocol) {
@@ -78,11 +78,15 @@ private fun libraryChartStyles(): Set<String> {
                             .map { it.name }
                             .filter { it.startsWith("$directory/") }
                     }
-                "file" -> File(url.toURI()).list().orEmpty().map { "$directory/$it" }
+                "file" ->
+                    File(
+                        url.toURI(),
+                    ).walk().map { "$directory/${it.relativeTo(File(url.toURI())).path}" }.toList()
                 else -> error("Cannot list library classes from $url")
             }
         }
     return entries
+        .filterNot { "/internal/" in it }
         .map { it.substringAfterLast('/') }
         .filter { it.endsWith("ChartStyle.class") && '$' !in it && it != "ChartStyle.class" }
         .map { it.removeSuffix(".class") }
@@ -180,7 +184,7 @@ private fun barCoverage(styleClass: Class<*>): StyleCoverage =
         notExposedYet = labelSizes + setOf("grid.lineWidth", "axis.lineWidth"),
     )
 
-private const val STYLE_PACKAGE = "io.github.hdcharts.charts.style"
+private const val LIBRARY_PACKAGE = "io.github.hdcharts"
 
 /** Public style properties of [styleClass] as dotted paths, descending into nested style blocks. */
 private fun styleProperties(
@@ -192,7 +196,8 @@ private fun styleProperties(
         .filter { field -> styleClass.hasPublicGetter(field.name) }
         .flatMap { field ->
             val path = prefix + field.name
-            if (field.type.packageName == STYLE_PACKAGE) {
+            // Nested style blocks (BarGridStyle, LegendStyle, …) live in core.style or the chart's own package.
+            if (field.type.packageName.startsWith("$LIBRARY_PACKAGE.") && field.type.simpleName.endsWith("Style")) {
                 styleProperties(field.type, "$path.")
             } else {
                 setOf(path)

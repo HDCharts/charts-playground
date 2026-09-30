@@ -4,8 +4,8 @@ import androidx.compose.runtime.Composable
 import domain.ChartData
 import domain.PIE_SLICE_COLORS_PATH
 import domain.ValidatedChartSpec
-import io.github.hdcharts.charts.PieChart
-import io.github.hdcharts.charts.model.PieSlice
+import io.github.hdcharts.pie.PieChart
+import io.github.hdcharts.pie.PieSlice
 import presentation.chart.StyleReader
 import presentation.chart.pieChartStyle
 

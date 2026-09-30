@@ -1,13 +1,12 @@
 package codegen
 
-import codegen.common.CHARTS_PACKAGE
 import codegen.common.COLOR_IMPORT
 import codegen.common.RenderedStyleArgument
-import codegen.common.STYLE_PACKAGE
 import codegen.common.colorLiteral
 import codegen.common.escapeKotlinString
 import codegen.common.formatKotlinDoubleLiteral
 import codegen.common.kotlinLine
+import codegen.common.libraryImport
 import domain.ColorValue
 
 /** A generated usage example: one chart composable with its data and, when any is set, its style. */
@@ -53,9 +52,9 @@ fun ChartSnippet.render(): String {
     val imports =
         buildList {
             add("import androidx.compose.runtime.Composable")
-            add("import $CHARTS_PACKAGE.$component")
+            add(libraryImport(component))
             addAll(data.imports())
-            if (includeStyle) add("import $STYLE_PACKAGE.$styleObject")
+            if (includeStyle) add(libraryImport(styleObject))
             addAll(styleArguments.flatMap { it.additionalImports })
         }.distinct().sorted()
     val body =
@@ -98,11 +97,11 @@ private fun ChartSnippet.chartCall(includeStyle: Boolean): List<String> {
 
 private fun SnippetData.imports(): List<String> =
     when (this) {
-        is SnippetData.Values, is SnippetData.Series -> listOf("import $CHARTS_PACKAGE.model.toChartData")
+        is SnippetData.Values, is SnippetData.Series -> listOf(libraryImport("toChartData"))
         is SnippetData.Slices ->
             listOfNotNull(
                 "import androidx.compose.runtime.remember",
-                "import $CHARTS_PACKAGE.model.PieSlice",
+                libraryImport("PieSlice"),
                 COLOR_IMPORT.takeIf { slices.any { it.color != null } },
             )
     }

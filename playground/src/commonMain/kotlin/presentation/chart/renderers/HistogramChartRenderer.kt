@@ -3,7 +3,7 @@ package presentation.chart.renderers
 import androidx.compose.runtime.Composable
 import domain.ChartData
 import domain.ValidatedChartSpec
-import io.github.hdcharts.charts.HistogramChart
+import io.github.hdcharts.histogram.HistogramChart
 import presentation.chart.StyleReader
 import presentation.chart.histogramChartStyle
 import presentation.chart.toLibraryData

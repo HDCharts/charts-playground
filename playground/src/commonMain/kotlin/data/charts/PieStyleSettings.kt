@@ -7,7 +7,7 @@ import domain.PIE_SLICE_COLORS_PATH
 import domain.SettingDescriptor
 import domain.StyleKind
 import domain.StyleTarget
-import io.github.hdcharts.charts.style.PieChartStyle
+import io.github.hdcharts.pie.PieChartStyle
 
 internal val pieStyleSettings: List<SettingDescriptor> =
     styleSettings<PieChartStyle> {

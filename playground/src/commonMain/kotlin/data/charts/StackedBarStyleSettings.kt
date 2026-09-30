@@ -5,7 +5,7 @@ import data.style.multiSeriesCount
 import data.style.styleSettings
 import domain.SettingDescriptor
 import domain.StyleKind
-import io.github.hdcharts.charts.style.StackedBarChartStyle
+import io.github.hdcharts.stackedbar.StackedBarChartStyle
 
 internal val stackedBarStyleSettings: List<SettingDescriptor> =
     styleSettings<StackedBarChartStyle> {

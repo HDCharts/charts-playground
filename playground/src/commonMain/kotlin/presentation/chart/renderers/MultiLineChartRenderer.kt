@@ -3,7 +3,7 @@ package presentation.chart.renderers
 import androidx.compose.runtime.Composable
 import domain.ChartData
 import domain.ValidatedChartSpec
-import io.github.hdcharts.charts.LineChart
+import io.github.hdcharts.line.LineChart
 import presentation.chart.StyleReader
 import presentation.chart.lineChartStyle
 import presentation.chart.toLibraryData

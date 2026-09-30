@@ -5,7 +5,7 @@ import data.style.itemValues
 import data.style.multiSeriesCount
 import data.style.styleSettings
 import domain.SettingDescriptor
-import io.github.hdcharts.charts.style.LineChartStyle
+import io.github.hdcharts.line.LineChartStyle
 
 internal val multiLineStyleSettings: List<SettingDescriptor> =
     styleSettings<LineChartStyle> {

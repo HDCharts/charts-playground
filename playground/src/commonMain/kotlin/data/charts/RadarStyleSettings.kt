@@ -6,7 +6,7 @@ import data.style.whenOff
 import data.style.whenOn
 import domain.SettingDescriptor
 import domain.StyleKind
-import io.github.hdcharts.charts.style.RadarChartStyle
+import io.github.hdcharts.radar.RadarChartStyle
 
 internal val radarStyleSettings: List<SettingDescriptor> =
     styleSettings<RadarChartStyle> {

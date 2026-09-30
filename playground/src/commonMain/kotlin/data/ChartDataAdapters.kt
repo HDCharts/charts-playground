@@ -14,7 +14,7 @@ import domain.ValidationResult
 import domain.ValidationSeverity
 import domain.formatEditorFloat
 import domain.sortedDeterministically
-import io.github.hdcharts.charts.model.PieSlice
+import io.github.hdcharts.pie.PieSlice
 import io.github.hdcharts.sampleshared.data.BarSampleUseCase
 import io.github.hdcharts.sampleshared.data.HistogramSampleUseCase
 import io.github.hdcharts.sampleshared.data.LineSampleUseCase
@@ -33,7 +33,7 @@ import io.github.hdcharts.sampleshared.data.stackedAreaSampleUseCase
 import io.github.hdcharts.sampleshared.data.stackedBarSampleUseCase
 import kotlin.math.max
 import kotlin.math.roundToInt
-import io.github.hdcharts.charts.model.ChartData as LibraryChartData
+import io.github.hdcharts.core.model.ChartData as LibraryChartData
 
 internal const val LABEL_COLUMN_ID = "label"
 

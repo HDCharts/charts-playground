@@ -2,11 +2,10 @@ package testing
 
 import androidx.compose.runtime.Composer
 import androidx.compose.runtime.currentComposer
+import codegen.common.libraryPackage
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import kotlin.math.ceil
-
-private const val STYLE_PACKAGE = "io.github.hdcharts.charts.style"
 
 /** Reads a dotted property path from a library style object through its backing fields. */
 fun readPath(
@@ -41,7 +40,7 @@ fun callStyleFactory(
     owner: String,
     name: String,
 ): Any? {
-    val ownerClass = Class.forName("$STYLE_PACKAGE.$owner")
+    val ownerClass = Class.forName("${libraryPackage(owner)}.$owner")
     val instance = ownerClass.getField("INSTANCE").get(null)
 
     // Functions taking value classes (Color, Dp) have mangled names, e.g. grid-abc123.

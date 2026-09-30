@@ -10,7 +10,7 @@ import data.style.whenAnyOn
 import data.style.whenOn
 import domain.SettingDescriptor
 import domain.StyleKind
-import io.github.hdcharts.charts.style.LineChartStyle
+import io.github.hdcharts.line.LineChartStyle
 
 internal val lineStyleSettings: List<SettingDescriptor> =
     styleSettings<LineChartStyle> {

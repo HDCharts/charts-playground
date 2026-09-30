@@ -19,7 +19,7 @@ class ArchitectureBoundaryTest {
                             "codegen.",
                             "presentation.",
                             "androidx.compose.",
-                            "io.github.hdcharts.charts.",
+                            "io.github.hdcharts.",
                         ),
                 ),
                 BoundaryRule(
@@ -30,7 +30,7 @@ class ArchitectureBoundaryTest {
                             "data.",
                             "presentation.",
                             "androidx.compose.",
-                            "io.github.hdcharts.charts.",
+                            "io.github.hdcharts.",
                         ),
                 ),
                 BoundaryRule(
