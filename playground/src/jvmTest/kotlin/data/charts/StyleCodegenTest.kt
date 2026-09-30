@@ -66,7 +66,7 @@ class StyleCodegenTest {
 
         assertTrue(code.contains("bars = HistogramChartDefaults.bars(alpha = 0.5f,),"), code)
         assertTrue(code.contains("grid = BarChartDefaults.grid(visible = false,),"), code)
-        assertTrue(code.contains("import io.github.hdcharts.charts.style.BarChartDefaults"), code)
+        assertTrue(code.contains("import io.github.hdcharts.core.style.BarChartDefaults"), code)
     }
 
     @Test

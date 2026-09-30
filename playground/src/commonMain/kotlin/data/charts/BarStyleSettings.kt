@@ -9,13 +9,13 @@ import data.style.styleSettings
 import data.style.whenOn
 import domain.SettingDescriptor
 import domain.StyleKind
-import io.github.hdcharts.charts.style.BarAxisStyle
-import io.github.hdcharts.charts.style.BarBarsStyle
-import io.github.hdcharts.charts.style.BarChartStyle
-import io.github.hdcharts.charts.style.BarGridStyle
-import io.github.hdcharts.charts.style.BarRangeStyle
-import io.github.hdcharts.charts.style.BarSelectionLineStyle
-import io.github.hdcharts.charts.style.HistogramChartStyle
+import io.github.hdcharts.core.style.BarAxisStyle
+import io.github.hdcharts.core.style.BarBarsStyle
+import io.github.hdcharts.core.style.BarChartStyle
+import io.github.hdcharts.core.style.BarGridStyle
+import io.github.hdcharts.core.style.BarRangeStyle
+import io.github.hdcharts.core.style.BarSelectionLineStyle
+import io.github.hdcharts.core.style.HistogramChartStyle
 
 internal val barStyleSettings: List<SettingDescriptor> =
     styleSettings<BarChartStyle> {

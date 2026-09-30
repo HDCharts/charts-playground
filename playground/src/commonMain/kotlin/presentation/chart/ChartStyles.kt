@@ -3,25 +3,25 @@ package presentation.chart
 import androidx.compose.runtime.Composable
 import domain.ChartData
 import domain.ChartType
-import io.github.hdcharts.charts.style.AxisLabelStyle
-import io.github.hdcharts.charts.style.BarAxisStyle
-import io.github.hdcharts.charts.style.BarChartDefaults
-import io.github.hdcharts.charts.style.BarChartStyle
-import io.github.hdcharts.charts.style.BarGridStyle
-import io.github.hdcharts.charts.style.BarRangeStyle
-import io.github.hdcharts.charts.style.BarSelectionLineStyle
-import io.github.hdcharts.charts.style.HistogramChartDefaults
-import io.github.hdcharts.charts.style.HistogramChartStyle
-import io.github.hdcharts.charts.style.LineChartDefaults
-import io.github.hdcharts.charts.style.LineChartStyle
-import io.github.hdcharts.charts.style.PieChartDefaults
-import io.github.hdcharts.charts.style.PieChartStyle
-import io.github.hdcharts.charts.style.RadarChartDefaults
-import io.github.hdcharts.charts.style.RadarChartStyle
-import io.github.hdcharts.charts.style.StackedAreaChartDefaults
-import io.github.hdcharts.charts.style.StackedAreaChartStyle
-import io.github.hdcharts.charts.style.StackedBarChartDefaults
-import io.github.hdcharts.charts.style.StackedBarChartStyle
+import io.github.hdcharts.core.style.AxisLabelStyle
+import io.github.hdcharts.core.style.BarAxisStyle
+import io.github.hdcharts.core.style.BarChartDefaults
+import io.github.hdcharts.core.style.BarChartStyle
+import io.github.hdcharts.core.style.BarGridStyle
+import io.github.hdcharts.core.style.BarRangeStyle
+import io.github.hdcharts.core.style.BarSelectionLineStyle
+import io.github.hdcharts.core.style.HistogramChartDefaults
+import io.github.hdcharts.core.style.HistogramChartStyle
+import io.github.hdcharts.line.LineChartDefaults
+import io.github.hdcharts.line.LineChartStyle
+import io.github.hdcharts.pie.PieChartDefaults
+import io.github.hdcharts.pie.PieChartStyle
+import io.github.hdcharts.radar.RadarChartDefaults
+import io.github.hdcharts.radar.RadarChartStyle
+import io.github.hdcharts.stackedarea.StackedAreaChartDefaults
+import io.github.hdcharts.stackedarea.StackedAreaChartStyle
+import io.github.hdcharts.stackedbar.StackedBarChartDefaults
+import io.github.hdcharts.stackedbar.StackedBarChartStyle
 
 /*
  * Builds each chart's library style from the playground's settings. Every read names the setting

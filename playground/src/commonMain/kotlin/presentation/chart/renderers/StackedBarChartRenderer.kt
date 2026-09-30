@@ -3,7 +3,7 @@ package presentation.chart.renderers
 import androidx.compose.runtime.Composable
 import domain.ChartData
 import domain.ValidatedChartSpec
-import io.github.hdcharts.charts.StackedBarChart
+import io.github.hdcharts.stackedbar.StackedBarChart
 import presentation.chart.StyleReader
 import presentation.chart.stackedBarChartStyle
 import presentation.chart.toLibraryData

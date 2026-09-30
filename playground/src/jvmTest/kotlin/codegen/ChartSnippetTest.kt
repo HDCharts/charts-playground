@@ -12,8 +12,8 @@ class ChartSnippetTest {
     fun values_render_a_chart_call_without_style() {
         val code = snippet("BarChart", values).render()
 
-        assertTrue(code.contains("import io.github.hdcharts.charts.BarChart"), code)
-        assertTrue(code.contains("import io.github.hdcharts.charts.model.toChartData"), code)
+        assertTrue(code.contains("import io.github.hdcharts.bar.BarChart"), code)
+        assertTrue(code.contains("import io.github.hdcharts.core.model.toChartData"), code)
         assertTrue(code.contains("fun ExampleChart()"), code)
         assertTrue(code.contains("listOf(12.0, 18.0).toChartData("), code)
         assertTrue(code.contains("categories = listOf(\"Mon\", \"Tue\"),"), code)
@@ -28,7 +28,7 @@ class ChartSnippetTest {
                 .copy(styleArguments = listOf(RenderedStyleArgument("zoomControlsVisible = false,")))
                 .render()
 
-        assertTrue(code.contains("import io.github.hdcharts.charts.style.BarChartDefaults"), code)
+        assertTrue(code.contains("import io.github.hdcharts.core.style.BarChartDefaults"), code)
         assertTrue(code.contains("        BarChartDefaults.style(\n            zoomControlsVisible = false,\n"), code)
         assertTrue(code.contains("        style = style,"), code)
     }

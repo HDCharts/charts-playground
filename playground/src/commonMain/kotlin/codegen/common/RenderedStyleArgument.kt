@@ -61,7 +61,7 @@ fun renderStyleArguments(
     return root.children.map { (name, node) ->
         val owner = profile.owner(name)
         val argument = renderMember(name, node, owner)
-        val ownerImport = "import $STYLE_PACKAGE.$owner".takeIf { node is StyleBlock && owner != profile.styleObject }
+        val ownerImport = libraryImport(owner).takeIf { node is StyleBlock && owner != profile.styleObject }
         argument.copy(
             code = "${argument.code},",
             additionalImports = argument.additionalImports + setOfNotNull(ownerImport),

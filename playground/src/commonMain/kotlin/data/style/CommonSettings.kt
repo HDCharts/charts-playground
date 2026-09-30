@@ -2,7 +2,7 @@ package data.style
 
 import domain.ChartData
 import domain.StyleKind
-import io.github.hdcharts.charts.style.AxisLabelStyle
+import io.github.hdcharts.core.style.AxisLabelStyle
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
