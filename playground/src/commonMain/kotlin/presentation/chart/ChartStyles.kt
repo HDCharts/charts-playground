@@ -9,7 +9,7 @@ import io.github.hdcharts.core.style.BarChartDefaults
 import io.github.hdcharts.core.style.BarChartStyle
 import io.github.hdcharts.core.style.BarGridStyle
 import io.github.hdcharts.core.style.BarRangeStyle
-import io.github.hdcharts.core.style.BarSelectionLineStyle
+import io.github.hdcharts.core.style.BarSelectionStyle
 import io.github.hdcharts.core.style.HistogramChartDefaults
 import io.github.hdcharts.core.style.HistogramChartStyle
 import io.github.hdcharts.line.LineChartDefaults
@@ -70,9 +70,11 @@ internal fun lineChartStyle(
             ),
         selection =
             LineChartDefaults.selection(
-                color = r.color("selection.color", d.selection.color),
-                size = r.dp("selection.size", d.selection.size),
-                activeSize = r.dp("selection.activeSize", d.selection.activeSize),
+                color = d.selection.color,
+                width = d.selection.width,
+                markerColor = r.color("selection.markerColor", d.selection.markerColor),
+                markerSize = r.dp("selection.markerSize", d.selection.markerSize),
+                pointSize = r.dp("selection.pointSize", d.selection.pointSize),
                 visible = r.bool("selection.visible", d.selection.visible),
             ),
         axis =
@@ -111,7 +113,7 @@ internal fun barChartStyle(
         range = barRange(r, d.range),
         grid = barGrid(r, d.grid),
         axis = barAxis(r, d.axis),
-        selectionLine = barSelectionLine(r, d.selectionLine),
+        selection = barSelection(r, d.selection),
         zoomControlsVisible = r.bool("zoomControlsVisible", d.zoomControlsVisible),
     )
 }
@@ -134,7 +136,7 @@ internal fun histogramChartStyle(
         range = barRange(r, d.range),
         grid = barGrid(r, d.grid),
         axis = barAxis(r, d.axis),
-        selectionLine = barSelectionLine(r, d.selectionLine),
+        selection = barSelection(r, d.selection),
         zoomControlsVisible = r.bool("zoomControlsVisible", d.zoomControlsVisible),
     )
 }
@@ -168,13 +170,14 @@ private fun barAxis(
 )
 
 @Composable
-private fun barSelectionLine(
+private fun barSelection(
     r: StyleReader,
-    d: BarSelectionLineStyle,
-) = BarChartDefaults.selectionLine(
-    visible = r.bool("selectionLine.visible", d.visible),
-    color = r.color("selectionLine.color", d.color),
-    width = r.dp("selectionLine.width", d.width),
+    d: BarSelectionStyle,
+) = BarChartDefaults.selection(
+    visible = r.bool("selection.visible", d.visible),
+    color = r.color("selection.color", d.color),
+    width = r.dp("selection.width", d.width),
+    unselectedAlpha = d.unselectedAlpha,
 )
 
 @Composable
@@ -224,14 +227,7 @@ internal fun areaChartStyle(
                 color = d.fill.color,
                 colors = r.colors("fill.colors", seriesCount, d.fill.colors),
                 alpha = r.float("fill.alpha", d.fill.alpha),
-            ),
-        boundary =
-            StackedAreaChartDefaults.boundary(
-                visible = r.bool("boundary.visible", d.boundary.visible),
-                color = d.boundary.color,
-                colors = r.colors("boundary.colors", seriesCount, d.boundary.colors),
-                width = r.dp("boundary.width", d.boundary.width),
-                bezier = r.bool("boundary.bezier", d.boundary.bezier),
+                bezier = r.bool("fill.bezier", d.fill.bezier),
             ),
         axis =
             StackedAreaChartDefaults.axis(
@@ -243,6 +239,7 @@ internal fun areaChartStyle(
                 visible = r.bool("selection.visible", d.selection.visible),
                 color = r.color("selection.color", d.selection.color),
                 width = r.dp("selection.width", d.selection.width),
+                unselectedAlpha = d.selection.unselectedAlpha,
             ),
         zoomControlsVisible = r.bool("zoomControlsVisible", d.zoomControlsVisible),
     )
@@ -288,12 +285,12 @@ internal fun radarChartStyle(
                 colorSameAsLine = r.bool("points.colorSameAsLine", d.points.colorSameAsLine),
                 size = r.dp("points.size", d.points.size),
             ),
-        categories =
-            RadarChartDefaults.categories(
-                legendVisible = r.bool("categories.legendVisible", d.categories.legendVisible),
-                pinsVisible = r.bool("categories.pinsVisible", d.categories.pinsVisible),
-                colors = d.categories.colors,
-                pinSize = d.categories.pinSize,
+        selection =
+            RadarChartDefaults.selection(
+                visible = d.selection.visible,
+                pointSize = d.selection.pointSize,
+                unselectedAlpha = d.selection.unselectedAlpha,
+                unfocusedSeriesAlpha = d.selection.unfocusedSeriesAlpha,
             ),
     )
 }
