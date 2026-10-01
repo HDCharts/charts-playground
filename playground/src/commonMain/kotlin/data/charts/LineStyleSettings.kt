@@ -48,22 +48,22 @@ internal fun StyleSettingsScope<LineChartStyle>.pointAndSelectionSections() {
     section("Selection") {
         +toggle("selection.visible", "Show Drag Point") { it.selection.visible }
         +slider(
-            path = "selection.size",
+            path = "selection.markerSize",
             label = "Drag Point Size",
             kind = StyleKind.DP,
             range = 2f..20f,
             step = 1f,
             visibleWhen = whenOn("selection.visible"),
-        ) { it.selection.size }
+        ) { it.selection.markerSize }
         +slider(
-            path = "selection.activeSize",
+            path = "selection.pointSize",
             label = "Selected Point Size",
             kind = StyleKind.DP,
             range = 2f..24f,
             step = 1f,
             visibleWhen = markerVisible,
-        ) { it.selection.activeSize }
-        +color("selection.color", "Marker Color", visibleWhen = markerVisible) { it.selection.color }
+        ) { it.selection.pointSize }
+        +color("selection.markerColor", "Marker Color", visibleWhen = markerVisible) { it.selection.markerColor }
     }
 }
 
@@ -71,8 +71,7 @@ internal fun StyleSettingsScope<LineChartStyle>.lineAxesSection() {
     section("Axes") {
         +toggle("axis.visible", "Show Axis Lines") { it.axis.visible }
         +color("axis.color", "Axis Line Color", visibleWhen = whenOn("axis.visible")) { it.axis.color }
-        // Also sets the selection line width, so it stays visible when axis lines are hidden.
-        +slider("axis.lineWidth", "Axis & Selection Line Width", StyleKind.DP, 0f..4f, 0.25f) { it.axis.lineWidth }
+        +slider("axis.lineWidth", "Width", StyleKind.DP, 0f..4f, 0.25f) { it.axis.lineWidth }
         axisLabelSettings("axis", xLabels = { it.axis.xLabels }, yLabels = { it.axis.yLabels })
     }
 }

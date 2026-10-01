@@ -35,12 +35,12 @@ class SettingVisibilityTest {
         val neither = visiblePaths("points.visible" to false, "selection.visible" to false)
         val pointsOnly = visiblePaths("points.visible" to true, "selection.visible" to false)
 
-        assertFalse("selection.size" in neither)
-        assertFalse("selection.activeSize" in neither)
-        assertFalse("selection.color" in neither)
-        assertFalse("selection.size" in pointsOnly)
-        assertTrue("selection.activeSize" in pointsOnly)
-        assertTrue("selection.color" in pointsOnly)
+        assertFalse("selection.markerSize" in neither)
+        assertFalse("selection.pointSize" in neither)
+        assertFalse("selection.markerColor" in neither)
+        assertFalse("selection.markerSize" in pointsOnly)
+        assertTrue("selection.pointSize" in pointsOnly)
+        assertTrue("selection.markerColor" in pointsOnly)
     }
 
     @Test

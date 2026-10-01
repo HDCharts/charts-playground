@@ -23,7 +23,7 @@ internal object HistogramChartDefinition : SingleSeriesChart(
         StyleCodeProfile(
             styleObject = "HistogramChartDefaults",
             // HistogramChartDefaults only builds bars; the other blocks are shared with bar charts.
-            blockOwners = listOf("range", "grid", "axis", "selectionLine").associateWith { "BarChartDefaults" },
+            blockOwners = listOf("range", "grid", "axis", "selection").associateWith { "BarChartDefaults" },
             // HistogramChartDefaults.style() starts the range at 0; BarChartDefaults.range() does not.
             blockDefaults = mapOf("range" to mapOf("min" to "0.0")),
         )
