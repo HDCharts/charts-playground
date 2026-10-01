@@ -110,6 +110,12 @@ private val labelCounts =
 
 private val labelSizes = setOf("axis.xLabels.size", "axis.yLabels.size")
 
+/** New selection members the playground does not expose yet; each needs its own setting. */
+private val selectionAlphas = setOf("selection.unselectedAlpha")
+
+/** The line selection line grew its own color and width; the axis width no longer drives it. */
+private val lineSelectionLine = setOf("selection.color", "selection.width")
+
 private fun coverageFor(chartType: ChartType): StyleCoverage =
     when (chartType) {
         ChartType.LINE ->
@@ -121,14 +127,14 @@ private fun coverageFor(chartType: ChartType): StyleCoverage =
                             "line.colors" to "A single series draws with line.color",
                             "legend.visible" to "The legend is only drawn for multiple series",
                         ),
-                notExposedYet = labelSizes,
+                notExposedYet = labelSizes + lineSelectionLine,
             )
 
         ChartType.MULTI_LINE ->
             StyleCoverage(
                 styleClass = LineChartStyle::class.java,
                 notApplicable = pageLayout + labelCounts + ("line.color" to "Per-series colors are edited directly"),
-                notExposedYet = labelSizes,
+                notExposedYet = labelSizes + lineSelectionLine,
             )
 
         ChartType.BAR -> barCoverage(BarChartStyle::class.java)
@@ -140,7 +146,7 @@ private fun coverageFor(chartType: ChartType): StyleCoverage =
                 styleClass = StackedBarChartStyle::class.java,
                 notApplicable =
                     pageLayout + labelCounts + ("segments.color" to "Per-segment colors are edited directly"),
-                notExposedYet = labelSizes,
+                notExposedYet = labelSizes + selectionAlphas,
             )
 
         ChartType.AREA ->
@@ -148,11 +154,8 @@ private fun coverageFor(chartType: ChartType): StyleCoverage =
                 styleClass = StackedAreaChartStyle::class.java,
                 notApplicable =
                     pageLayout + labelCounts +
-                        mapOf(
-                            "fill.color" to "Per-series fill colors are edited directly",
-                            "boundary.color" to "Per-series line colors are edited directly",
-                        ),
-                notExposedYet = labelSizes,
+                        mapOf("fill.color" to "Per-series fill colors are edited directly"),
+                notExposedYet = labelSizes + selectionAlphas,
             )
 
         ChartType.RADAR ->
@@ -165,9 +168,12 @@ private fun coverageFor(chartType: ChartType): StyleCoverage =
                         "axes.lineWidth",
                         "axes.labelSize",
                         "axes.labelPadding",
-                        "categories.colors",
-                        "categories.pinSize",
-                    ),
+                    ) + selectionAlphas +
+                        setOf(
+                            "selection.visible",
+                            "selection.pointSize",
+                            "selection.unfocusedSeriesAlpha",
+                        ),
             )
 
         ChartType.PIE ->
@@ -181,7 +187,7 @@ private fun barCoverage(styleClass: Class<*>): StyleCoverage =
     StyleCoverage(
         styleClass = styleClass,
         notApplicable = pageLayout + labelCounts,
-        notExposedYet = labelSizes + setOf("grid.lineWidth", "axis.lineWidth"),
+        notExposedYet = labelSizes + selectionAlphas + setOf("grid.lineWidth", "axis.lineWidth"),
     )
 
 private const val LIBRARY_PACKAGE = "io.github.hdcharts"

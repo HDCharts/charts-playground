@@ -14,7 +14,7 @@ import io.github.hdcharts.core.style.BarBarsStyle
 import io.github.hdcharts.core.style.BarChartStyle
 import io.github.hdcharts.core.style.BarGridStyle
 import io.github.hdcharts.core.style.BarRangeStyle
-import io.github.hdcharts.core.style.BarSelectionLineStyle
+import io.github.hdcharts.core.style.BarSelectionStyle
 import io.github.hdcharts.core.style.HistogramChartStyle
 
 internal val barStyleSettings: List<SettingDescriptor> =
@@ -24,7 +24,7 @@ internal val barStyleSettings: List<SettingDescriptor> =
             range = { it.range },
             grid = { it.grid },
             axis = { it.axis },
-            selectionLine = { it.selectionLine },
+            selection = { it.selection },
             zoomControlsVisible = { it.zoomControlsVisible },
         )
     }
@@ -36,7 +36,7 @@ internal val histogramStyleSettings: List<SettingDescriptor> =
             range = { it.range },
             grid = { it.grid },
             axis = { it.axis },
-            selectionLine = { it.selectionLine },
+            selection = { it.selection },
             zoomControlsVisible = { it.zoomControlsVisible },
         )
     }
@@ -47,7 +47,7 @@ private fun <S : Any> StyleSettingsScope<S>.barSettings(
     range: (S) -> BarRangeStyle,
     grid: (S) -> BarGridStyle,
     axis: (S) -> BarAxisStyle,
-    selectionLine: (S) -> BarSelectionLineStyle,
+    selection: (S) -> BarSelectionStyle,
     zoomControlsVisible: (S) -> Boolean,
 ) {
     section("Bars") {
@@ -76,10 +76,10 @@ private fun <S : Any> StyleSettingsScope<S>.barSettings(
     )
     section(
         "Selection Line",
-        toggle = toggle("selectionLine.visible", "Show Selection Line") { selectionLine(it).visible },
+        toggle = toggle("selection.visible", "Show Selection Line") { selection(it).visible },
     ) {
-        +slider("selectionLine.width", "Width", StyleKind.DP, 0f..4f, 0.25f) { selectionLine(it).width }
-        +color("selectionLine.color", "Color") { selectionLine(it).color }
+        +slider("selection.width", "Width", StyleKind.DP, 0f..4f, 0.25f) { selection(it).width }
+        +color("selection.color", "Color") { selection(it).color }
     }
     section("Controls") {
         +toggle("zoomControlsVisible", "Show Zoom Controls") { zoomControlsVisible(it) }
