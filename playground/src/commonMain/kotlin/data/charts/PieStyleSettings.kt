@@ -6,13 +6,12 @@ import data.style.styleSettings
 import domain.PIE_SLICE_COLORS_PATH
 import domain.SettingDescriptor
 import domain.StyleKind
-import domain.StyleTarget
 import io.github.hdcharts.pie.PieChartStyle
 
 internal val pieStyleSettings: List<SettingDescriptor> =
     styleSettings<PieChartStyle> {
         section("Slices") {
-            +palette(PIE_SLICE_COLORS_PATH, "Colors", singleSeriesCount, target = StyleTarget.DATA) { style, count ->
+            +palette(PIE_SLICE_COLORS_PATH, "Colors", singleSeriesCount) { style, count ->
                 style.slices.resolveColors(count)
             }
             +slider("slices.alpha", "Transparency", StyleKind.FLOAT, 0f..1f, 0.05f) { it.slices.alpha }

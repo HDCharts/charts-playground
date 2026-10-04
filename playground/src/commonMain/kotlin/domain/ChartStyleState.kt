@@ -42,5 +42,5 @@ fun interface StyleResolver {
     fun isOn(path: String): Boolean = (value(path) as? StyleValue.Bool)?.value == true
 }
 
-/** Per-slice pie colors, which the pie chart takes on its data rows rather than its style. */
-const val PIE_SLICE_COLORS_PATH = "data.sliceColors"
+/** Per-slice pie colors, which the pie chart takes on its slices style. */
+const val PIE_SLICE_COLORS_PATH = "slices.colors"

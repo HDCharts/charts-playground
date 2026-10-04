@@ -102,14 +102,16 @@ class StyleCodegenTest {
     }
 
     @Test
-    fun pie_slice_colors_go_on_the_data_rows() {
+    fun pie_slice_colors_go_into_the_style() {
         val code =
             PieChartDefinition.generateWith(
                 PIE_SLICE_COLORS_PATH to StyleValue.Colors(listOf(ColorValue(0xFFFF0000L))),
             )
 
-        assertTrue(code.contains("color = Color(0xFFFF0000)),"), code)
-        assertFalse(code.contains("PieChartDefaults.style("), code)
+        assertTrue(
+            code.contains("slices = PieChartDefaults.slices(colors = listOf(Color(0xFFFF0000)"),
+            code,
+        )
     }
 }
 

@@ -23,9 +23,6 @@ enum class StyleTarget {
     /** A property of the chart's library style, addressed by the setting path. */
     STYLE,
 
-    /** Chart data rather than style, e.g. per-slice pie colors. The chart handles it itself. */
-    DATA,
-
     /** Playground-only switch that gates the settings in its section, e.g. "Fixed Range". */
     LOCAL,
 }
