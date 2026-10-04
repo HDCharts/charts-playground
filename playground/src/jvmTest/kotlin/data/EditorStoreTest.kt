@@ -12,13 +12,13 @@ import domain.ValidationIssueCode
 import domain.styleSettings
 import io.github.hdcharts.sampleshared.data.barSampleUseCase
 import io.github.hdcharts.sampleshared.data.histogramSampleUseCase
-import io.github.hdcharts.sampleshared.data.lineSampleUseCase
 import io.github.hdcharts.sampleshared.data.multiLineSampleUseCase
 import io.github.hdcharts.sampleshared.data.pieSampleUseCase
 import io.github.hdcharts.sampleshared.data.radarSampleUseCase
 import io.github.hdcharts.sampleshared.data.stackedAreaSampleUseCase
 import io.github.hdcharts.sampleshared.data.stackedBarSampleUseCase
 import testing.changeEverySetting
+import kotlin.math.roundToInt
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -165,6 +165,21 @@ class EditorStoreTest {
     }
 
     @Test
+    fun switching_charts_on_the_code_tab_shows_the_new_chart_code() {
+        val store = newStore()
+
+        store.dispatch(EditorAction.SelectRightPanelTab(RightPanelTab.CODE))
+        store.dispatch(EditorAction.SelectChart(ChartType.PIE))
+
+        assertTrue(
+            store.state.value.sessions
+                .getValue(ChartType.PIE)
+                .generatedCode
+                .isNotBlank(),
+        )
+    }
+
+    @Test
     fun delete_row_stops_at_the_chart_minimum() {
         val store = newStore()
         val initial =
@@ -282,12 +297,13 @@ class EditorStoreTest {
             state.sessions
                 .getValue(ChartType.LINE)
                 .validatedSpec.data as ChartData.SingleSeries
-        val lineDataSet = lineSampleUseCase().initialLineDataSet()
+        val latency = SampleDataSources.latency
+        val lineDataSet = latency.toSingleDataSet(latency.createSingleWindow(windowSize = lineData.values.size))
         assertEquals(
             lineDataSet.series
                 .single()
                 .values
-                .map(Double::toFloat),
+                .map { value -> value.roundToInt().toFloat() },
             lineData.values,
         )
         assertEquals(lineDataSet.categories.toList(), lineData.labels)

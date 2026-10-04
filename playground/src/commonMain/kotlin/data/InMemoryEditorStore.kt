@@ -17,6 +17,7 @@ import domain.toUI
 import domain.updateCell
 import domain.withAddedRow
 import domain.withDeletedRow
+import domain.withRightPanelTab
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -39,8 +40,11 @@ class InMemoryEditorStore(
         action: EditorAction,
     ): ChartEditorState =
         when (action) {
-            is EditorAction.SelectChart -> state.copy(selectedChartType = action.chartType)
-            is EditorAction.SelectRightPanelTab -> state.copy(rightPanelTab = action.tab)
+            is EditorAction.SelectChart ->
+                state
+                    .copy(selectedChartType = action.chartType)
+                    .withRightPanelTab(state.rightPanelTab, codegenService::generate)
+            is EditorAction.SelectRightPanelTab -> state.withRightPanelTab(action.tab, codegenService::generate)
             is EditorAction.UpdateTitle ->
                 updateCurrentSession(state) { session, _ ->
                     val draft = session.draft.copy(title = action.title)
@@ -146,11 +150,14 @@ private fun defaultEditorState(
     snapshotMetadata: SnapshotPublishMetadata?,
     codegenService: ChartCodegenService,
 ): ChartEditorState {
+    val initialType = catalog.chartTypes.firstOrNull() ?: catalog.charts.first().type
     val sessions =
         catalog.charts.associate { definition ->
-            definition.type to definition.resetSession().withGeneratedCode(codegenService)
+            definition.type to
+                definition.resetSession().let { session ->
+                    if (session.chartType == initialType) session.withGeneratedCode(codegenService) else session
+                }
         }
-    val initialType = catalog.chartTypes.firstOrNull() ?: catalog.charts.first().type
     return ChartEditorState(
         selectedChartType = initialType,
         rightPanelTab = RightPanelTab.SETTINGS,

@@ -1,6 +1,7 @@
 package presentation.chart
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import domain.ChartType
 import domain.SettingDescriptor
 import domain.ValidatedChartSpec
@@ -19,7 +20,7 @@ internal fun ChartRenderer(
     spec: ValidatedChartSpec,
     settings: List<SettingDescriptor>,
 ) {
-    val styleReader = StyleReader.active(settings, spec.styleState)
+    val styleReader = remember(settings, spec.styleState) { StyleReader.active(settings, spec.styleState) }
     when (type) {
         ChartType.PIE -> PieChartRenderer(spec, styleReader)
         ChartType.LINE -> LineChartRenderer(spec, styleReader)
