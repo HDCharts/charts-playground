@@ -16,7 +16,7 @@ import domain.formatEditorFloat
 import domain.sortedDeterministically
 import io.github.hdcharts.sampleshared.data.BarSampleUseCase
 import io.github.hdcharts.sampleshared.data.HistogramSampleUseCase
-import io.github.hdcharts.sampleshared.data.LineSampleUseCase
+import io.github.hdcharts.sampleshared.data.LiveLatencyTimelineUseCase
 import io.github.hdcharts.sampleshared.data.MultiLineSampleUseCase
 import io.github.hdcharts.sampleshared.data.PieSampleUseCase
 import io.github.hdcharts.sampleshared.data.RadarSampleUseCase
@@ -24,7 +24,7 @@ import io.github.hdcharts.sampleshared.data.StackedAreaSampleUseCase
 import io.github.hdcharts.sampleshared.data.StackedBarSampleUseCase
 import io.github.hdcharts.sampleshared.data.barSampleUseCase
 import io.github.hdcharts.sampleshared.data.histogramSampleUseCase
-import io.github.hdcharts.sampleshared.data.lineSampleUseCase
+import io.github.hdcharts.sampleshared.data.liveLatencyTimelineUseCase
 import io.github.hdcharts.sampleshared.data.multiLineSampleUseCase
 import io.github.hdcharts.sampleshared.data.pieSampleUseCase
 import io.github.hdcharts.sampleshared.data.radarSampleUseCase
@@ -32,13 +32,15 @@ import io.github.hdcharts.sampleshared.data.stackedAreaSampleUseCase
 import io.github.hdcharts.sampleshared.data.stackedBarSampleUseCase
 import kotlin.math.max
 import kotlin.math.roundToInt
+import kotlin.random.Random
 import io.github.hdcharts.core.model.ChartData as LibraryChartData
 
 internal const val LABEL_COLUMN_ID = "label"
+private const val LATENCY_SEED = 7
 
 internal object SampleDataSources {
     val pie: PieSampleUseCase = pieSampleUseCase()
-    val line: LineSampleUseCase = lineSampleUseCase()
+    val latency: LiveLatencyTimelineUseCase get() = liveLatencyTimelineUseCase(Random(LATENCY_SEED))
     val bar: BarSampleUseCase = barSampleUseCase()
     val histogram: HistogramSampleUseCase = histogramSampleUseCase()
     val multiLine: MultiLineSampleUseCase = multiLineSampleUseCase()

@@ -18,7 +18,7 @@ class GeneratedArtifactGoldenTest {
 
         assertEquals(
             mapOf(
-                ChartType.LINE to "620cc393ae67bd5e22d90110d740b7f7b9102d8ae02004d24b17513b2530cb8a",
+                ChartType.LINE to "815214000c6e7c988ce4131e2373caa5b18d2f8f4fb7ab0931207db433907949",
                 ChartType.BAR to "4f9126d74ea6696436a19c83d25beb03c4249403dc3ae409aa601b96ec05f0ee",
                 ChartType.HISTOGRAM to "aa454ae726d4573da76771b00bebcd3d5bcb4ee0361a57d843731a0a914c9f3b",
                 ChartType.PIE to "b6cc5822f10cc340545bb6b19c2145793807d4424017769728d2404852f98e2a",
