@@ -1,13 +1,10 @@
 package codegen
 
-import codegen.common.COLOR_IMPORT
 import codegen.common.RenderedStyleArgument
-import codegen.common.colorLiteral
 import codegen.common.escapeKotlinString
 import codegen.common.formatKotlinDoubleLiteral
 import codegen.common.kotlinLine
 import codegen.common.libraryImport
-import domain.ColorValue
 
 /** A generated usage example: one chart composable with its data and, when any is set, its style. */
 data class ChartSnippet(
@@ -34,17 +31,6 @@ sealed interface SnippetData {
         val series: List<Pair<String, List<Float>>>,
         val categories: List<String>,
     ) : SnippetData
-
-    /** Pie slices; a slice color, when set, goes on its data row. */
-    data class Slices(
-        val slices: List<Slice>,
-    ) : SnippetData {
-        data class Slice(
-            val label: String,
-            val value: Float,
-            val color: ColorValue? = null,
-        )
-    }
 }
 
 fun ChartSnippet.render(): String {
@@ -98,12 +84,6 @@ private fun ChartSnippet.chartCall(includeStyle: Boolean): List<String> {
 private fun SnippetData.imports(): List<String> =
     when (this) {
         is SnippetData.Values, is SnippetData.Series -> listOf(libraryImport("toChartData"))
-        is SnippetData.Slices ->
-            listOfNotNull(
-                "import androidx.compose.runtime.remember",
-                libraryImport("PieSlice"),
-                COLOR_IMPORT.takeIf { slices.any { it.color != null } },
-            )
     }
 
 private fun SnippetData.render(): List<String> =
@@ -130,23 +110,6 @@ private fun SnippetData.render(): List<String> =
                 add(kotlinLine(1, "val data = items.toChartData("))
                 add(kotlinLine(2, "categories = ${stringList(categories)},"))
                 add(kotlinLine(1, ")"))
-            }
-        is SnippetData.Slices ->
-            buildList {
-                add(kotlinLine(1, "val data ="))
-                add(kotlinLine(1, "remember {"))
-                add(kotlinLine(2, "listOf("))
-                slices.forEach { slice ->
-                    val args =
-                        listOfNotNull(
-                            "label = ${stringLiteral(slice.label)}",
-                            "value = ${formatKotlinDoubleLiteral(slice.value)}",
-                            slice.color?.let { "color = ${colorLiteral(it)}" },
-                        )
-                    add(kotlinLine(3, "PieSlice(${args.joinToString(", ")}),"))
-                }
-                add(kotlinLine(2, ")"))
-                add(kotlinLine(1, "}"))
             }
     }
 

@@ -14,7 +14,6 @@ import domain.ValidationResult
 import domain.ValidationSeverity
 import domain.formatEditorFloat
 import domain.sortedDeterministically
-import io.github.hdcharts.pie.PieSlice
 import io.github.hdcharts.sampleshared.data.BarSampleUseCase
 import io.github.hdcharts.sampleshared.data.HistogramSampleUseCase
 import io.github.hdcharts.sampleshared.data.LineSampleUseCase
@@ -56,12 +55,6 @@ internal fun LibraryChartData.toSingleSeries(labelsOverride: List<String>? = nul
         labels = labels.takeIf { it.isNotEmpty() },
     )
 }
-
-internal fun List<PieSlice>.toSingleSeries(): ChartData.SingleSeries =
-    ChartData.SingleSeries(
-        values = map { it.value.toFloat() },
-        labels = map { it.label }.takeIf { it.isNotEmpty() },
-    )
 
 /**
  * Library data as named series over shared categories. Missing categories are named with

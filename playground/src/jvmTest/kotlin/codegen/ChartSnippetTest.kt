@@ -1,7 +1,6 @@
 package codegen
 
 import codegen.common.RenderedStyleArgument
-import domain.ColorValue
 import testing.assertSnippetCompiles
 import kotlin.test.Test
 import kotlin.test.assertFalse
@@ -47,13 +46,12 @@ class ChartSnippetTest {
     }
 
     @Test
-    fun slice_colors_go_on_the_data_rows() {
-        val code = snippet("PieChart", coloredSlices).render()
+    fun pie_writes_the_shared_data_shape() {
+        val code = snippet("PieChart", values).render()
 
-        assertTrue(code.contains("import androidx.compose.runtime.remember"), code)
-        assertTrue(code.contains("import androidx.compose.ui.graphics.Color"), code)
-        assertTrue(code.contains("            PieSlice(label = \"A\", value = 1.0, color = Color(0xFF1D3557)),"), code)
-        assertTrue(code.contains("            PieSlice(label = \"B\", value = 2.0),"), code)
+        assertTrue(code.contains("import io.github.hdcharts.core.model.toChartData"), code)
+        assertTrue(code.contains("listOf(12.0, 18.0).toChartData("), code)
+        assertTrue(code.contains("categories = listOf(\"Mon\", \"Tue\"),"), code)
     }
 
     @Test
@@ -71,21 +69,12 @@ class ChartSnippetTest {
         listOf(
             snippet("BarChart", values),
             snippet("RadarChart", SnippetData.Series(listOf("Android" to listOf(80f, 75f)), listOf("Perf", "UX"))),
-            snippet("PieChart", coloredSlices),
-            snippet("PieChart", SnippetData.Slices(listOf(SnippetData.Slices.Slice("A", 24f)))),
+            snippet("PieChart", values),
         ).forEach { snippet -> assertSnippetCompiles(snippet.render(), snippet.component) }
     }
 }
 
 private val values = SnippetData.Values(values = listOf(12f, 18f), categories = listOf("Mon", "Tue"))
-
-private val coloredSlices =
-    SnippetData.Slices(
-        listOf(
-            SnippetData.Slices.Slice("A", 1f, ColorValue(0xFF1D3557L)),
-            SnippetData.Slices.Slice("B", 2f),
-        ),
-    )
 
 private fun snippet(
     component: String,

@@ -16,7 +16,6 @@ private val libraryPackages: Map<String, String> =
         "LineChartDefaults" to "line",
         "PieChart" to "pie",
         "PieChartDefaults" to "pie",
-        "PieSlice" to "pie",
         "RadarChart" to "radar",
         "RadarChartDefaults" to "radar",
         "StackedAreaChart" to "stackedarea",

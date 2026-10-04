@@ -3,6 +3,7 @@ package presentation.chart
 import androidx.compose.runtime.Composable
 import domain.ChartData
 import domain.ChartType
+import domain.PIE_SLICE_COLORS_PATH
 import io.github.hdcharts.core.style.AxisLabelStyle
 import io.github.hdcharts.core.style.BarAxisStyle
 import io.github.hdcharts.core.style.BarChartDefaults
@@ -43,7 +44,7 @@ internal fun chartStyle(
         ChartType.STACKED_BAR -> stackedBarChartStyle(style, data)
         ChartType.AREA -> areaChartStyle(style, data)
         ChartType.RADAR -> radarChartStyle(style, data)
-        ChartType.PIE -> pieChartStyle(style)
+        ChartType.PIE -> pieChartStyle(style, data)
     }
 
 @Composable
@@ -295,9 +296,11 @@ internal fun radarChartStyle(
     )
 }
 
-/** Slice colors are applied to the pie's data rows, not its style. */
 @Composable
-internal fun pieChartStyle(r: StyleReader): PieChartStyle {
+internal fun pieChartStyle(
+    r: StyleReader,
+    data: ChartData,
+): PieChartStyle {
     val d = PieChartDefaults.style()
     return PieChartDefaults.style(
         donut = PieChartDefaults.donut(holePercentage = r.float("donut.holePercentage", d.donut.holePercentage)),
@@ -305,6 +308,7 @@ internal fun pieChartStyle(r: StyleReader): PieChartStyle {
             PieChartDefaults.slices(
                 baseColor = d.slices.baseColor,
                 alpha = r.float("slices.alpha", d.slices.alpha),
+                colors = r.colors(PIE_SLICE_COLORS_PATH, data.singleSeriesSize, d.slices.colors),
             ),
         border =
             PieChartDefaults.border(
