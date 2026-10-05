@@ -1,5 +1,7 @@
 package presentation.editor
 
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -33,6 +35,8 @@ import domain.EditorAction
 import interop.copyTextToClipboard
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
+
+private const val CHART_SWITCH_FADE_MILLIS = 700
 
 @Composable
 fun EditorRoute(
@@ -177,13 +181,20 @@ private fun EditorContent(
     modifier: Modifier,
 ) {
     BoxWithConstraints(modifier = modifier) {
-        EditorWorkspace(
-            state = state,
-            session = state.sessions.getValue(state.selectedChartType),
-            chartType = state.selectedChartType,
-            onAction = onAction,
-            onCopyCode = onCopyCode,
-            wideLayout = maxWidth >= EditorWideLayoutBreakpoint,
-        )
+        val wideLayout = maxWidth >= EditorWideLayoutBreakpoint
+        // Same fade as the demo app's screen changes (the NavHost default).
+        Crossfade(
+            targetState = state.selectedChartType,
+            animationSpec = tween(CHART_SWITCH_FADE_MILLIS),
+        ) { chartType ->
+            EditorWorkspace(
+                state = state,
+                session = state.sessions.getValue(chartType),
+                chartType = chartType,
+                onAction = onAction,
+                onCopyCode = onCopyCode,
+                wideLayout = wideLayout,
+            )
+        }
     }
 }
