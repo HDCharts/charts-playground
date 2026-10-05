@@ -2,9 +2,12 @@ package presentation.editor
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -37,46 +40,67 @@ fun SettingsPanel(
     session: ChartSession,
     descriptors: List<SettingDescriptor>,
     onSettingChange: (SettingChange) -> Unit,
+    scrollable: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val data = session.validatedSpec.data
     val values = rememberSettingValues(session.chartType, descriptors, session.draft.styleState, data)
+    val visible = descriptors.visibleFor(values)
+    val item: @Composable (index: Int, descriptor: SettingDescriptor) -> Unit = { index, descriptor ->
+        when (descriptor) {
+            is SettingDescriptor.Section -> {
+                if (index > 0) HorizontalDivider(modifier = Modifier.padding(top = 6.dp))
+                val toggle = descriptor.toggle
+                StyleSectionHeader(
+                    title = descriptor.title,
+                    checked = toggle?.let { values.isOn(it.path) },
+                    onCheckedChange = { checked ->
+                        toggle?.let { onSettingChange(SettingChange(it.path, StyleValue.Bool(checked))) }
+                    },
+                    switchContentDescription = toggle?.label ?: descriptor.title,
+                )
+            }
 
-    Column(
-        modifier = modifier.fillMaxWidth().padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-    ) {
-        descriptors.visibleFor(values).forEachIndexed { index, descriptor ->
-            when (descriptor) {
-                is SettingDescriptor.Section ->
-                    key(descriptor.title) {
-                        if (index > 0) HorizontalDivider(modifier = Modifier.padding(top = 6.dp))
-                        val toggle = descriptor.toggle
-                        StyleSectionHeader(
-                            title = descriptor.title,
-                            checked = toggle?.let { values.isOn(it.path) },
-                            onCheckedChange = { checked ->
-                                toggle?.let { onSettingChange(SettingChange(it.path, StyleValue.Bool(checked))) }
-                            },
-                            switchContentDescription = toggle?.label ?: descriptor.title,
-                        )
-                    }
+            is StyleSetting ->
+                StyleSettingControl(
+                    setting = descriptor,
+                    userValue = session.draft.styleState[descriptor.path],
+                    effectiveValue = values.value(descriptor.path),
+                    data = data,
+                    onChange = { value -> onSettingChange(SettingChange(descriptor.path, value)) },
+                )
+        }
+    }
 
-                is StyleSetting ->
-                    // Charts share paths (Bar/Histogram `bars.color`), so control state must not carry over.
-                    key(session.chartType, descriptor.path) {
-                        StyleSettingControl(
-                            setting = descriptor,
-                            userValue = session.draft.styleState[descriptor.path],
-                            effectiveValue = values.value(descriptor.path),
-                            data = data,
-                            onChange = { value -> onSettingChange(SettingChange(descriptor.path, value)) },
-                        )
-                    }
+    // A lazy list builds only the settings on screen, so long settings lists cost no more to show.
+    if (scrollable) {
+        LazyColumn(
+            modifier = modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            itemsIndexed(visible, key = { _, descriptor -> descriptor.itemKey(session) }) { index, descriptor ->
+                item(index, descriptor)
+            }
+        }
+    } else {
+        Column(
+            modifier = modifier.fillMaxWidth().padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            visible.forEachIndexed { index, descriptor ->
+                key(descriptor.itemKey(session)) { item(index, descriptor) }
             }
         }
     }
 }
+
+// Charts share paths (Bar/Histogram `bars.color`), so control state must not carry over.
+private fun SettingDescriptor.itemKey(session: ChartSession): String =
+    when (this) {
+        is SettingDescriptor.Section -> "section/$title"
+        is StyleSetting -> "${session.chartType}/$path"
+    }
 
 /** Renders one setting with the control it declares. */
 @Composable
