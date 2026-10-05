@@ -7,8 +7,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import domain.ChartEditorState
@@ -24,6 +32,12 @@ private const val DATA_TABLE_PANEL_WEIGHT = 30f
 private const val CHART_PANEL_WEIGHT = 40f
 private const val RIGHT_PANEL_WEIGHT = 30f
 
+// A chart switch builds one panel per frame, chart last, so no frame is long and the chart's start
+// animation begins on a quiet frame.
+private const val TABLE_STAGE = 1
+private const val SETTINGS_STAGE = 2
+private const val CHART_STAGE = 3
+
 @Composable
 internal fun EditorWorkspace(
     state: ChartEditorState,
@@ -33,6 +47,8 @@ internal fun EditorWorkspace(
     onCopyCode: suspend (String) -> Boolean,
     wideLayout: Boolean,
 ) {
+    val stage = rememberBuildStage(chartType)
+
     @Composable
     fun dataTableContent(modifier: Modifier) {
         DataTableEditor(
@@ -61,6 +77,7 @@ internal fun EditorWorkspace(
 
     @Composable
     fun chartContent(modifier: Modifier) {
+        if (stage < CHART_STAGE) return PanelPlaceholder(modifier)
         ChartPanel(
             session = session,
             chartType = chartType,
@@ -72,6 +89,7 @@ internal fun EditorWorkspace(
 
     @Composable
     fun rightPanelContent(modifier: Modifier) {
+        if (stage < SETTINGS_STAGE) return PanelPlaceholder(modifier)
         RightPanel(
             tab = state.rightPanelTab,
             onTabChange = { tab -> onAction(EditorAction.SelectRightPanelTab(tab)) },
@@ -80,12 +98,8 @@ internal fun EditorWorkspace(
                     session = session,
                     descriptors = session.settings,
                     onSettingChange = { change -> onAction(EditorAction.UpdateSetting(change)) },
-                    modifier =
-                        if (wideLayout) {
-                            Modifier.fillMaxWidth().fillMaxHeight().verticalScroll(rememberScrollState())
-                        } else {
-                            Modifier.fillMaxWidth()
-                        },
+                    scrollable = wideLayout,
+                    modifier = if (wideLayout) Modifier.fillMaxWidth().fillMaxHeight() else Modifier.fillMaxWidth(),
                 )
             },
             codeContent = {
@@ -125,4 +139,21 @@ internal fun EditorWorkspace(
             rightPanelContent(Modifier.fillMaxWidth().padding(top = 16.dp))
         }
     }
+}
+
+@Composable
+private fun rememberBuildStage(chartType: ChartType): Int {
+    var stage by remember(chartType) { mutableIntStateOf(TABLE_STAGE) }
+    LaunchedEffect(chartType) {
+        while (stage < CHART_STAGE) {
+            withFrameNanos { }
+            stage++
+        }
+    }
+    return stage
+}
+
+@Composable
+private fun PanelPlaceholder(modifier: Modifier) {
+    Surface(modifier = modifier, shape = RoundedCornerShape(16.dp), tonalElevation = 2.dp) {}
 }
