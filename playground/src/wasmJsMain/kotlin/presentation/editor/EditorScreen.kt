@@ -48,6 +48,7 @@ fun EditorRoute(
 
     EditorScreen(
         state = chartType?.let { state.copy(selectedChartType = it) } ?: state,
+        snapshotMetadata = viewModel.snapshotMetadata,
         onAction = viewModel::dispatch,
         onCopyCode = { code -> copyTextToClipboard(clipboard, code) },
         onOpenUri = uriHandler::openUri,
@@ -59,6 +60,7 @@ fun EditorRoute(
 @Composable
 fun EditorScreen(
     state: ChartEditorState,
+    snapshotMetadata: SnapshotMetadataUi?,
     onAction: (EditorAction) -> Unit,
     onCopyCode: suspend (String) -> Boolean,
     onOpenUri: (String) -> Unit,
@@ -72,7 +74,7 @@ fun EditorScreen(
                     ChartTypeRail(
                         chartTypes = state.chartTypes,
                         selectedType = state.selectedChartType,
-                        snapshotMetadata = state.snapshotMetadata,
+                        snapshotMetadata = snapshotMetadata,
                         onTypeSelected = { chartType -> onAction(EditorAction.SelectChart(chartType)) },
                         onOpenUri = onOpenUri,
                         darkTheme = darkTheme,
@@ -89,6 +91,7 @@ fun EditorScreen(
             } else {
                 CompactEditorScreen(
                     state = state,
+                    snapshotMetadata = snapshotMetadata,
                     onAction = onAction,
                     onCopyCode = onCopyCode,
                     onOpenUri = onOpenUri,
@@ -103,6 +106,7 @@ fun EditorScreen(
 @Composable
 private fun CompactEditorScreen(
     state: ChartEditorState,
+    snapshotMetadata: SnapshotMetadataUi?,
     onAction: (EditorAction) -> Unit,
     onCopyCode: suspend (String) -> Boolean,
     onOpenUri: (String) -> Unit,
@@ -152,7 +156,7 @@ private fun CompactEditorScreen(
                         onToggle = onToggleTheme,
                     )
                     BuildInfoButton(
-                        snapshotMetadata = state.snapshotMetadata,
+                        snapshotMetadata = snapshotMetadata,
                         onOpenUri = onOpenUri,
                     )
                 }
