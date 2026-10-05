@@ -37,7 +37,6 @@ import platform.saveDarkThemePreference
 import platform.snapshotPublishMetadata
 import presentation.editor.EditorRoute
 import presentation.editor.EditorViewModel
-import presentation.editor.EditorWarmUp
 import presentation.resources.chartTypeIconResource
 import hdcharts.sample_shared.generated.resources.Res as SharedRes
 
@@ -60,28 +59,15 @@ fun main() {
             darkTheme = darkTheme,
             useDynamicColors = false,
         ) {
-            val onToggleTheme = {
-                darkTheme = !darkTheme
-                saveDarkThemePreference(darkTheme)
-            }
-            // Under the HTML loader, which StartupGate removes once the editor shows.
-            var warmedUp by remember { mutableStateOf(false) }
-            if (!warmedUp) {
-                EditorWarmUp(
-                    chartTypes = viewModel.state.value.chartTypes,
-                    onFinished = { warmedUp = true },
-                ) { chartType ->
-                    EditorRoute(
-                        viewModel = viewModel,
-                        darkTheme = darkTheme,
-                        onToggleTheme = onToggleTheme,
-                        chartType = chartType,
-                    )
-                }
-            } else {
-                StartupGate(startupResources) {
-                    EditorRoute(viewModel = viewModel, darkTheme = darkTheme, onToggleTheme = onToggleTheme)
-                }
+            StartupGate(startupResources) {
+                EditorRoute(
+                    viewModel = viewModel,
+                    darkTheme = darkTheme,
+                    onToggleTheme = {
+                        darkTheme = !darkTheme
+                        saveDarkThemePreference(darkTheme)
+                    },
+                )
             }
         }
     }

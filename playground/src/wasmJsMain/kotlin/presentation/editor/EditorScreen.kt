@@ -29,7 +29,6 @@ import androidx.compose.ui.unit.dp
 import chartsproject.playground.generated.resources.Res
 import chartsproject.playground.generated.resources.playground_nav_open_menu
 import domain.ChartEditorState
-import domain.ChartType
 import domain.EditorAction
 import interop.copyTextToClipboard
 import kotlinx.coroutines.launch
@@ -40,14 +39,13 @@ fun EditorRoute(
     viewModel: EditorViewModel,
     darkTheme: Boolean,
     onToggleTheme: () -> Unit,
-    chartType: ChartType? = null,
 ) {
     val state by viewModel.state.collectAsState()
     val clipboard = LocalClipboard.current
     val uriHandler = LocalUriHandler.current
 
     EditorScreen(
-        state = chartType?.let { state.copy(selectedChartType = it) } ?: state,
+        state = state,
         snapshotMetadata = viewModel.snapshotMetadata,
         onAction = viewModel::dispatch,
         onCopyCode = { code -> copyTextToClipboard(clipboard, code) },
