@@ -16,7 +16,26 @@
     <string name="playground_editor_cancel">Cancel</string>
     <string name="playground_metadata_charts">HDCharts: %1$s</string>
     <string name="playground_metadata_playground">Playground: %1$s</string>
-    <string name="playground_metadata_published">Published: %1$s</string>
+    <plurals name="playground_metadata_published_minutes">
+        <item quantity="one">Published %1$d minute ago</item>
+        <item quantity="other">Published %1$d minutes ago</item>
+    </plurals>
+    <plurals name="playground_metadata_published_hours">
+        <item quantity="one">Published %1$d hour ago</item>
+        <item quantity="other">Published %1$d hours ago</item>
+    </plurals>
+    <plurals name="playground_metadata_published_days">
+        <item quantity="one">Published %1$d day ago</item>
+        <item quantity="other">Published %1$d days ago</item>
+    </plurals>
+    <plurals name="playground_metadata_published_months">
+        <item quantity="one">Published %1$d month ago</item>
+        <item quantity="other">Published %1$d months ago</item>
+    </plurals>
+    <plurals name="playground_metadata_published_years">
+        <item quantity="one">Published %1$d year ago</item>
+        <item quantity="other">Published %1$d years ago</item>
+    </plurals>
     <string name="playground_chart_title_label">Chart title</string>
     <string name="playground_nav_build_info">Build info</string>
     <string name="playground_nav_open_menu">Open chart menu</string>

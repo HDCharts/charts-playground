@@ -13,7 +13,6 @@ import domain.SettingChange
 import domain.SnapshotPublishMetadata
 import domain.ValidatedChartSpec
 import domain.styleSettings
-import domain.toUI
 import domain.updateCell
 import domain.withAddedRow
 import domain.withDeletedRow
@@ -163,7 +162,7 @@ private fun defaultEditorState(
         rightPanelTab = RightPanelTab.SETTINGS,
         sessions = sessions,
         chartTypes = catalog.chartTypes,
-        snapshotMetadata = snapshotMetadata?.toUI(),
+        snapshotMetadata = snapshotMetadata,
     )
 }
 

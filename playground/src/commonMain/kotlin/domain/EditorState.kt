@@ -10,7 +10,7 @@ data class ChartEditorState(
     val rightPanelTab: RightPanelTab,
     val sessions: Map<ChartType, ChartSession>,
     val chartTypes: List<ChartType>,
-    val snapshotMetadata: SnapshotMetadataUi? = null,
+    val snapshotMetadata: SnapshotPublishMetadata? = null,
 )
 
 fun ChartEditorState.withRightPanelTab(

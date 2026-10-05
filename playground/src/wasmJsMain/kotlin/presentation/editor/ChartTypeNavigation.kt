@@ -42,16 +42,15 @@ import chartsproject.playground.generated.resources.Res
 import chartsproject.playground.generated.resources.playground_logo_content_description
 import chartsproject.playground.generated.resources.playground_metadata_charts
 import chartsproject.playground.generated.resources.playground_metadata_playground
-import chartsproject.playground.generated.resources.playground_metadata_published
 import chartsproject.playground.generated.resources.playground_nav_build_info
 import chartsproject.playground.generated.resources.playground_nav_switch_to_dark
 import chartsproject.playground.generated.resources.playground_nav_switch_to_light
 import chartsproject.playground.generated.resources.playground_title
 import config.BuildConfig
 import domain.ChartType
-import domain.SnapshotMetadataUi
 import hdcharts.sample_shared.generated.resources.charts_logo
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import presentation.resources.chartTypeIconResource
 import hdcharts.sample_shared.generated.resources.Res as SharedRes
@@ -267,10 +266,9 @@ internal fun BuildInfoButton(
                         expanded = false
                     },
                 )
-                val publishedAt = metadata.publishedAt
-                if (!publishedAt.isNullOrBlank()) {
+                metadata.publishedLabel?.let { label ->
                     Text(
-                        text = stringResource(Res.string.playground_metadata_published, publishedAt),
+                        text = pluralStringResource(label.resource, label.count, label.count),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
