@@ -34,6 +34,9 @@ internal val stackedBarStyleSettings: List<SettingDescriptor> =
             +slider("selection.width", "Width", StyleKind.DP, 0f..4f, 0.25f) { it.selection.width }
             +color("selection.color", "Color") { it.selection.color }
         }
+        section("Legend") {
+            +toggle("legend.visible", "Show Legend") { it.legend.visible }
+        }
         section("Controls") {
             +toggle("zoomControlsVisible", "Show Zoom Controls") { it.zoomControlsVisible }
         }

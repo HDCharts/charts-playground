@@ -38,4 +38,7 @@ internal val radarStyleSettings: List<SettingDescriptor> =
             +slider("grid.steps", "Rings", StyleKind.INT, 1f..10f, 1f) { it.grid.steps }
             +color("grid.color", "Color") { it.grid.color }
         }
+        section("Legend") {
+            +toggle("legend.visible", "Show Legend") { it.legend.visible }
+        }
     }
