@@ -285,7 +285,7 @@ class EditorStoreTest {
             state.sessions
                 .getValue(ChartType.PIE)
                 .validatedSpec.data as ChartData.SingleSeries
-        val pieSample = pieSampleUseCase().initialPieSample()
+        val pieSample = pieSampleUseCase().deterministic()
         val pieSeries = pieSample.data.series.single()
         assertEquals(
             pieSeries.values.map { it.toFloat() },

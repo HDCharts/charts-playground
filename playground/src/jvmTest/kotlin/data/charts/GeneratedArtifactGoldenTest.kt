@@ -21,7 +21,7 @@ class GeneratedArtifactGoldenTest {
                 ChartType.LINE to "815214000c6e7c988ce4131e2373caa5b18d2f8f4fb7ab0931207db433907949",
                 ChartType.BAR to "4f9126d74ea6696436a19c83d25beb03c4249403dc3ae409aa601b96ec05f0ee",
                 ChartType.HISTOGRAM to "aa454ae726d4573da76771b00bebcd3d5bcb4ee0361a57d843731a0a914c9f3b",
-                ChartType.PIE to "b6cc5822f10cc340545bb6b19c2145793807d4424017769728d2404852f98e2a",
+                ChartType.PIE to "5ed87075df40a8d44085b20528a07c257e1ea6023807316ff06d971961090cac",
                 ChartType.RADAR to "70f2a8e4d1b14eaa5fe78921c56bbee7b46a3e7f37c7e211d78a5000b8c788e0",
                 ChartType.AREA to "7d50e23d02c9928f23274c44850b54c8ee54f759290adbce1c77c193596fce10",
                 ChartType.MULTI_LINE to "a45845c97d5f5876236b8ed89cb5c71f65eaf53a6b5218150d78f2324fab48a3",
