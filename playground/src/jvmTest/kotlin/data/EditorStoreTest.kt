@@ -285,7 +285,7 @@ class EditorStoreTest {
             state.sessions
                 .getValue(ChartType.PIE)
                 .validatedSpec.data as ChartData.SingleSeries
-        val pieSample = pieSampleUseCase().initialPieSample()
+        val pieSample = pieSampleUseCase().deterministic()
         val pieSeries = pieSample.data.series.single()
         assertEquals(
             pieSeries.values.map { it.toFloat() },
@@ -312,7 +312,7 @@ class EditorStoreTest {
             state.sessions
                 .getValue(ChartType.BAR)
                 .validatedSpec.data as ChartData.SingleSeries
-        val barDataSet = barSampleUseCase().initialBarDataSet()
+        val barDataSet = barSampleUseCase().deterministic(signed = true)
         assertEquals(
             barDataSet.series
                 .single()
@@ -326,7 +326,7 @@ class EditorStoreTest {
             state.sessions
                 .getValue(ChartType.HISTOGRAM)
                 .validatedSpec.data as ChartData.SingleSeries
-        val histogramDataSet = histogramSampleUseCase().initialHistogramDataSet()
+        val histogramDataSet = histogramSampleUseCase().deterministic()
         assertEquals(
             histogramDataSet.series
                 .single()
@@ -340,7 +340,7 @@ class EditorStoreTest {
             state.sessions
                 .getValue(ChartType.MULTI_LINE)
                 .validatedSpec.data as ChartData.MultiSeries
-        val multiLineDataSet = multiLineSampleUseCase().initialMultiLineSample().dataSet
+        val multiLineDataSet = multiLineSampleUseCase().deterministic().dataSet
         assertEquals(multiLineDataSet.categories.toList(), multiLineData.categories)
         assertEquals(
             multiLineDataSet.series.map { item -> item.name.orEmpty() },
@@ -355,7 +355,7 @@ class EditorStoreTest {
             state.sessions
                 .getValue(ChartType.AREA)
                 .validatedSpec.data as ChartData.MultiSeries
-        val areaDataSet = stackedAreaSampleUseCase().initialStackedAreaSample().data
+        val areaDataSet = stackedAreaSampleUseCase().deterministic().data
         assertEquals(areaDataSet.categories.toList(), areaData.categories)
         assertEquals(
             areaDataSet.series.map { item -> item.name.orEmpty() },
@@ -367,8 +367,8 @@ class EditorStoreTest {
         )
 
         listOf(
-            ChartType.STACKED_BAR to stackedBarSampleUseCase().initialStackedBarSample().dataSet,
-            ChartType.RADAR to radarSampleUseCase().initialRadarSample().data,
+            ChartType.STACKED_BAR to stackedBarSampleUseCase().deterministic().dataSet,
+            ChartType.RADAR to radarSampleUseCase().deterministic().data,
         ).forEach { (type, dataSet) ->
             val data =
                 state.sessions

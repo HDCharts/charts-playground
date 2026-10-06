@@ -15,7 +15,7 @@ internal object HistogramChartDefinition : SingleSeriesChart(
     nonNegative = true,
     labelHeader = "Bin",
 ) {
-    override fun defaultData(): ChartData = SampleDataSources.histogram.initialHistogramDataSet().toSingleSeries()
+    override fun defaultData(): ChartData = SampleDataSources.histogram.deterministic().toSingleSeries()
 
     override val settings: List<SettingDescriptor> = histogramStyleSettings
 

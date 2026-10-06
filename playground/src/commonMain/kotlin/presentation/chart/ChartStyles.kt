@@ -211,6 +211,7 @@ internal fun stackedBarChartStyle(
                 color = r.color("selection.color", d.selection.color),
                 width = r.dp("selection.width", d.selection.width),
             ),
+        legend = StackedBarChartDefaults.legend(visible = r.bool("legend.visible", d.legend.visible)),
         zoomControlsVisible = r.bool("zoomControlsVisible", d.zoomControlsVisible),
     )
 }
@@ -242,6 +243,7 @@ internal fun areaChartStyle(
                 width = r.dp("selection.width", d.selection.width),
                 unselectedAlpha = d.selection.unselectedAlpha,
             ),
+        legend = StackedAreaChartDefaults.legend(visible = r.bool("legend.visible", d.legend.visible)),
         zoomControlsVisible = r.bool("zoomControlsVisible", d.zoomControlsVisible),
     )
 }
@@ -293,6 +295,7 @@ internal fun radarChartStyle(
                 unselectedAlpha = d.selection.unselectedAlpha,
                 unfocusedSeriesAlpha = d.selection.unfocusedSeriesAlpha,
             ),
+        legend = RadarChartDefaults.legend(visible = r.bool("legend.visible", d.legend.visible)),
     )
 }
 

@@ -16,7 +16,7 @@ internal object PieChartDefinition : SingleSeriesChart(
 ) {
     override fun defaultData(): ChartData =
         SampleDataSources.pie
-            .initialPieSample()
+            .deterministic()
             .data
             .toSingleSeries()
 
