@@ -15,7 +15,7 @@ internal object MultiLineChartDefinition : MultiSeriesChart(
 ) {
     override fun defaultData(): ChartData =
         SampleDataSources.multiLine
-            .initialMultiLineSample()
+            .deterministic()
             .dataSet
             .toMultiSeries(labelPrefix)
 

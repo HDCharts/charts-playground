@@ -13,7 +13,7 @@ internal object BarChartDefinition : SingleSeriesChart(
     labelPrefix = "Bar",
     randomValues = -25f..60f,
 ) {
-    override fun defaultData(): ChartData = SampleDataSources.bar.initialBarDataSet().toSingleSeries()
+    override fun defaultData(): ChartData = SampleDataSources.bar.deterministic(signed = true).toSingleSeries()
 
     override val settings: List<SettingDescriptor> = barStyleSettings
 

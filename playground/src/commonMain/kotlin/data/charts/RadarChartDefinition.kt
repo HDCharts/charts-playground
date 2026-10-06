@@ -18,7 +18,7 @@ internal object RadarChartDefinition : MultiSeriesChart(
 ) {
     override fun defaultData(): ChartData =
         SampleDataSources.radar
-            .initialRadarSample()
+            .deterministic()
             .data
             .toMultiSeries(labelPrefix)
 

@@ -16,7 +16,7 @@ internal object StackedBarChartDefinition : MultiSeriesChart(
 ) {
     override fun defaultData(): ChartData =
         SampleDataSources.stackedBar
-            .initialStackedBarSample()
+            .deterministic()
             .dataSet
             .toMultiSeries(labelPrefix)
 

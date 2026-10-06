@@ -16,7 +16,7 @@ internal object AreaChartDefinition : MultiSeriesChart(
 ) {
     override fun defaultData(): ChartData =
         SampleDataSources.stackedArea
-            .initialStackedAreaSample()
+            .deterministic()
             .data
             .toMultiSeries(labelPrefix)
 
