@@ -108,16 +108,21 @@ private val pageLayout =
         .associateWith { "Title text style and padding belong to the page layout, not chart styling" }
 
 private val labelCounts =
-    listOf("axis.xLabels.maxCount", "axis.yLabels.maxCount")
+    listOf("axes.xLabels.maxCount", "axes.yLabels.maxCount")
         .associateWith { "The chart picks how many labels fit; the playground keeps that default" }
 
-private val labelSizes = setOf("axis.xLabels.size", "axis.yLabels.size")
+private val labelSizes = setOf("axes.xLabels.size", "axes.yLabels.size")
+
+private val gridLineWidth = setOf("axes.grid.lineWidth")
 
 /** New selection members the playground does not expose yet; each needs its own setting. */
 private val selectionAlphas = setOf("selection.unselectedAlpha")
 
 /** The line selection line grew its own color and width; the axis width no longer drives it. */
 private val lineSelectionLine = setOf("selection.color", "selection.width")
+
+/** Gradients the library added; the playground has no gradient setting yet. */
+private fun gradient(block: String) = setOf("$block.gradient")
 
 private fun coverageFor(chartType: ChartType): StyleCoverage =
     when (chartType) {
@@ -130,14 +135,14 @@ private fun coverageFor(chartType: ChartType): StyleCoverage =
                             "line.colors" to "A single series draws with line.color",
                             "legend.visible" to "The legend is only drawn for multiple series",
                         ),
-                notExposedYet = labelSizes + lineSelectionLine,
+                notExposedYet = labelSizes + gridLineWidth + lineSelectionLine + gradient("line"),
             )
 
         ChartType.MULTI_LINE ->
             StyleCoverage(
                 styleClass = LineChartStyle::class.java,
                 notApplicable = pageLayout + labelCounts + ("line.color" to "Per-series colors are edited directly"),
-                notExposedYet = labelSizes + lineSelectionLine,
+                notExposedYet = labelSizes + gridLineWidth + lineSelectionLine + gradient("line"),
             )
 
         ChartType.BAR -> barCoverage(BarChartStyle::class.java)
@@ -149,7 +154,7 @@ private fun coverageFor(chartType: ChartType): StyleCoverage =
                 styleClass = StackedBarChartStyle::class.java,
                 notApplicable =
                     pageLayout + labelCounts + ("segments.color" to "Per-segment colors are edited directly"),
-                notExposedYet = labelSizes + selectionAlphas,
+                notExposedYet = labelSizes + gridLineWidth + selectionAlphas + gradient("segments"),
             )
 
         ChartType.AREA ->
@@ -158,7 +163,7 @@ private fun coverageFor(chartType: ChartType): StyleCoverage =
                 notApplicable =
                     pageLayout + labelCounts +
                         mapOf("fill.color" to "Per-series fill colors are edited directly"),
-                notExposedYet = labelSizes + selectionAlphas,
+                notExposedYet = labelSizes + gridLineWidth + selectionAlphas + gradient("fill"),
             )
 
         ChartType.RADAR ->
@@ -190,7 +195,7 @@ private fun barCoverage(styleClass: Class<*>): StyleCoverage =
     StyleCoverage(
         styleClass = styleClass,
         notApplicable = pageLayout + labelCounts,
-        notExposedYet = labelSizes + selectionAlphas + setOf("grid.lineWidth", "axis.lineWidth"),
+        notExposedYet = labelSizes + gridLineWidth + selectionAlphas + gradient("bars"),
     )
 
 private const val LIBRARY_PACKAGE = "io.github.hdcharts"
@@ -205,7 +210,7 @@ private fun styleProperties(
         .filter { field -> styleClass.hasPublicGetter(field.name) }
         .flatMap { field ->
             val path = prefix + field.name
-            // Nested style blocks (BarGridStyle, LegendStyle, …) live in core.style or the chart's own package.
+            // Nested style blocks (GridStyle, LegendStyle, …) live in core.style or the chart's own package.
             if (field.type.packageName.startsWith("$LIBRARY_PACKAGE.") && field.type.simpleName.endsWith("Style")) {
                 styleProperties(field.type, "$path.")
             } else {

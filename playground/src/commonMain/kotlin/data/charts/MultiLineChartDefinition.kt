@@ -1,6 +1,7 @@
 package data.charts
 
 import codegen.common.StyleCodeProfile
+import codegen.common.cartesianAxesFactories
 import data.SampleDataSources
 import data.toMultiSeries
 import domain.ChartData
@@ -21,7 +22,7 @@ internal object MultiLineChartDefinition : MultiSeriesChart(
 
     override val settings: List<SettingDescriptor> = multiLineStyleSettings
 
-    override val styleProfile = StyleCodeProfile("LineChartDefaults")
+    override val styleProfile = StyleCodeProfile("LineChartDefaults", blockFactories = cartesianAxesFactories)
 
     override val component = "LineChart"
 }

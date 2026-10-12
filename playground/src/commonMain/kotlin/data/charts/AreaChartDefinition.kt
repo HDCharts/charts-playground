@@ -1,6 +1,7 @@
 package data.charts
 
 import codegen.common.StyleCodeProfile
+import codegen.common.cartesianAxesFactories
 import data.SampleDataSources
 import data.toMultiSeries
 import domain.ChartData
@@ -22,7 +23,7 @@ internal object AreaChartDefinition : MultiSeriesChart(
 
     override val settings: List<SettingDescriptor> = areaStyleSettings
 
-    override val styleProfile = StyleCodeProfile("StackedAreaChartDefaults")
+    override val styleProfile = StyleCodeProfile("StackedAreaChartDefaults", blockFactories = cartesianAxesFactories)
 
     override val component = "StackedAreaChart"
 }

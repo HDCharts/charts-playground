@@ -1,18 +1,16 @@
 package data.charts
 
 import data.style.StyleSettingsScope
-import data.style.axisLabelSettings
+import data.style.axesSettings
 import data.style.fixedRangeSection
 import data.style.itemValues
 import data.style.singleSeriesCount
 import data.style.styleSettings
-import data.style.whenOn
 import domain.SettingDescriptor
 import domain.StyleKind
-import io.github.hdcharts.core.style.BarAxisStyle
+import io.github.hdcharts.core.style.AxesStyle
 import io.github.hdcharts.core.style.BarBarsStyle
 import io.github.hdcharts.core.style.BarChartStyle
-import io.github.hdcharts.core.style.BarGridStyle
 import io.github.hdcharts.core.style.BarRangeStyle
 import io.github.hdcharts.core.style.BarSelectionStyle
 import io.github.hdcharts.core.style.HistogramChartStyle
@@ -22,8 +20,7 @@ internal val barStyleSettings: List<SettingDescriptor> =
         barSettings(
             bars = { it.bars },
             range = { it.range },
-            grid = { it.grid },
-            axis = { it.axis },
+            axes = { it.axes },
             selection = { it.selection },
             zoomControlsVisible = { it.zoomControlsVisible },
         )
@@ -34,8 +31,7 @@ internal val histogramStyleSettings: List<SettingDescriptor> =
         barSettings(
             bars = { it.bars },
             range = { it.range },
-            grid = { it.grid },
-            axis = { it.axis },
+            axes = { it.axes },
             selection = { it.selection },
             zoomControlsVisible = { it.zoomControlsVisible },
         )
@@ -45,8 +41,7 @@ internal val histogramStyleSettings: List<SettingDescriptor> =
 private fun <S : Any> StyleSettingsScope<S>.barSettings(
     bars: (S) -> BarBarsStyle,
     range: (S) -> BarRangeStyle,
-    grid: (S) -> BarGridStyle,
-    axis: (S) -> BarAxisStyle,
+    axes: (S) -> AxesStyle,
     selection: (S) -> BarSelectionStyle,
     zoomControlsVisible: (S) -> Boolean,
 ) {
@@ -59,15 +54,7 @@ private fun <S : Any> StyleSettingsScope<S>.barSettings(
         +slider("bars.space", "Spacing", StyleKind.DP, 0f..40f, 1f) { bars(it).space }
         +slider("bars.minBarWidth", "Min Bar Width", StyleKind.DP, 2f..40f, 1f) { bars(it).minBarWidth }
     }
-    section("Axes") {
-        +toggle("axis.visible", "Show Axis Lines") { axis(it).visible }
-        +color("axis.color", "Axis Line Color", visibleWhen = whenOn("axis.visible")) { axis(it).color }
-        axisLabelSettings("axis", xLabels = { axis(it).xLabels }, yLabels = { axis(it).yLabels })
-    }
-    section("Grid", toggle = toggle("grid.visible", "Show Grid") { grid(it).visible }) {
-        +slider("grid.steps", "Lines", StyleKind.INT, 1f..10f, 1f) { grid(it).steps }
-        +color("grid.color", "Color") { grid(it).color }
-    }
+    axesSettings(axes)
     fixedRangeSection(
         values = { it.itemValues },
         includeZero = true,

@@ -1,6 +1,7 @@
 package data.charts
 
 import codegen.common.StyleCodeProfile
+import codegen.common.cartesianAxesFactories
 import data.SampleDataSources
 import data.toSingleSeries
 import domain.ChartData
@@ -28,7 +29,7 @@ internal object LineChartDefinition : SingleSeriesChart(
 
     override val settings: List<SettingDescriptor> = lineStyleSettings
 
-    override val styleProfile = StyleCodeProfile("LineChartDefaults")
+    override val styleProfile = StyleCodeProfile("LineChartDefaults", blockFactories = cartesianAxesFactories)
 
     override val component = "LineChart"
 }

@@ -8,6 +8,10 @@ internal const val DP_IMPORT = "import androidx.compose.ui.unit.dp"
 private val libraryPackages: Map<String, String> =
     mapOf(
         "toChartData" to "core.model",
+        "AxesDefaults" to "core.style",
+        "AxisLabelDefaults" to "core.style",
+        "AxisLinesDefaults" to "core.style",
+        "GridDefaults" to "core.style",
         "BarChartDefaults" to "core.style",
         "HistogramChartDefaults" to "core.style",
         "BarChart" to "bar",

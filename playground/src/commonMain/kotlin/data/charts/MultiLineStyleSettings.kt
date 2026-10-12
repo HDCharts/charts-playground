@@ -1,5 +1,6 @@
 package data.charts
 
+import data.style.axesSettings
 import data.style.fixedRangeSection
 import data.style.itemValues
 import data.style.multiSeriesCount
@@ -14,7 +15,7 @@ internal val multiLineStyleSettings: List<SettingDescriptor> =
             lineAppearance()
         }
         pointAndSelectionSections()
-        lineAxesSection()
+        axesSettings { it.axes }
         fixedRangeSection(
             values = { it.itemValues },
             includeZero = false,

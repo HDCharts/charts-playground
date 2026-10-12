@@ -13,7 +13,7 @@ import kotlin.test.Test
 import kotlin.test.assertTrue
 
 /**
- * Generated code writes a style block as `<owner>.<block>(…)` with only the members the user set,
+ * Generated code writes a style block as `<factory>(…)` with only the members the user set,
  * so every other member takes the factory's default. The preview starts from the chart's default
  * style instead. Where the two differ, the member must be listed in the chart's
  * `StyleCodeProfile.blockDefaults`, or the generated chart will not match the preview.
@@ -35,13 +35,13 @@ class BlockDefaultsTest {
                         }.toSortedSet()
 
                 blockPaths.flatMap { blockPath ->
-                    val owner = profile.owner(blockPath.substringBefore('.'))
-                    val block = blockPath.substringAfterLast('.')
+                    val call = profile.factory(blockPath.split('.'))
                     val preview = styleFields(readPath(defaultStyle, blockPath)!!)
-                    val factory = styleFields(callStyleFactory(owner, block)!!)
+                    val factory =
+                        styleFields(callStyleFactory(call.substringBefore('.'), call.substringAfter('.'))!!)
                     val listed = profile.blockDefaults[blockPath].orEmpty().keys
                     val differing = preview.keys.filter { preview[it] != factory[it] }.toSet()
-                    val where = "${definition.type} $owner.$block()"
+                    val where = "${definition.type} $call()"
                     (differing - listed).map { member ->
                         "$where: '$member' is ${preview[member]} in the preview but ${factory[member]} " +
                             "in generated code; add it to blockDefaults[\"$blockPath\"]"

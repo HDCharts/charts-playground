@@ -20,8 +20,9 @@ data class RenderedStyleArgument(
 
 /**
  * How a chart's style is written in code. Style blocks are built with `<owner>.<block>(...)`, where
- * the owner is [styleObject] unless [blockOwners] names another, e.g. histograms build their grid
- * with `BarChartDefaults`.
+ * the owner is [styleObject] unless [blockOwners] names another, e.g. histograms build their range
+ * with `BarChartDefaults`. [blockFactories] names the whole factory call for a block path, e.g.
+ * `axes.grid` is built with `GridDefaults.style`.
  *
  * [blockDefaults] is keyed by block path (`range`, `axis.xLabels`) and lists members whose value in
  * the chart's default style differs from what the owner's factory builds, e.g. a histogram range
@@ -32,9 +33,24 @@ data class StyleCodeProfile(
     val styleObject: String,
     val blockOwners: Map<String, String> = emptyMap(),
     val blockDefaults: Map<String, Map<String, String>> = emptyMap(),
+    val blockFactories: Map<String, String> = emptyMap(),
 ) {
     fun owner(block: String): String = blockOwners[block] ?: styleObject
+
+    /** The factory call that builds the block at [path], e.g. `BarChartDefaults.bars`. */
+    fun factory(path: List<String>): String =
+        blockFactories[path.joinToString(".")] ?: "${owner(path.first())}.${path.last()}"
 }
+
+/** Factories of the shared Cartesian `axes` block; they live in core.style. */
+val cartesianAxesFactories: Map<String, String> =
+    mapOf(
+        "axes" to "AxesDefaults.style",
+        "axes.lines" to "AxisLinesDefaults.style",
+        "axes.grid" to "GridDefaults.style",
+        "axes.xLabels" to "AxisLabelDefaults.style",
+        "axes.yLabels" to "AxisLabelDefaults.style",
+    )
 
 /**
  * Renders the style arguments for the values the user set. Each setting path addresses the
@@ -59,13 +75,8 @@ fun renderStyleArguments(
         root.block(blockPath.split('.'))?.putDefaults(members)
     }
     return root.children.map { (name, node) ->
-        val owner = profile.owner(name)
-        val argument = renderMember(name, node, owner)
-        val ownerImport = libraryImport(owner).takeIf { node is StyleBlock && owner != profile.styleObject }
-        argument.copy(
-            code = "${argument.code},",
-            additionalImports = argument.additionalImports + setOfNotNull(ownerImport),
-        )
+        val argument = renderMember(listOf(name), node, profile)
+        argument.copy(code = "${argument.code},")
     }
 }
 
@@ -96,23 +107,26 @@ private class StyleBlock {
     }
 }
 
-/** `name = literal`, or `name = owner.name(member, …)` for a block. Top-level blocks end members with commas. */
+/** `name = literal`, or `name = factory(member, …)` for a block. Top-level blocks end members with commas. */
 private fun renderMember(
-    name: String,
+    path: List<String>,
     node: Any,
-    owner: String,
-    topLevel: Boolean = true,
+    profile: StyleCodeProfile,
 ): RenderedStyleArgument {
+    val name = path.last()
     if (node is RenderedStyleArgument) return node.copy(code = "$name = ${node.code}")
     val members =
         (node as StyleBlock).children.map { (child, value) ->
-            renderMember(child, value, owner, topLevel = false)
+            renderMember(path + child, value, profile)
         }
     val memberCode =
-        if (topLevel) members.joinToString(" ") { "${it.code}," } else members.joinToString(", ") { it.code }
+        if (path.size == 1) members.joinToString(" ") { "${it.code}," } else members.joinToString(", ") { it.code }
+    val factory = profile.factory(path)
+    val factoryObject = factory.substringBefore('.')
+    val factoryImport = libraryImport(factoryObject).takeIf { factoryObject != profile.styleObject }
     return RenderedStyleArgument(
-        code = "$name = $owner.$name($memberCode)",
-        additionalImports = members.flatMap { it.additionalImports }.toSet(),
+        code = "$name = $factory($memberCode)",
+        additionalImports = members.flatMap { it.additionalImports }.toSet() + setOfNotNull(factoryImport),
     )
 }
 

@@ -4,13 +4,15 @@ import androidx.compose.runtime.Composable
 import domain.ChartData
 import domain.ChartType
 import domain.PIE_SLICE_COLORS_PATH
+import io.github.hdcharts.core.style.AxesDefaults
+import io.github.hdcharts.core.style.AxesStyle
 import io.github.hdcharts.core.style.AxisLabelStyle
-import io.github.hdcharts.core.style.BarAxisStyle
+import io.github.hdcharts.core.style.AxisLinesDefaults
 import io.github.hdcharts.core.style.BarChartDefaults
 import io.github.hdcharts.core.style.BarChartStyle
-import io.github.hdcharts.core.style.BarGridStyle
 import io.github.hdcharts.core.style.BarRangeStyle
 import io.github.hdcharts.core.style.BarSelectionStyle
+import io.github.hdcharts.core.style.GridDefaults
 import io.github.hdcharts.core.style.HistogramChartDefaults
 import io.github.hdcharts.core.style.HistogramChartStyle
 import io.github.hdcharts.line.LineChartDefaults
@@ -78,14 +80,7 @@ internal fun lineChartStyle(
                 pointSize = r.dp("selection.pointSize", d.selection.pointSize),
                 visible = r.bool("selection.visible", d.selection.visible),
             ),
-        axis =
-            LineChartDefaults.axis(
-                visible = r.bool("axis.visible", d.axis.visible),
-                color = r.color("axis.color", d.axis.color),
-                lineWidth = r.dp("axis.lineWidth", d.axis.lineWidth),
-                xLabels = r.labels("axis.xLabels", d.axis.xLabels),
-                yLabels = r.labels("axis.yLabels", d.axis.yLabels),
-            ),
+        axes = axes(r, d.axes),
         range =
             LineChartDefaults.range(
                 min = r.double("range.min", d.range.min),
@@ -112,8 +107,7 @@ internal fun barChartStyle(
                 minBarWidth = r.dp("bars.minBarWidth", d.bars.minBarWidth),
             ),
         range = barRange(r, d.range),
-        grid = barGrid(r, d.grid),
-        axis = barAxis(r, d.axis),
+        axes = axes(r, d.axes),
         selection = barSelection(r, d.selection),
         zoomControlsVisible = r.bool("zoomControlsVisible", d.zoomControlsVisible),
     )
@@ -135,8 +129,7 @@ internal fun histogramChartStyle(
                 minBarWidth = r.dp("bars.minBarWidth", d.bars.minBarWidth),
             ),
         range = barRange(r, d.range),
-        grid = barGrid(r, d.grid),
-        axis = barAxis(r, d.axis),
+        axes = axes(r, d.axes),
         selection = barSelection(r, d.selection),
         zoomControlsVisible = r.bool("zoomControlsVisible", d.zoomControlsVisible),
     )
@@ -146,29 +139,6 @@ private fun barRange(
     r: StyleReader,
     d: BarRangeStyle,
 ) = BarChartDefaults.range(min = r.double("range.min", d.min), max = r.double("range.max", d.max))
-
-@Composable
-private fun barGrid(
-    r: StyleReader,
-    d: BarGridStyle,
-) = BarChartDefaults.grid(
-    visible = r.bool("grid.visible", d.visible),
-    steps = r.int("grid.steps", d.steps),
-    color = r.color("grid.color", d.color),
-    lineWidth = d.lineWidth,
-)
-
-@Composable
-private fun barAxis(
-    r: StyleReader,
-    d: BarAxisStyle,
-) = BarChartDefaults.axis(
-    visible = r.bool("axis.visible", d.visible),
-    color = r.color("axis.color", d.color),
-    lineWidth = d.lineWidth,
-    xLabels = r.labels("axis.xLabels", d.xLabels),
-    yLabels = r.labels("axis.yLabels", d.yLabels),
-)
 
 @Composable
 private fun barSelection(
@@ -200,11 +170,7 @@ internal fun stackedBarChartStyle(
                 space = r.dp("layout.space", d.layout.space),
                 minBarWidth = r.dp("layout.minBarWidth", d.layout.minBarWidth),
             ),
-        axis =
-            StackedBarChartDefaults.axis(
-                xLabels = r.labels("axis.xLabels", d.axis.xLabels),
-                yLabels = r.labels("axis.yLabels", d.axis.yLabels),
-            ),
+        axes = axes(r, d.axes),
         selection =
             StackedBarChartDefaults.selection(
                 visible = r.bool("selection.visible", d.selection.visible),
@@ -231,11 +197,7 @@ internal fun areaChartStyle(
                 alpha = r.float("fill.alpha", d.fill.alpha),
                 bezier = r.bool("fill.bezier", d.fill.bezier),
             ),
-        axis =
-            StackedAreaChartDefaults.axis(
-                xLabels = r.labels("axis.xLabels", d.axis.xLabels),
-                yLabels = r.labels("axis.yLabels", d.axis.yLabels),
-            ),
+        axes = axes(r, d.axes),
         selection =
             StackedAreaChartDefaults.selection(
                 visible = r.bool("selection.visible", d.selection.visible),
@@ -321,6 +283,30 @@ internal fun pieChartStyle(
         legend = PieChartDefaults.legend(visible = r.bool("legend.visible", d.legend.visible)),
     )
 }
+
+/** The shared Cartesian axes, read from the `axes` settings. */
+@Composable
+private fun axes(
+    r: StyleReader,
+    d: AxesStyle,
+) = AxesDefaults.style(
+    visible = r.bool("axes.visible", d.visible),
+    lines =
+        AxisLinesDefaults.style(
+            visible = r.bool("axes.lines.visible", d.lines.visible),
+            color = r.color("axes.lines.color", d.lines.color),
+            lineWidth = r.dp("axes.lines.lineWidth", d.lines.lineWidth),
+        ),
+    grid =
+        GridDefaults.style(
+            visible = r.bool("axes.grid.visible", d.grid.visible),
+            steps = r.int("axes.grid.steps", d.grid.steps),
+            color = r.color("axes.grid.color", d.grid.color),
+            lineWidth = d.grid.lineWidth,
+        ),
+    xLabels = r.labels("axes.xLabels", d.xLabels),
+    yLabels = r.labels("axes.yLabels", d.yLabels),
+)
 
 private fun StyleReader.labels(
     path: String,

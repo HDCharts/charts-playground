@@ -1,6 +1,7 @@
 package data.charts
 
 import codegen.common.StyleCodeProfile
+import codegen.common.cartesianAxesFactories
 import data.SampleDataSources
 import data.toSingleSeries
 import domain.ChartData
@@ -17,7 +18,7 @@ internal object BarChartDefinition : SingleSeriesChart(
 
     override val settings: List<SettingDescriptor> = barStyleSettings
 
-    override val styleProfile = StyleCodeProfile("BarChartDefaults")
+    override val styleProfile = StyleCodeProfile("BarChartDefaults", blockFactories = cartesianAxesFactories)
 
     override val component = "BarChart"
 }
