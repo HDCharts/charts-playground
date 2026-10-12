@@ -30,13 +30,16 @@ class StyleCodegenTest {
         val code =
             LineChartDefinition.generateWith(
                 "points.size" to StyleValue.Number(12f),
-                "axis.color" to StyleValue.Color(ColorValue(0xFF112233L)),
+                "axes.lines.color" to StyleValue.Color(ColorValue(0xFF112233L)),
                 "zoomControlsVisible" to StyleValue.Bool(false),
             )
 
         assertTrue(code.contains("points = LineChartDefaults.points(size = 12.dp,),"), code)
         assertTrue(code.contains("import androidx.compose.ui.unit.dp"), code)
-        assertTrue(code.contains("axis = LineChartDefaults.axis(color = Color(0xFF112233),),"), code)
+        assertTrue(
+            code.contains("axes = AxesDefaults.style(lines = AxisLinesDefaults.style(color = Color(0xFF112233)),),"),
+            code,
+        )
         assertTrue(code.contains("zoomControlsVisible = false,"), code)
     }
 
@@ -44,13 +47,13 @@ class StyleCodegenTest {
     fun nested_label_settings_share_one_factory_call() {
         val code =
             BarChartDefinition.generateWith(
-                "axis.xLabels.visible" to StyleValue.Bool(false),
-                "axis.xLabels.color" to StyleValue.Color(ColorValue(0xFF112233L)),
+                "axes.xLabels.visible" to StyleValue.Bool(false),
+                "axes.xLabels.color" to StyleValue.Color(ColorValue(0xFF112233L)),
             )
 
         assertTrue(
             code.contains(
-                "axis = BarChartDefaults.axis(xLabels = BarChartDefaults.xLabels(visible = false, color = Color(0xFF112233)),),",
+                "axes = AxesDefaults.style(xLabels = AxisLabelDefaults.style(visible = false, color = Color(0xFF112233)),),",
             ),
             code,
         )
@@ -61,12 +64,24 @@ class StyleCodegenTest {
         val code =
             HistogramChartDefinition.generateWith(
                 "bars.alpha" to StyleValue.Number(0.5f),
-                "grid.visible" to StyleValue.Bool(false),
+                "selection.visible" to StyleValue.Bool(false),
             )
 
         assertTrue(code.contains("bars = HistogramChartDefaults.bars(alpha = 0.5f,),"), code)
-        assertTrue(code.contains("grid = BarChartDefaults.grid(visible = false,),"), code)
+        assertTrue(code.contains("selection = BarChartDefaults.selection(visible = false,),"), code)
         assertTrue(code.contains("import io.github.hdcharts.core.style.BarChartDefaults"), code)
+    }
+
+    @Test
+    fun axes_blocks_are_built_with_core_factories() {
+        val code =
+            HistogramChartDefinition.generateWith(
+                "axes.grid.visible" to StyleValue.Bool(false),
+            )
+
+        assertTrue(code.contains("axes = AxesDefaults.style(grid = GridDefaults.style(visible = false),),"), code)
+        assertTrue(code.contains("import io.github.hdcharts.core.style.AxesDefaults"), code)
+        assertTrue(code.contains("import io.github.hdcharts.core.style.GridDefaults"), code)
     }
 
     @Test

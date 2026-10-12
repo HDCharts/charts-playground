@@ -1,6 +1,6 @@
 package data.charts
 
-import data.style.axisLabelSettings
+import data.style.axesSettings
 import data.style.curveOptions
 import data.style.multiSeriesCount
 import data.style.styleSettings
@@ -16,9 +16,7 @@ internal val areaStyleSettings: List<SettingDescriptor> =
             // The curve shapes the layer edges as well as the fill between them.
             +choice("fill.bezier", "Curve", curveOptions) { it.fill.bezier }
         }
-        section("Axes") {
-            axisLabelSettings("axis", xLabels = { it.axis.xLabels }, yLabels = { it.axis.yLabels })
-        }
+        axesSettings { it.axes }
         section(
             "Selection Line",
             toggle = toggle("selection.visible", "Show Selection Line") { it.selection.visible },

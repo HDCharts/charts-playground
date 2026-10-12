@@ -1,6 +1,6 @@
 package data.charts
 
-import data.style.axisLabelSettings
+import data.style.axesSettings
 import data.style.multiSeriesCount
 import data.style.styleSettings
 import domain.SettingDescriptor
@@ -24,9 +24,7 @@ internal val stackedBarStyleSettings: List<SettingDescriptor> =
             +slider("layout.space", "Spacing", StyleKind.DP, 0f..40f, 1f) { it.layout.space }
             +slider("layout.minBarWidth", "Min Bar Width", StyleKind.DP, 2f..40f, 1f) { it.layout.minBarWidth }
         }
-        section("Axes") {
-            axisLabelSettings("axis", xLabels = { it.axis.xLabels }, yLabels = { it.axis.yLabels })
-        }
+        axesSettings { it.axes }
         section(
             "Selection Line",
             toggle = toggle("selection.visible", "Show Selection Line") { it.selection.visible },

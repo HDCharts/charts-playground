@@ -1,7 +1,7 @@
 package data.charts
 
 import data.style.StyleSettingsScope
-import data.style.axisLabelSettings
+import data.style.axesSettings
 import data.style.curveOptions
 import data.style.fixedRangeSection
 import data.style.itemValues
@@ -19,7 +19,7 @@ internal val lineStyleSettings: List<SettingDescriptor> =
             lineAppearance()
         }
         pointAndSelectionSections()
-        lineAxesSection()
+        axesSettings { it.axes }
         fixedRangeSection(
             values = { it.itemValues },
             includeZero = false,
@@ -64,14 +64,5 @@ internal fun StyleSettingsScope<LineChartStyle>.pointAndSelectionSections() {
             visibleWhen = markerVisible,
         ) { it.selection.pointSize }
         +color("selection.markerColor", "Marker Color", visibleWhen = markerVisible) { it.selection.markerColor }
-    }
-}
-
-internal fun StyleSettingsScope<LineChartStyle>.lineAxesSection() {
-    section("Axes") {
-        +toggle("axis.visible", "Show Axis Lines") { it.axis.visible }
-        +color("axis.color", "Axis Line Color", visibleWhen = whenOn("axis.visible")) { it.axis.color }
-        +slider("axis.lineWidth", "Width", StyleKind.DP, 0f..4f, 0.25f) { it.axis.lineWidth }
-        axisLabelSettings("axis", xLabels = { it.axis.xLabels }, yLabels = { it.axis.yLabels })
     }
 }

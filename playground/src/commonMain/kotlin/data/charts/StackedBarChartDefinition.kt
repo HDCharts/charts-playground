@@ -1,6 +1,7 @@
 package data.charts
 
 import codegen.common.StyleCodeProfile
+import codegen.common.cartesianAxesFactories
 import data.SampleDataSources
 import data.toMultiSeries
 import domain.ChartData
@@ -22,7 +23,7 @@ internal object StackedBarChartDefinition : MultiSeriesChart(
 
     override val settings: List<SettingDescriptor> = stackedBarStyleSettings
 
-    override val styleProfile = StyleCodeProfile("StackedBarChartDefaults")
+    override val styleProfile = StyleCodeProfile("StackedBarChartDefaults", blockFactories = cartesianAxesFactories)
 
     override val component = "StackedBarChart"
 }

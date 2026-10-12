@@ -2,23 +2,38 @@ package data.style
 
 import domain.ChartData
 import domain.StyleKind
-import io.github.hdcharts.core.style.AxisLabelStyle
+import io.github.hdcharts.core.style.AxesStyle
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
 
-/** Show/color settings for the X and Y labels under [axisPath], e.g. `axis`. */
-internal fun <S : Any> StyleSettingsScope<S>.axisLabelSettings(
-    axisPath: String,
-    xLabels: (S) -> AxisLabelStyle,
-    yLabels: (S) -> AxisLabelStyle,
-) {
-    listOf(Triple("xLabels", "X", xLabels), Triple("yLabels", "Y", yLabels)).forEach { (key, name, labels) ->
-        val base = "$axisPath.$key"
-        +toggle("$base.visible", "Show $name Labels") { labels(it).visible }
-        +color("$base.color", "$name Label Color", visibleWhen = whenOn("$base.visible")) { labels(it).color }
+/** "Axes" and "Grid" sections for the shared Cartesian [AxesStyle] at `axes`. */
+internal fun <S : Any> StyleSettingsScope<S>.axesSettings(axes: (S) -> AxesStyle) {
+    section("Axes", toggle = toggle("axes.visible", "Show Axes") { axes(it).visible }) {
+        +toggle("axes.lines.visible", "Show Axis Lines") { axes(it).lines.visible }
+        val linesOn = whenOn("axes.lines.visible")
+        +color("axes.lines.color", "Axis Line Color", visibleWhen = linesOn) { axes(it).lines.color }
+        +slider("axes.lines.lineWidth", "Width", StyleKind.DP, 0f..4f, 0.25f, visibleWhen = linesOn) {
+            axes(it).lines.lineWidth
+        }
+        listOf(Triple("xLabels", "X", AxesStyle::xLabels), Triple("yLabels", "Y", AxesStyle::yLabels))
+            .forEach { (key, name, labels) ->
+                val base = "axes.$key"
+                +toggle("$base.visible", "Show $name Labels") { labels(axes(it)).visible }
+                +color("$base.color", "$name Label Color", visibleWhen = whenOn("$base.visible")) {
+                    labels(axes(it)).color
+                }
+            }
+    }
+    section(
+        "Grid",
+        toggle = toggle("axes.grid.visible", "Show Grid") { axes(it).grid.visible },
+        visibleWhen = whenOn("axes.visible"),
+    ) {
+        +slider("axes.grid.steps", "Lines", StyleKind.INT, 1f..10f, 1f) { axes(it).grid.steps }
+        +color("axes.grid.color", "Color") { axes(it).grid.color }
     }
 }
 
