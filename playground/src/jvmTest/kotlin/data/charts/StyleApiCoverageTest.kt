@@ -124,6 +124,9 @@ private val lineSelectionLine = setOf("selection.color", "selection.width")
 /** Gradients the library added; the playground has no gradient setting yet. */
 private fun gradient(block: String) = setOf("$block.gradient")
 
+/** The subtitle style the library added; the playground has no subtitle yet. */
+private val subtitleStyle = setOf("chartContainerStyle.styleSubtitle")
+
 private fun coverageFor(chartType: ChartType): StyleCoverage =
     when (chartType) {
         ChartType.LINE ->
@@ -135,14 +138,14 @@ private fun coverageFor(chartType: ChartType): StyleCoverage =
                             "line.colors" to "A single series draws with line.color",
                             "legend.visible" to "The legend is only drawn for multiple series",
                         ),
-                notExposedYet = labelSizes + gridLineWidth + lineSelectionLine + gradient("line"),
+                notExposedYet = labelSizes + gridLineWidth + lineSelectionLine + gradient("line") + subtitleStyle,
             )
 
         ChartType.MULTI_LINE ->
             StyleCoverage(
                 styleClass = LineChartStyle::class.java,
                 notApplicable = pageLayout + labelCounts + ("line.color" to "Per-series colors are edited directly"),
-                notExposedYet = labelSizes + gridLineWidth + lineSelectionLine + gradient("line"),
+                notExposedYet = labelSizes + gridLineWidth + lineSelectionLine + gradient("line") + subtitleStyle,
             )
 
         ChartType.BAR -> barCoverage(BarChartStyle::class.java)
@@ -154,7 +157,7 @@ private fun coverageFor(chartType: ChartType): StyleCoverage =
                 styleClass = StackedBarChartStyle::class.java,
                 notApplicable =
                     pageLayout + labelCounts + ("segments.color" to "Per-segment colors are edited directly"),
-                notExposedYet = labelSizes + gridLineWidth + selectionAlphas + gradient("segments"),
+                notExposedYet = labelSizes + gridLineWidth + selectionAlphas + gradient("segments") + subtitleStyle,
             )
 
         ChartType.AREA ->
@@ -163,7 +166,7 @@ private fun coverageFor(chartType: ChartType): StyleCoverage =
                 notApplicable =
                     pageLayout + labelCounts +
                         mapOf("fill.color" to "Per-series fill colors are edited directly"),
-                notExposedYet = labelSizes + gridLineWidth + selectionAlphas + gradient("fill"),
+                notExposedYet = labelSizes + gridLineWidth + selectionAlphas + gradient("fill") + subtitleStyle,
             )
 
         ChartType.RADAR ->
@@ -181,13 +184,14 @@ private fun coverageFor(chartType: ChartType): StyleCoverage =
                             "selection.visible",
                             "selection.pointSize",
                             "selection.unfocusedSeriesAlpha",
-                        ),
+                        ) + subtitleStyle,
             )
 
         ChartType.PIE ->
             StyleCoverage(
                 styleClass = PieChartStyle::class.java,
                 notApplicable = pageLayout + ("slices.baseColor" to "Per-slice colors are edited directly"),
+                notExposedYet = subtitleStyle,
             )
     }
 
@@ -195,7 +199,7 @@ private fun barCoverage(styleClass: Class<*>): StyleCoverage =
     StyleCoverage(
         styleClass = styleClass,
         notApplicable = pageLayout + labelCounts,
-        notExposedYet = labelSizes + gridLineWidth + selectionAlphas + gradient("bars"),
+        notExposedYet = labelSizes + gridLineWidth + selectionAlphas + gradient("bars") + subtitleStyle,
     )
 
 private const val LIBRARY_PACKAGE = "io.github.hdcharts"
