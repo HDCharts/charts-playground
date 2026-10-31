@@ -95,7 +95,7 @@ private fun libraryChartStyles(): Set<String> {
 }
 
 /** Library charts the playground does not offer yet; each needs its own playground chart. */
-private val chartsNotOfferedYet = setOf("RingGaugeChartStyle")
+private val chartsNotOfferedYet = setOf("RingGaugeChartStyle", "SegmentedRingGaugeChartStyle")
 
 private class StyleCoverage(
     val styleClass: Class<*>,
