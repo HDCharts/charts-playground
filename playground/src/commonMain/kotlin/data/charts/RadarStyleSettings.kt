@@ -6,8 +6,11 @@ import data.style.whenOff
 import data.style.whenOn
 import domain.SettingDescriptor
 import domain.StyleKind
+import io.github.hdcharts.core.internal.InternalChartsApi
+import io.github.hdcharts.core.internal.palette.resolvePaletteColors
 import io.github.hdcharts.radar.RadarChartStyle
 
+@OptIn(InternalChartsApi::class)
 internal val radarStyleSettings: List<SettingDescriptor> =
     styleSettings<RadarChartStyle> {
         section("Lines") {
@@ -15,7 +18,12 @@ internal val radarStyleSettings: List<SettingDescriptor> =
                 style,
                 count,
                 ->
-                style.polygon.resolveLineColors(count)
+                resolvePaletteColors(
+                    baseColor = style.polygon.lineColor,
+                    colors = style.polygon.lineColors,
+                    count = count,
+                    singleItemUsesBase = true,
+                )
             }
             +slider("polygon.lineWidth", "Width", StyleKind.DP, 0f..8f, 0.5f) { it.polygon.lineWidth }
         }

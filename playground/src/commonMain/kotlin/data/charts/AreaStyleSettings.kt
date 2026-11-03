@@ -6,12 +6,22 @@ import data.style.multiSeriesCount
 import data.style.styleSettings
 import domain.SettingDescriptor
 import domain.StyleKind
+import io.github.hdcharts.core.internal.InternalChartsApi
+import io.github.hdcharts.core.internal.palette.resolvePaletteColors
 import io.github.hdcharts.stackedarea.StackedAreaChartStyle
 
+@OptIn(InternalChartsApi::class)
 internal val areaStyleSettings: List<SettingDescriptor> =
     styleSettings<StackedAreaChartStyle> {
         section("Areas") {
-            +palette("fill.colors", "Colors", multiSeriesCount) { style, count -> style.fill.resolveColors(count) }
+            +palette("fill.colors", "Colors", multiSeriesCount) { style, count ->
+                resolvePaletteColors(
+                    baseColor = style.fill.color,
+                    colors = style.fill.colors,
+                    count = count,
+                    singleItemUsesBase = true,
+                )
+            }
             +slider("fill.alpha", "Transparency", StyleKind.FLOAT, 0f..1f, 0.05f) { it.fill.alpha }
             // The curve shapes the layer edges as well as the fill between them.
             +choice("fill.bezier", "Curve", curveOptions) { it.fill.bezier }

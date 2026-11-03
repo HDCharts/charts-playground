@@ -5,8 +5,11 @@ import data.style.multiSeriesCount
 import data.style.styleSettings
 import domain.SettingDescriptor
 import domain.StyleKind
+import io.github.hdcharts.core.internal.InternalChartsApi
+import io.github.hdcharts.core.internal.palette.resolvePaletteColors
 import io.github.hdcharts.stackedbar.StackedBarChartStyle
 
+@OptIn(InternalChartsApi::class)
 internal val stackedBarStyleSettings: List<SettingDescriptor> =
     styleSettings<StackedBarChartStyle> {
         section("Bars") {
@@ -18,7 +21,12 @@ internal val stackedBarStyleSettings: List<SettingDescriptor> =
                 style,
                 count,
                 ->
-                style.segments.resolveColors(count)
+                resolvePaletteColors(
+                    baseColor = style.segments.color,
+                    colors = style.segments.colors,
+                    count = count,
+                    singleItemUsesBase = false,
+                )
             }
             +slider("segments.alpha", "Transparency", StyleKind.FLOAT, 0f..1f, 0.05f) { it.segments.alpha }
             +slider("layout.space", "Spacing", StyleKind.DP, 0f..40f, 1f) { it.layout.space }

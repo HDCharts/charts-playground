@@ -48,7 +48,11 @@ private fun <S : Any> StyleSettingsScope<S>.barSettings(
     section("Bars") {
         +color("bars.color", "Color") { bars(it).color }
         +palette("bars.colors", "Per-Bar Colors", singleSeriesCount) { style, count ->
-            bars(style).resolveColors(count)
+            when {
+                count <= 0 -> emptyList()
+                bars(style).colors.isEmpty() -> List(count) { bars(style).color }
+                else -> bars(style).colors
+            }
         }
         +slider("bars.alpha", "Transparency", StyleKind.FLOAT, 0f..1f, 0.05f) { bars(it).alpha }
         +slider("bars.space", "Spacing", StyleKind.DP, 0f..40f, 1f) { bars(it).space }
